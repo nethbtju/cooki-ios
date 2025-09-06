@@ -10,9 +10,25 @@
 		C7DF7D3A2E6BAD7900E9C75A /* Cooki.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cooki.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C7DF7D852E6BF22B00E9C75A /* Exceptions for "Cooki" folder in "Cooki" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C7DF7D392E6BAD7900E9C75A /* Cooki */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C7DF7D3C2E6BAD7900E9C75A /* Cooki */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C7DF7D852E6BF22B00E9C75A /* Exceptions for "Cooki" folder in "Cooki" target */,
+			);
+			explicitFolders = (
+				DesignSystem/Fonts,
+			);
 			path = Cooki;
 			sourceTree = "<group>";
 		};
@@ -254,6 +270,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Cooki/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -283,6 +300,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Cooki/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
