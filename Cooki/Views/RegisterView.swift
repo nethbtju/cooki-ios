@@ -4,11 +4,18 @@
 //
 //  Created by Neth Botheju on 7/9/2025.
 //
-
 import SwiftUI
 
 struct RegisterView: View {
-    @State private var showSheet: Bool = true
+    @State private var email: String = ""
+    @State private var password: String = ""
+    @FocusState private var focusedField: Field?
+    
+    enum Field {
+        case email, password
+    }
+    
+    @State private var navigateToUserDetails = false
     
     var body: some View {
         ZStack {
@@ -26,41 +33,65 @@ struct RegisterView: View {
                 .clipped()
                 .ignoresSafeArea()
             
-            // White modal sheet (always centered)
-            ModalSheet(
-                heightFraction: 0.85,
-                cornerRadius: 27,
-                content: {
-                    VStack(spacing: 16) {
-                        Text("Welcome to Cooki!")
-                            .font(.title)
-                            .padding()
+            VStack() {
+                // Logo
+                Image("CookieIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 180)
+                    .padding(.top, 140)
+                // White modal sheet (always centered)
+                ModalSheet(
+                    heightFraction: 0.60,
+                    cornerRadius: 27,
+                    content: {
+                        ScrollView(.vertical, showsIndicators: false) {
+                            Spacer().padding(.bottom, 48)
+                            VStack(alignment: .leading, spacing: 16) {
+                                VStack(alignment: .leading) {
+                                    Text("Welcome to your new pantry pal!")
+                                        .font(AppFonts.heading())
+                                        .multilineTextAlignment(.leading)
+                                        .lineLimit(nil)
+                                        .fixedSize(horizontal: false, vertical: true) // allow vertical expansion
+                                        .padding(.trailing, 10)
 
-                        Button("Login") {
-                            print("Login tapped")
+                                    // Email
+                                    TextField("Email Address", text: $email)
+                                        .padding(16)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(Color.textGrey)
+                                        )
+                                        .keyboardType(.emailAddress)
+                                        .autocapitalization(.none)
+                                        .focused($focusedField, equals: .email)
+                                        .font(AppFonts.lightBody())
+                                        .foregroundColor(Color.textGrey)
+                                    
+                                    // Password
+                                    SecureField("Password", text: $email)
+                                        .padding(16)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(Color.textGrey)
+                                        )
+                                        .keyboardType(.emailAddress)
+                                        .autocapitalization(.none)
+                                        .focused($focusedField, equals: .email)
+                                        .font(AppFonts.lightBody())
+                                        .foregroundColor(Color.textGrey)
+                                }
+                                .padding(.bottom, 8)
+                            }.padding(24)
                         }
-                        .padding()
-                        .background(Color.accentBurntOrange)
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
                     }
-                },
-                profileImage: Image("ProfilePic"),
-                profileSize: 120
-            )
-            
-            // Top-left App Icon (safe area respected, floating above sheet)
-            VStack {
-                HStack {
-                    Image("AppIconMini")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 120)
-                        .padding(.leading, 100)
-                        .padding(.top, 85)
-                    Spacer()
+                )
+                
+                Button("Let's go!") {}
+                .navigationDestination(isPresented: $navigateToUserDetails) {
+                    UserDetailsView()
                 }
-                Spacer()
             }
         }
     }

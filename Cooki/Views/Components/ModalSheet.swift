@@ -19,7 +19,6 @@ struct ModalSheet<Content: View>: View {
                 Spacer()
                 VStack {
                     content()
-                        .padding(.top) // leave space if profile is shown
                 }
                 .frame(height: UIScreen.main.bounds.height * heightFraction)
                 .frame(maxWidth: UIScreen.main.bounds.width)
