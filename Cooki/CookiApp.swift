@@ -10,7 +10,8 @@ import SwiftUI
 struct CookiApp: App {
     var body: some Scene {
         WindowGroup {
-            LoginView()
+            //LoginView()
+            MainTabControllerView()
         }
     }
 }
