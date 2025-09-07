@@ -7,7 +7,7 @@
 import SwiftUI
 
 extension Color {
-    static let secondary = Color("SecondaryColor")
+    static let secondaryPurple = Color("SecondaryColor")
     static let accentBurntOrange = Color("AccentColor")
     static let accentPeach = Color("AccentLightOrange")
     static let accentViolet = Color("AccentDarkPurple")
