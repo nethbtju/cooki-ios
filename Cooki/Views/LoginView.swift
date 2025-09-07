@@ -89,6 +89,11 @@ struct LoginView: View {
                     .fontWeight(.medium)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
+                
+                Divider()                           // default thin gray line
+                    .background(Color.gray)         // change color
+                    .frame(height: 1)               // change thickness
+                    .padding(.horizontal, 24)       // add left/right spacing
 
                 // Social logins
                 VStack(spacing: 12) {
