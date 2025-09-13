@@ -14,12 +14,10 @@ struct ModalSheet<Content: View>: View {
     var profileSize: CGFloat = 100
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack() {
             VStack(spacing: 0) {
-                Spacer()
-                VStack {
+                VStack() {
                     content()
-                        .padding(.top) // leave space if profile is shown
                 }
                 .frame(height: UIScreen.main.bounds.height * heightFraction)
                 .frame(maxWidth: UIScreen.main.bounds.width)
@@ -33,7 +31,7 @@ struct ModalSheet<Content: View>: View {
                     .offset(y: -(UIScreen.main.bounds.height * heightFraction) + profileSize / 2)
             }
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .edgesIgnoringSafeArea(.top)
     }
 }
 

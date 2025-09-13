@@ -8,7 +8,7 @@ import SwiftUI
 
 struct AppFonts {
     static func heading() -> Font {
-        .custom("Inter-Regular_Black", size: 24)
+        .custom("Inter-Regular_Black", size: 26)
     }
     static func lightBody() -> Font {
         .custom("Inter-Regular", size: 14)
