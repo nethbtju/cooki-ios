@@ -13,7 +13,7 @@ struct RegisterView: View {
     @FocusState private var focusedField: Field?
     
     @State private var navigateToNext: Bool = false
-    @State private var errorMessage: String? = nil   // 👈 new
+    @State private var errorMessage: String? = nil
     
     enum Field {
         case email, password, confirmPassword
@@ -41,15 +41,16 @@ struct RegisterView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 180)
-                    .padding(.top, 140)
+                    .padding(.top, 120)
+                    .padding(.bottom, 24)
                 
                 // White modal sheet
                 ModalSheet(
-                    heightFraction: 0.60,
+                    heightFraction: 0.55,
                     cornerRadius: 27,
                     content: {
                         ScrollView(.vertical, showsIndicators: false) {
-                            Spacer().padding(.bottom, 48)
+                            Spacer().padding(.bottom, 24)
                             
                             VStack(alignment: .leading, spacing: 24) {
                                 VStack(alignment: .leading, spacing: 16) {
@@ -93,7 +94,7 @@ struct RegisterView: View {
                                         .font(AppFonts.lightBody())
                                         .foregroundColor(Color.textGrey)
                                     
-                                    // 👇 Error message
+                                    // Error message
                                     if let errorMessage = errorMessage {
                                         Text(errorMessage)
                                             .foregroundColor(.red)
@@ -114,9 +115,9 @@ struct RegisterView: View {
                                 .navigationDestination(isPresented: $navigateToNext) {
                                     UserDetailsView()
                                 }
+                                .padding(.top, 24)
                             }
                             .padding(24)
-                            Spacer()
                         }
                     }
                 )
