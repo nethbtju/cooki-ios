@@ -28,7 +28,7 @@ struct HomeView: View {
                        alignment: .top)
                 .clipped()
                 .ignoresSafeArea()
-            
+
             // MARK: Content
             VStack {
                 // Header bar
@@ -59,9 +59,13 @@ struct HomeView: View {
                     cornerRadius: 27,
                     content: {
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Hello, Neth")
-                                .foregroundColor(.backgroundWhite)
-                                .font(AppFonts.heading2())
+                            VStack(alignment: .leading) {
+                                Text("Hello, Neth")
+                                    .foregroundColor(.backgroundWhite)
+                                    .font(AppFonts.heading2())
+                            }
+//                            Spacer()
+//                            CustomTabBar()
                         }
                     }
                 )
