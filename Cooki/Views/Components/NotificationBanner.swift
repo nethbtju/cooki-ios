@@ -14,7 +14,7 @@ struct NotificationBanner: View {
     var text: String?
     
     var body: some View {
-        if let text = text, !text.isEmpty { // 👈 only show if text exists
+        if let text = text, !text.isEmpty {
             HStack() {
                 // Bell icon inside circle
                 ZStack {
