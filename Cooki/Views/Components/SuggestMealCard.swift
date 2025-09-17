@@ -30,24 +30,24 @@ struct SuggestMealCard: View {
                     .font(AppFonts.heading2())
                     .lineLimit(1)
                     .transition(.move(edge: .trailing).combined(with: .opacity))
-                HStack(alignment: .center) {
+                    .foregroundStyle(Color.textBlack)
+                HStack(spacing: 2) {
                     Image(systemName: "clock")
-                        .foregroundColor(.textGrey3)
+                        .foregroundStyle(Color.textGrey3)
                         .font(.system(size: 12))
                     
-                    Text("\(String(prepTime.hour)) hours \(String(prepTime.minute)) mins")
+                    Text(formatPrepTime(prepTime: prepTime))
                         .font(AppFonts.smallBody())
-                        .foregroundColor(.textGrey3)
-                        .lineLimit(3)
+                        .foregroundStyle(Color.textGrey3)
                     
                     Image(systemName: "circle.fill")
-                        .foregroundColor(.textGrey3)
+                        .foregroundStyle(Color.textGrey3)
                         .font(.system(size: 4))
+                        .padding(.horizontal, 4)
                     
                     Text("\(serving) servings")
                         .font(AppFonts.smallBody())
-                        .foregroundColor(.textGrey3)
-                        .lineLimit(3)
+                        .foregroundStyle(Color.textGrey3)
                 }
                 
                 VStack {
@@ -70,7 +70,7 @@ struct SuggestMealCard: View {
                     HStack {
                         // Left-aligned content
                         Image(systemName: "plus")
-                            .foregroundColor(.white)
+                            .foregroundStyle(Color.white)
                             .font(.system(size: 8, weight: .bold))
                             .padding(3)
                             .background(
@@ -79,9 +79,9 @@ struct SuggestMealCard: View {
                             )
                         
                         Text("Add to meal plan")
-                            .font(AppFonts.smallBody2())
+                            .font(AppFonts.smallBody())
                             .fontWeight(.bold)
-                            .foregroundColor(Color.accentLightOrange)
+                            .foregroundStyle(Color.accentLightOrange)
                         
                         Spacer()
                     }
@@ -103,6 +103,33 @@ struct SuggestMealCard: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.gray.opacity(0.5), lineWidth: 1)
         )
+    }
+    
+    func formatPrepTime(prepTime: (hour: Int, minute: Int)) -> String {
+        var hourText = ""
+        var minuteText = ""
+
+        if prepTime.hour == 1 {
+            hourText = "hour"
+        } else if prepTime.hour > 1 {
+            hourText = "hours"
+        }
+
+        if prepTime.minute == 1 {
+            minuteText = "minute"
+        } else if prepTime.minute > 1 {
+            minuteText = "minutes"
+        }
+
+        if prepTime.hour > 0 && prepTime.minute > 0 {
+            return "\(prepTime.hour) \(hourText) \(prepTime.minute) \(minuteText)"
+        } else if prepTime.hour > 0 {
+            return "\(prepTime.hour) \(hourText)"
+        } else if prepTime.minute > 0 {
+            return "\(prepTime.minute) \(minuteText)"
+        } else {
+            return "0 minutes"
+        }
     }
 }
 
