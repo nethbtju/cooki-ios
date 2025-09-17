@@ -16,8 +16,14 @@ struct AppFonts {
     static func buttonFont() -> Font {
         .custom("Inter-Regular_Bold", size: 14)
     }
+    static func buttonFontSmall() -> Font {
+        .custom("Inter-Regular_Bold", size: 12)
+    }
     static func subheading() -> Font {
         .custom("Inter-Regular", size: 20)
+    }
+    static func cardTitle() -> Font {
+        .custom("Inter-Regular_Bold", size: 14)
     }
     static func smallBody() -> Font {
         .custom("Inter-Regular", size: 10)
