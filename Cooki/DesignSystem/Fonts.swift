@@ -34,6 +34,9 @@ struct AppFonts {
     static func smallBody() -> Font {
         .custom("Inter-Regular", size: 10)
     }
+    static func smallBody2() -> Font {
+        .custom("Inter-Regular", size: 8)
+    }
     static func regularBody() -> Font {
         .custom("Inter-Regular", size: 12)
     }
