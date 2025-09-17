@@ -16,6 +16,9 @@ struct AppFonts {
     static func buttonFont() -> Font {
         .custom("Inter-Regular_Bold", size: 14)
     }
+    static func notifFont() -> Font {
+        .custom("Inter-Regular_Bold", size: 16)
+    }
     static func subheading() -> Font {
         .custom("Inter-Regular", size: 20)
     }
