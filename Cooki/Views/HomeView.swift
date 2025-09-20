@@ -4,16 +4,15 @@
 //
 //  Created by Neth Botheju on 13/9/2025.
 //
-//
-//  HomeView.swift
-//  Cooki
-//
-//  Created by Neth Botheju on 13/9/2025.
-//
-
 import SwiftUI
 
 struct HomeView: View {
+    
+    @State private var showBanner = true
+    let recipes = Recipe.mockRecipes
+    let suggestions = Suggestion.mockSuggestion
+    let pantryItems = FoodItem.mockFoodItem
+    
     var body: some View {
         ZStack {
             // MARK: Background
@@ -28,7 +27,7 @@ struct HomeView: View {
                        alignment: .top)
                 .clipped()
                 .ignoresSafeArea()
-
+            
             // MARK: Content
             VStack {
                 // Header bar
@@ -50,22 +49,115 @@ struct HomeView: View {
                     // Right side
                     ProfileIcon(image: Image("ProfilePic"), size: 50)
                 }
-              
-                Spacer().frame(height: 28)
+                .padding(.top,
+                     (UIApplication.shared.connectedScenes
+                        .compactMap { $0 as? UIWindowScene }
+                        .first?.windows.first { $0.isKeyWindow }?
+                        .safeAreaInsets.top ?? 0)
+                )
                 
                 // Modal sheet
                 ModalSheet(
-                    heightFraction: 0.80,
+                    heightFraction: 0.9,
                     cornerRadius: 27,
                     content: {
                         VStack(alignment: .leading, spacing: 16) {
                             VStack(alignment: .leading) {
-                                Text("Hello, Neth")
-                                    .foregroundColor(.backgroundWhite)
-                                    .font(AppFonts.heading2())
+                                if showBanner {
+                                    NotificationBanner(text: "4 items in pantry expiring soon!")
+                                        .padding(.top, 24)
+                                        .transition(.move(edge: .top).combined(with: .opacity))
+                                        .onTapGesture {
+                                            withAnimation {
+                                                showBanner = false
+                                            }
+                                        }
+                                }
+                                ScrollView(.vertical, showsIndicators: false) {
+                                    VStack(alignment: .center) {
+                                        Text("Your Stock")
+                                            .font(AppFonts.heading())
+                                            .lineLimit(1)
+                                            .transition(.move(edge: .trailing).combined(with: .opacity))
+                                            .foregroundStyle(Color.textBlack)
+                                        Text("Your pantry at a glance")
+                                            .font(AppFonts.smallBody())
+                                            .lineLimit(1)
+                                            .transition(.move(edge: .trailing).combined(with: .opacity))
+                                            .foregroundStyle(Color.textGrey2)
+                                            .padding(.bottom, 6)
+                                        ScrollView(.horizontal, showsIndicators: false) {
+                                            HStack(spacing: 16) {
+                                                ForEach(pantryItems, id: \.title) { pantryItem in
+                                                    PantryItemCard(
+                                                        imageName: pantryItem.imageName,
+                                                        title: pantryItem.title,
+                                                        quantity: pantryItem.quantity,
+                                                        daysLeft: pantryItem.daysLeft
+                                                    )
+                                                }
+                                            }
+                                            .padding(.horizontal)
+                                        }
+                                    }
+                                    VStack(alignment: .center) {
+                                        Text("Let's cook")
+                                            .font(AppFonts.heading())
+                                            .lineLimit(1)
+                                            .transition(.move(edge: .trailing).combined(with: .opacity))
+                                            .foregroundStyle(Color.textBlack)
+                                        Text("Get started on your meal plan")
+                                            .font(AppFonts.smallBody())
+                                            .lineLimit(1)
+                                            .transition(.move(edge: .trailing).combined(with: .opacity))
+                                            .foregroundStyle(Color.textGrey2)
+                                            .padding(.bottom, 6)
+                                        ScrollView(.horizontal, showsIndicators: false) {
+                                            HStack(spacing: 16) {
+                                                ForEach(recipes, id: \.title) { recipe in
+                                                    CookingCard(
+                                                        image: recipe.image,
+                                                        title: recipe.title,
+                                                        date: recipe.day,
+                                                        serving: recipe.servings,
+                                                        action: ({ print("Tapped!") })
+                                                    )
+                                                }
+                                            }
+                                            .padding(.horizontal)
+                                        }
+                                    }
+                                    VStack(alignment: .center) {
+                                        Text("Meal suggestions")
+                                            .font(AppFonts.heading())
+                                            .lineLimit(1)
+                                            .transition(.move(edge: .trailing).combined(with: .opacity))
+                                            .foregroundStyle(Color.textBlack)
+                                        Text("Tailored for you to eat your best")
+                                            .font(AppFonts.smallBody())
+                                            .lineLimit(1)
+                                            .transition(.move(edge: .trailing).combined(with: .opacity))
+                                            .foregroundStyle(Color.textGrey2)
+                                            .padding(.bottom, 6)
+                                        ScrollView(.horizontal, showsIndicators: false) {
+                                            HStack(spacing: 16) {
+                                                ForEach(suggestions, id: \.title) { suggestion in
+                                                    SuggestMealCard(
+                                                        image: suggestion.image,
+                                                        title: suggestion.title,
+                                                        prepTime: suggestion.prepTime,
+                                                        serving: suggestion.servings,
+                                                        action: ({ print("Tapped!") }),
+                                                        aiSuggestionText: suggestion.aiText
+                                                    )
+                                                }
+                                            }
+                                            .padding(.horizontal)
+                                        }
+                                    }
+                                    Spacer().frame(height: 150)
+                                }
                             }
-//                            Spacer()
-//                            CustomTabBar()
                         }
                     }
                 )

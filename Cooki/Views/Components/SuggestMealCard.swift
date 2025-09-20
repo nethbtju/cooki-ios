@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct SuggestMealCard: View {
-    var imageName: String
+    var image: Image
     var title: String
     var prepTime: (hour: Int, minute: Int)
     var serving: Int
@@ -17,7 +17,7 @@ struct SuggestMealCard: View {
     var body: some View {
         HStack(spacing: 6) {
             VStack {
-                Image(imageName)
+                image
                     .resizable()
                     .scaledToFill()
                     .frame(width: 140, height: 120)
@@ -136,7 +136,7 @@ struct SuggestMealCard: View {
 struct SuggestMealCard_Previews: PreviewProvider {
     static var previews: some View {
         SuggestMealCard(
-            imageName: "FillerFoodImage2",
+            image: Image("FillerFoodImage2"),
             title: "Delicious Pasta",
             prepTime: (hour: 2, minute: 50),
             serving: 4,

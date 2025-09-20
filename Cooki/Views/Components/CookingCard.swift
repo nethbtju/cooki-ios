@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct CookingCard: View {
-    var imageName: String
+    var image: Image
     var title: String
     var date: String
     var serving: Int
@@ -16,8 +16,7 @@ struct CookingCard: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .center) {
-                Image(imageName)
-                    .resizable()
+                image.resizable()
                     .scaledToFill()
                     .frame(height: 124)
                     .clipped()
@@ -63,7 +62,7 @@ struct CookingCard: View {
             .background(Color.backgroundGrey.opacity(0.3))
         }
         .cornerRadius(12)
-        .frame(maxWidth: 180)
+        .frame(minWidth: 180, maxWidth: 180)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Border color & width
@@ -74,7 +73,7 @@ struct CookingCard: View {
 struct CookingCard_Previews: PreviewProvider {
     static var previews: some View {
         CookingCard(
-            imageName: "FillerFoodImage",
+            image: Image("FillerFoodImage"),
             title: "Delicious Pasta",
             date: "Sat",
             serving: 4,

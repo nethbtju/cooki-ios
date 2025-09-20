@@ -7,35 +7,38 @@
 import SwiftUI
 
 struct CustomTabBar: View {
-    @State private var selectedTab: Int = 0
+    @Binding var selectedTab: Int
     @State private var isExpanded = false
     @State private var showPills = false
     
     var body: some View {
         VStack {
-            // MARK: Pills (staggered animation)
-            if isExpanded {
+            Spacer()
+            ZStack {
                 // MARK: Pills (staggered animation)
-                let pillData: [(icon: String, text: String)] = [
-                    ("scanner", "Scan receipt"),
-                    ("cube.box", "Add new item"),
-                    ("magnifyingglass", "Add new recipe")
-                ]
-                
-                VStack(spacing: 10) {
-                    ForEach(Array(pillData.enumerated()), id: \.offset) { index, pill in
-                        PillButton(icon: pill.icon, text: pill.text, action: { print("Mao")})
-                            .opacity(showPills ? 1 : 0)
-                            .offset(y: showPills ? 0 : 20)
-                            .animation(
-                                .easeOut(duration: 0.3)
-                                .delay(0.05 * Double(index)),
-                                value: showPills
-                            )
+                if isExpanded {
+                    // MARK: Pills (staggered animation)
+                    let pillData: [(icon: String, text: String)] = [
+                        ("scanner", "Scan receipt"),
+                        ("cube.box", "Add new item"),
+                        ("magnifyingglass", "Add new recipe")
+                    ]
+                    
+                    VStack(spacing: 10) {
+                        ForEach(Array(pillData.enumerated()), id: \.offset) { index, pill in
+                            PillButton(icon: pill.icon, text: pill.text, action: { print("Mao")})
+                                .opacity(showPills ? 1 : 0)
+                                .offset(y: showPills ? 0 : 20)
+                                .animation(
+                                    .easeOut(duration: 0.3)
+                                    .delay(0.05 * Double(index)),
+                                    value: showPills
+                                )
+                        }
                     }
                 }
-                .padding(.bottom, 40)
             }
+            .padding(.bottom, 40)
             
             ZStack {
                 // Background capsule
@@ -84,8 +87,8 @@ struct CustomTabBar: View {
                     Image(systemName: "plus")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundColor(.white)
-                        .rotationEffect(.degrees(isExpanded ? 45 : 0)) // 👈 rotates
-                        .scaleEffect(isExpanded ? 1.3 : 1.0)          // 👈 bounce
+                        .rotationEffect(.degrees(isExpanded ? 45 : 0))
+                        .scaleEffect(isExpanded ? 1.3 : 1.0)
                         .animation(.spring(response: 0.3, dampingFraction: 0.5), value: isExpanded)
                         .frame(width: 64, height: 64)
                         .background(Color.secondaryPurple)
@@ -139,7 +142,7 @@ struct PillButton: View {
 
 struct CustomTabBar_Previews: PreviewProvider {
     static var previews: some View {
-        CustomTabBar()
+        CustomTabBar(selectedTab: .constant(0))
             .preferredColorScheme(.light)
             .previewDevice("iPhone 15 Pro")
     }

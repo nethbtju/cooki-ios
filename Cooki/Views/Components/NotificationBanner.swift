@@ -19,7 +19,7 @@ struct NotificationBanner: View {
                 // Bell icon inside circle
                 ZStack {
                     Image(systemName: "bell")
-                        .font(.system(size: 28))
+                        .font(.system(size: 20))
                         .foregroundColor(Color.accentBurntOrange)
                         .rotationEffect(.degrees(bellShake ? -10 : 0), anchor: .top)
                         .scaleEffect(scale)
@@ -50,7 +50,7 @@ struct NotificationBanner: View {
                 if expanded {
                     Text(text)
                         .foregroundColor(.white)
-                        .font(AppFonts.notifFont())
+                        .font(AppFonts.buttonFont())
                         .lineLimit(1)
                         .transition(.move(edge: .trailing).combined(with: .opacity))
                     
@@ -64,21 +64,21 @@ struct NotificationBanner: View {
                         ZStack {
                             Circle()
                                 .fill(Color.accentLightOrange.opacity(0.8))
-                                .frame(width: 24, height: 24)
+                                .frame(width: 20, height: 20)
                                 .overlay(
                                     Circle().stroke(Color.accentBurntOrange, lineWidth: 2)
                                 )
                             
                             Image(systemName: "xmark")
                                 .foregroundColor(Color.accentBurntOrange)
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.system(size: 10, weight: .bold))
                         }
                         .padding(.trailing, 4)
                     }
                     .transition(.scale.combined(with: .opacity))
                 }
             }
-            .padding(12)
+            .padding(8)
             .background(Color.accentPeach)
             .clipShape(Capsule())
             .shadow(radius: 4)

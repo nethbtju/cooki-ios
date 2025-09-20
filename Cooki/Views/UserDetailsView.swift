@@ -38,109 +38,121 @@ struct UserDetailsView: View {
                 heightFraction: 0.80,
                 cornerRadius: 27,
                 content: {
-                    ScrollView(.vertical, showsIndicators: false) {
-                        Spacer().padding(.bottom, 48)
-                        VStack(alignment: .leading, spacing: 16) {
-                            VStack(alignment: .leading) {
-                                Text("Nice to meet you...")
-                                    .font(AppFonts.heading())
-                            }
-                            .padding(.bottom, 8)
-                            
-                            // Text fields
-                            TextField("Preferred Name", text: $preferredName)
-                                .padding(16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.textGrey)
-                                )
-                                .keyboardType(.emailAddress)
-                                .autocapitalization(.none)
-                                .font(AppFonts.lightBody())
-                                .foregroundColor(Color.textGrey)
-                            
-                            TextField("Gender", text: $gender)
-                                .padding(16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.textGrey)
-                                )
-                                .keyboardType(.emailAddress)
-                                .autocapitalization(.none)
-                                .font(AppFonts.lightBody())
-                                .foregroundColor(Color.textGrey)
-                            
-                            TextField("Country", text: $country)
-                                .padding(16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.textGrey)
-                                )
-                                .keyboardType(.emailAddress)
-                                .autocapitalization(.none)
-                                .font(AppFonts.lightBody())
-                                .foregroundColor(Color.textGrey)
-                            
-                            HStack {
-                                TextField("Height", text: $preferredName)
-                                    .padding(16)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color.textGrey)
-                                    )
-                                    .keyboardType(.emailAddress)
-                                    .autocapitalization(.none)
-                                    .font(AppFonts.lightBody())
-                                    .foregroundColor(Color.textGrey)
-                                
-                                TextField("Weight", text: $preferredName)
-                                    .padding(16)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color.textGrey)
-                                    )
-                                    .keyboardType(.emailAddress)
-                                    .autocapitalization(.none)
-                                    .font(AppFonts.lightBody())
-                                    .foregroundColor(Color.textGrey)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 8) {
-                                TextField("Dietary Preferences", text: $preferredName)
-                                    .padding(16)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color.textGrey)
-                                    )
-                                    .keyboardType(.emailAddress)
-                                    .autocapitalization(.none)
-                                    .font(AppFonts.lightBody())
-                                    .foregroundColor(Color.textGrey)
-                                
-                                Text("Select one or more")
-                                    .foregroundColor(.textGrey)
-                                    .font(AppFonts.smallBody())
-                                    .contentMargins(-100)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            
-                            // Get Started
-                            Button(action: { getStarted() }) {
-                                Text("Get Started")
-                                    .font(AppFonts.buttonFont())
-                                    .foregroundColor(.white)  // Text color
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.accentBurntOrange)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                            }
-                            .padding(.top, 16)
+                    VStack(spacing: 20) {
+                        Text("Hello Cooki 👋")
+                            .font(.title)
+                            .foregroundColor(.black)
+                        Text("This is a preview of the modal sheet.")
+                            .foregroundColor(.gray)
+                        Button("Test Button") {
+                            print("Tapped in preview")
                         }
-                        .padding(24)
+                        .padding()
+                        .background(Color.accentColor)
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
-                },
-                profileImage: Image("ProfilePic"),
-                profileSize: 120
+                    .padding()
+//                    ScrollView(.vertical, showsIndicators: false) {
+//                        VStack(alignment: .leading, spacing: 16) {
+//                            VStack(alignment: .leading) {
+//                                Text("Nice to meet you...")
+//                                    .font(AppFonts.heading())
+//                            }
+//                            .padding(.bottom, 8)
+//                            
+//                            // Text fields
+//                            TextField("Preferred Name", text: $preferredName)
+//                                .padding(16)
+//                                .background(
+//                                    RoundedRectangle(cornerRadius: 8)
+//                                        .stroke(Color.textGrey)
+//                                )
+//                                .keyboardType(.emailAddress)
+//                                .autocapitalization(.none)
+//                                .font(AppFonts.lightBody())
+//                                .foregroundColor(Color.textGrey)
+//                            
+//                            TextField("Gender", text: $gender)
+//                                .padding(16)
+//                                .background(
+//                                    RoundedRectangle(cornerRadius: 8)
+//                                        .stroke(Color.textGrey)
+//                                )
+//                                .keyboardType(.emailAddress)
+//                                .autocapitalization(.none)
+//                                .font(AppFonts.lightBody())
+//                                .foregroundColor(Color.textGrey)
+//                            
+//                            TextField("Country", text: $country)
+//                                .padding(16)
+//                                .background(
+//                                    RoundedRectangle(cornerRadius: 8)
+//                                        .stroke(Color.textGrey)
+//                                )
+//                                .keyboardType(.emailAddress)
+//                                .autocapitalization(.none)
+//                                .font(AppFonts.lightBody())
+//                                .foregroundColor(Color.textGrey)
+//                            
+//                            HStack {
+//                                TextField("Height", text: $preferredName)
+//                                    .padding(16)
+//                                    .background(
+//                                        RoundedRectangle(cornerRadius: 8)
+//                                            .stroke(Color.textGrey)
+//                                    )
+//                                    .keyboardType(.emailAddress)
+//                                    .autocapitalization(.none)
+//                                    .font(AppFonts.lightBody())
+//                                    .foregroundColor(Color.textGrey)
+//                                
+//                                TextField("Weight", text: $preferredName)
+//                                    .padding(16)
+//                                    .background(
+//                                        RoundedRectangle(cornerRadius: 8)
+//                                            .stroke(Color.textGrey)
+//                                    )
+//                                    .keyboardType(.emailAddress)
+//                                    .autocapitalization(.none)
+//                                    .font(AppFonts.lightBody())
+//                                    .foregroundColor(Color.textGrey)
+//                            }
+//                            
+//                            VStack(alignment: .leading, spacing: 8) {
+//                                TextField("Dietary Preferences", text: $preferredName)
+//                                    .padding(16)
+//                                    .background(
+//                                        RoundedRectangle(cornerRadius: 8)
+//                                            .stroke(Color.textGrey)
+//                                    )
+//                                    .keyboardType(.emailAddress)
+//                                    .autocapitalization(.none)
+//                                    .font(AppFonts.lightBody())
+//                                    .foregroundColor(Color.textGrey)
+//                                
+//                                Text("Select one or more")
+//                                    .foregroundColor(.textGrey)
+//                                    .font(AppFonts.smallBody())
+//                                    .contentMargins(-100)
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                            }
+//                            
+//                            // Get Started
+//                            Button(action: { getStarted() }) {
+//                                Text("Get Started")
+//                                    .font(AppFonts.buttonFont())
+//                                    .foregroundColor(.white)  // Text color
+//                                    .frame(maxWidth: .infinity)
+//                                    .padding()
+//                                    .background(Color.accentBurntOrange)
+//                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+//                            }
+//                            .padding(.top, 16)
+//                        }
+//                        .padding(24)
+//                    }
+                }
             )
             
             // Top-left App Icon (safe area respected, floating above sheet)
