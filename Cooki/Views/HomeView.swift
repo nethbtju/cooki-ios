@@ -27,7 +27,7 @@ struct HomeView: View {
                        alignment: .top)
                 .clipped()
                 .ignoresSafeArea()
-
+            
             // MARK: Content
             VStack {
                 // Header bar
@@ -50,12 +50,11 @@ struct HomeView: View {
                     ProfileIcon(image: Image("ProfilePic"), size: 50)
                 }
                 .padding(.top,
-                    (UIApplication.shared.connectedScenes
+                     (UIApplication.shared.connectedScenes
                         .compactMap { $0 as? UIWindowScene }
                         .first?.windows.first { $0.isKeyWindow }?
                         .safeAreaInsets.top ?? 0)
                 )
-                Spacer().frame(height: 28)
                 
                 // Modal sheet
                 ModalSheet(
@@ -156,9 +155,9 @@ struct HomeView: View {
                                             .padding(.horizontal)
                                         }
                                     }
+                                    Spacer().frame(height: 150)
                                 }
                             }
-                            Spacer().frame(height: 100)
                         }
                     }
                 )

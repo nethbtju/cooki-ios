@@ -8,9 +8,14 @@ import SwiftUI
 
 @main
 struct CookiApp: App {
+    @State private var isLoggedIn = true
     var body: some Scene {
         WindowGroup {
-            LoginView()
+            if isLoggedIn {
+                MainView()
+            } else {
+                LoginView()
+            }
         }
     }
 }
