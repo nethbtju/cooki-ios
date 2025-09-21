@@ -47,7 +47,15 @@ struct CustomTabBar: View {
                     .frame(height: 70)
                     .padding(.horizontal, 20)
                     .shadow(radius: 4)
-                
+                    .background(LinearGradient(
+                        gradient: Gradient(colors: [Color.white.opacity(10), Color.white.opacity(0)]),
+                        startPoint: .bottom,
+                        endPoint: .top
+                    )
+                    .frame(height: 150)
+                    .allowsHitTesting(false)
+                    )
+               
                 HStack {
                     // Left two icons
                     TabBarItem(icon: "house.fill", isSelected: selectedTab == 0) {

@@ -11,7 +11,10 @@ struct AppFonts {
         .custom("Inter-Regular_Black", size: 26)
     }
     static func heading2() -> Font {
-        .custom("Inter-Regular_Black", size: 16)
+        .custom("Inter-Regular_Black", size: 18)
+    }
+    static func heading3() -> Font {
+        .custom("Poppins-Bold", size: 28)
     }
     static func lightBody() -> Font {
         .custom("Inter-Regular", size: 14)
