@@ -4,28 +4,43 @@
 //
 //  Created by Neth Botheju on 20/9/2025.
 //
-import SwiftUICore
+import SwiftUI
 
 struct MainView: View {
     @State private var selectedTab: Int = 0
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            Group {
-                switch selectedTab {
-                case 0: HomeView()
-                case 1: PlaceholderView(title: "List")
-                case 2: PlaceholderView(title: "Calendar")
-                case 3: PlaceholderView(title: "Cart")
-                default: HomeView()
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .ignoresSafeArea()
+            selectedView(selectedTab)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             CustomTabBar(selectedTab: $selectedTab)
-                .padding(.horizontal, 80)
-                .padding(.bottom, 75)
         }
+    }
+}
+
+@ViewBuilder
+private func selectedView(_ tab: Int) -> some View {
+    switch tab {
+    case 0:
+        MainLayout(header: { HomeHeader() }, content: { HomeView() })
+    case 1:
+        MainLayout(header: { Header(text: "Your Stock") }, content: { PantryView() })
+    case 2:
+        MainLayout(header: { Header(text: "Calendar") },
+                   content: { PlaceholderView(title: "Calendar") })
+    case 3:
+        MainLayout(header: { Header(text: "Cart") },
+                   content: { PlaceholderView(title: "Cart") })
+    default:
+        MainLayout(header: { HomeHeader() }, content: { HomeView() })
+    }
+}
+
+struct MainView_Previews: PreviewProvider {
+    static var previews: some View {
+        MainView()
+            .previewDevice("iPhone 15 Pro")
+            .preferredColorScheme(.light)
     }
 }

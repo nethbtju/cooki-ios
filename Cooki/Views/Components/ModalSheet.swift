@@ -26,6 +26,7 @@ struct ModalSheet<Content: View>: View {
             }
         }
         .edgesIgnoringSafeArea(.bottom)
+        .padding(0)
     }
 }
 
