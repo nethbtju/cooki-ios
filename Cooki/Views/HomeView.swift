@@ -17,7 +17,7 @@ struct HomeView: View {
         ZStack {
             Color.white
                 .clipShape(TopRoundedModal(radius: 30))
-                .ignoresSafeArea(edges: .bottom) // keep safe area at bottom if needed
+                .ignoresSafeArea(edges: .bottom)
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading) {
                     if showBanner {
@@ -55,6 +55,7 @@ struct HomeView: View {
                                     }
                                 }
                                 .padding(.horizontal)
+                                .padding(.vertical, 8)
                             }
                         }
                         VStack(alignment: .center) {
@@ -82,6 +83,7 @@ struct HomeView: View {
                                     }
                                 }
                                 .padding(.horizontal)
+                                .padding(.vertical, 8)
                             }
                         }
                         VStack(alignment: .center) {
@@ -110,6 +112,7 @@ struct HomeView: View {
                                     }
                                 }
                                 .padding(.horizontal)
+                                .padding(.vertical, 8)
                             }
                         }
                         Spacer().frame(height: 150)
