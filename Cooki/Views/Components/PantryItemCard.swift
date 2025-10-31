@@ -2,9 +2,9 @@
 //  PantryItemCard.swift
 //  Cooki
 //
-//  Created by Neth Botheju on 19/9/2025.
+//  Created by Rohit Valanki on 7/9/2025.
 //
-// PantryItemCard.swift
+
 import SwiftUI
 
 struct PantryItemCard: View {
@@ -15,6 +15,15 @@ struct PantryItemCard: View {
     
     var status: (labelText: String, labelColor: Color, textColor: Color) {
         formatDaysLeft(daysLeft: daysLeft)
+    }
+    
+    var cardWidth: CGFloat {
+        let screenWidth = UIScreen.main.bounds.width
+        let horizontalPadding: CGFloat = 20
+        let spacing: CGFloat = 10
+        let columns: CGFloat = 3
+        
+        return (screenWidth - (horizontalPadding * 2) - (spacing * (columns - 1))) / columns
     }
     
     var body: some View {
@@ -35,14 +44,15 @@ struct PantryItemCard: View {
                 }
                 .padding(.top, 20)
                 
-                // Title with fixed space for 2 lines
+                
+                // Title
                 Text(title)
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(.black)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
                     .minimumScaleFactor(10 / 12)
-                    .frame(maxWidth: .infinity, minHeight: 32, alignment: .leading) // reserve space
+                    .frame(maxWidth: .infinity, minHeight: 32, alignment: .leading)
                 
                 // Quantity
                 Text("Qty: \(quantity)")
@@ -52,16 +62,16 @@ struct PantryItemCard: View {
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
-            .frame(width: 125, height: 170) // uniform size
-            .background(Color.backgroundGrey.opacity(0.3))
+            .frame(width: cardWidth, height: cardWidth * 1.35)
+            .background(Color.cardBackground)
             .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.textGrey3.opacity(0.2), lineWidth: 1)
+                    .stroke(Color.gray.opacity(0.1), lineWidth: 0.5)
             )
-            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
             
-            // Expiry badge (always aligned)
+            // Expiry badge
             Text(status.labelText)
                 .font(.system(size: 10, weight: .bold))
                 .foregroundColor(status.textColor)
@@ -75,21 +85,9 @@ struct PantryItemCard: View {
     }
 }
 
-struct PantryItemCard_Previews: PreviewProvider {
-    static var previews: some View {
-        PantryItemCard(
-            imageName: "StrawberryJam",
-            title: "Cottee's Strawberry Jam",
-            quantity: "375g",
-            daysLeft: 0
-        )
-        .previewLayout(.sizeThatFits)
-        .padding()
-    }
-}
-
+// MARK: - Helper
 func formatDaysLeft(daysLeft: Int) -> (labelText: String, labelColor: Color, textColor: Color) {
-    if daysLeft == 0{
+    if daysLeft == 0 {
         return (labelText: "Expired ⚠️", labelColor: Color.textRed, textColor: Color.white)
     }
     if daysLeft < 2 {
@@ -98,5 +96,32 @@ func formatDaysLeft(daysLeft: Int) -> (labelText: String, labelColor: Color, tex
         return (labelText: "\(daysLeft) days left", labelColor: Color.accentYellow, textColor: Color.textYellow)
     } else {
         return (labelText: "\(daysLeft) days left", labelColor: Color.accentGreen, textColor: Color.textGreen)
+    }
+}
+
+// MARK: - Preview
+struct PantryItemCard_Previews: PreviewProvider {
+    static var previews: some View {
+        let columns = [
+            GridItem(.flexible()),
+            GridItem(.flexible()),
+            GridItem(.flexible())
+        ]
+        
+        ScrollView {
+            LazyVGrid(columns: columns, spacing: 10) {
+                ForEach(0..<9) { _ in
+                    PantryItemCard(
+                        imageName: "StrawberryJam",
+                        title: "Cottee's Strawberry Jam",
+                        quantity: "375g",
+                        daysLeft: Int.random(in: 0...6)
+                    )
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+        }
+        .previewLayout(.sizeThatFits)
     }
 }

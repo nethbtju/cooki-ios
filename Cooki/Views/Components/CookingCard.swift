@@ -59,13 +59,14 @@ struct CookingCard: View {
                 .padding(.bottom, 14)
                 .padding(.top, 6)
             }
-            .background(Color.backgroundGrey.opacity(0.3))
+            .background(Color.cardBackground)
         }
         .cornerRadius(12)
         .frame(minWidth: 180, maxWidth: 180)
+        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.gray.opacity(0.5), lineWidth: 1) // Border color & width
+                .stroke(Color.gray.opacity(0.1), lineWidth: 0.7)
         )
     }
 }

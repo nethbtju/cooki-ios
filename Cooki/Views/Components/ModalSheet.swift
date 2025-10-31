@@ -65,7 +65,7 @@ struct ModalSheet_Previews: PreviewProvider {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .padding()
-            },
+            }
         )
         .previewDevice("iPhone 15 Pro")
     }

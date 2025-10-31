@@ -21,8 +21,8 @@ extension FoodItem {
     static let mockFoodItem: [PantryItemCard] = [
         PantryItemCard(imageName: "StrawberryJam", title: "Cottee's Strawberry Jam", quantity: "375g", daysLeft: 3),
         PantryItemCard(imageName: "Milk", title: "Full Cream Milk", quantity: "1L", daysLeft: 1),
-        PantryItemCard(imageName: "Oranges", title: "Orange Navel", quantity: "7", daysLeft: 3),
-        PantryItemCard(imageName: "Tomato", title: "Gourmet Tomato", quantity: "5", daysLeft: 4),
-        PantryItemCard(imageName: "Chicken", title: "Chicken Breast Fillet", quantity: "1.5kg", daysLeft: 0)
+        PantryItemCard(imageName: "Bananas", title: "Bananas", quantity: "7", daysLeft: 0),
+        PantryItemCard(imageName: "StrawberryJam", title: "Cottee's Strawberry Jam", quantity: "375g", daysLeft: 3),
+        PantryItemCard(imageName: "Milk", title: "Full Cream Milk", quantity: "1L", daysLeft: 1)
     ]
 }
