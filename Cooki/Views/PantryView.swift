@@ -18,7 +18,7 @@ struct PantryView: View {
         ZStack {
             Color.white
                 .clipShape(TopRoundedModal(radius: 30))
-                .ignoresSafeArea(edges: .bottom) // keep safe area at bottom if needed
+                .ignoresSafeArea(edges: .bottom) 
             
             Text("Your Stock")
                 .font(.largeTitle.bold())

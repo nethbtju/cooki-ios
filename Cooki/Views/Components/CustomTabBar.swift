@@ -10,6 +10,7 @@ struct CustomTabBar: View {
     @Binding var selectedTab: Int
     @State private var isExpanded = false
     @State private var showPills = false
+    var pillData: [(icon: String, text: String, action: () -> Void)]
     
     var body: some View {
         VStack {
@@ -18,15 +19,9 @@ struct CustomTabBar: View {
                 // MARK: Pills (staggered animation)
                 if isExpanded {
                     // MARK: Pills (staggered animation)
-                    let pillData: [(icon: String, text: String)] = [
-                        ("scanner", "Scan receipt"),
-                        ("cube.box", "Add new item"),
-                        ("magnifyingglass", "Add new recipe")
-                    ]
-                    
                     VStack(spacing: 10) {
                         ForEach(Array(pillData.enumerated()), id: \.offset) { index, pill in
-                            PillButton(icon: pill.icon, text: pill.text, action: { print("Mao")})
+                            PillButton(icon: pill.icon, text: pill.text, action: pill.action)
                                 .opacity(showPills ? 1 : 0)
                                 .offset(y: showPills ? 0 : 20)
                                 .animation(
@@ -150,7 +145,18 @@ struct PillButton: View {
 
 struct CustomTabBar_Previews: PreviewProvider {
     static var previews: some View {
-        CustomTabBar(selectedTab: .constant(0))
+        let pillData: [(icon: String, text: String, action: () -> Void)] = [
+            ("scanner", "Scan receipt", {
+                print("Scan tapped")
+            }),
+            ("cube.box", "Add new item", {
+                print("Recipe tapped")
+            }),
+            ("magnifyingglass", "Add new recipe", {
+                print("Recipe tapped")
+            })
+        ]
+        CustomTabBar(selectedTab: .constant(0), pillData: pillData)
             .preferredColorScheme(.light)
             .previewDevice("iPhone 15 Pro")
     }

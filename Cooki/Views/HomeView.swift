@@ -12,6 +12,7 @@ struct HomeView: View {
     let recipes = Recipe.mockRecipes
     let suggestions = Suggestion.mockSuggestion
     let pantryItems = FoodItem.mockFoodItem
+    var notificationText: String? = nil
     
     var body: some View {
         ZStack {
@@ -20,8 +21,8 @@ struct HomeView: View {
                 .ignoresSafeArea(edges: .bottom) // keep safe area at bottom if needed
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading) {
-                    if showBanner {
-                        NotificationBanner(text: "4 items in pantry expiring soon!")
+                    if notificationText != "" {
+                        NotificationBanner(text: notificationText)
                             .padding(.top, 24)
                             .transition(.move(edge: .top).combined(with: .opacity))
                             .onTapGesture {
@@ -29,6 +30,8 @@ struct HomeView: View {
                                     showBanner = false
                                 }
                             }
+                    } else {
+                        Spacer()
                     }
                     ScrollView(.vertical, showsIndicators: false) {
                         VStack(alignment: .center) {
@@ -122,7 +125,7 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView()
+        HomeView(notificationText: "4 items in pantry expiring soon!")
             .previewDevice("iPhone 15 Pro")
             .preferredColorScheme(.light)
     }
