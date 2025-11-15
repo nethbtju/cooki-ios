@@ -170,7 +170,6 @@ struct FileUploadList: View {
                 ))
             }
         }
-        .padding(.horizontal)
         .animation(.spring(response: 0.5, dampingFraction: 0.7), value: uploads.count)
     }
     

@@ -55,7 +55,6 @@ struct AddItemOptionButton: View {
                 .padding()
             }
             .frame(maxWidth: .infinity, minHeight: 220)
-            .padding(.horizontal)
         }
         .buttonStyle(PlainButtonStyle())
     }
