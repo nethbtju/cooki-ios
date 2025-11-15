@@ -11,10 +11,11 @@ struct NotificationBanner: View {
     @State private var expanded = false        // controls expansion
     @State private var bellShake = false       // controls bell shake
     @State private var scale: CGFloat = 1.0    // controls the scale factor
+    @Binding var showBanner: Bool              // controls visibility from parent
     var text: String?
     
     var body: some View {
-        if let text = text, !text.isEmpty {
+        if let text = text, !text.isEmpty, showBanner {
             HStack() {
                 // Bell icon inside circle
                 ZStack {
@@ -57,8 +58,8 @@ struct NotificationBanner: View {
                     Spacer()
                     
                     Button(action: {
-                        withAnimation(.spring()) {
-                            isVisible = false
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            showBanner = false
                         }
                     }) {
                         ZStack {
@@ -83,7 +84,7 @@ struct NotificationBanner: View {
             .clipShape(Capsule())
             .shadow(radius: 4)
             .padding(.horizontal, 20)
-            .frame(maxWidth: isVisible ? .infinity : 60, alignment: .leading) // 👈 start small, expand
+            .frame(maxWidth: isVisible ? .infinity : 60, alignment: .leading)
             .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isVisible)
             .onAppear {
                 // Step 1: show circle
@@ -102,13 +103,14 @@ struct NotificationBanner: View {
                 }
             }
             .opacity(isVisible ? 1 : 0)
+            .transition(.move(edge: .top).combined(with: .opacity))
         }
     }
 }
 
 struct NotificationBanner_Previews: PreviewProvider {
     static var previews: some View {
-        NotificationBanner(text: "4 items in pantry expiring soon!")
+        NotificationBanner(showBanner: .constant(true), text: "4 items in pantry expiring soon!")
             .previewDevice("iPhone 15 Pro")
             .preferredColorScheme(.light)
             .padding(.top, 40)
