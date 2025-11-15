@@ -17,58 +17,52 @@ struct FileUploadRow: View {
     var item: UploadItem
     var onRetry: (() -> Void)?
     var onDelete: (() -> Void)?
-
+    
     var body: some View {
         HStack(spacing: 12) {
             iconCircle
-
             VStack(alignment: .leading, spacing: 6) {
                 Text(item.fileName)
                     .font(.system(size: 17, weight: .semibold))
                     .lineLimit(1)
-
                 statusSection
             }
-
             Spacer()
-
             rightButtons
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
-        .background(Color(red: 0.97, green: 0.97, blue: 0.97)) // #F7F7F7
+        .background(Color(red: 0.97, green: 0.97, blue: 0.97))
         .overlay(
             RoundedRectangle(cornerRadius: 22)
-                .stroke(Color(red: 0.89, green: 0.89, blue: 0.89), lineWidth: 1) // #E4E4E4
+                .stroke(Color(red: 0.89, green: 0.89, blue: 0.89), lineWidth: 1)
         )
         .cornerRadius(22)
     }
-
+    
     // MARK: - Left Icon Circle
-
     private var iconCircle: some View {
         ZStack {
             Circle()
                 .fill(circleColor)
                 .frame(width: 44, height: 44)
-
             Image(systemName: iconName)
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundColor(iconColor)
         }
     }
-
+    
     private var circleColor: Color {
         switch item.status {
         case .success:
-            return Color(red: 0.90, green: 0.97, blue: 0.93) // #E7F9EE
+            return Color(red: 0.90, green: 0.97, blue: 0.93)
         case .failed:
-            return Color(red: 1.0, green: 0.91, blue: 0.91) // #FDE8E8
+            return Color(red: 1.0, green: 0.91, blue: 0.91)
         case .uploading:
-            return Color(red: 0.95, green: 0.95, blue: 0.97) // #F1F1F7
+            return Color(red: 0.95, green: 0.95, blue: 0.97)
         }
     }
-
+    
     private var iconName: String {
         switch item.status {
         case .success: return "checkmark"
@@ -76,84 +70,75 @@ struct FileUploadRow: View {
         case .uploading: return "receipt"
         }
     }
-
+    
     private var iconColor: Color {
         switch item.status {
-        case .success: return Color(red: 0.20, green: 0.78, blue: 0.35) // #34C759
-        case .failed: return Color(red: 1.0, green: 0.23, blue: 0.19) // #FF3B30
-        case .uploading: return Color.accentDarkPurple // #3D5AFE
+        case .success: return Color(red: 0.20, green: 0.78, blue: 0.35)
+        case .failed: return Color(red: 1.0, green: 0.23, blue: 0.19)
+        case .uploading: return Color(red: 0.24, green: 0.35, blue: 0.99) // fallback for accentDarkPurple
         }
     }
-
+    
     // MARK: - Status Text + Progress
-
     @ViewBuilder
     private var statusSection: some View {
         switch item.status {
-
         case .uploading:
             VStack(alignment: .leading, spacing: 4) {
-
-                // Progress bar
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(Color(red: 0.85, green: 0.85, blue: 0.85)) // grey track
-                        .frame(height: 8)
-
-                    Capsule()
-                        .fill(Color.secondaryPurple) // progress
-                        .frame(
-                            width: max(0, min(1, item.progress)) * 180,
-                            height: 8
-                        )
+                // Progress bar with animation
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Color(red: 0.85, green: 0.85, blue: 0.85))
+                            .frame(height: 8)
+                        Capsule()
+                            .fill(Color(red: 0.24, green: 0.35, blue: 0.99)) // fallback for secondaryPurple
+                            .frame(
+                                width: max(0, min(1, item.progress)) * geo.size.width,
+                                height: 8
+                            )
+                            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: item.progress)
+                    }
                 }
-
+                .frame(height: 8)
+                
                 Text("\(Int(item.progress * 100))%")
                     .font(.system(size: 13))
                     .foregroundColor(Color(red: 0.54, green: 0.54, blue: 0.56))
             }
-
         case .success:
             Text("Uploaded successfully!")
                 .font(.system(size: 13))
-                .foregroundColor(Color(red: 0.20, green: 0.78, blue: 0.35)) // green
-
+                .foregroundColor(Color(red: 0.20, green: 0.78, blue: 0.35))
         case .failed:
             Text("Could not be uploaded!")
                 .font(.system(size: 13))
-                .foregroundColor(Color(red: 1.0, green: 0.23, blue: 0.19)) // red
+                .foregroundColor(Color(red: 1.0, green: 0.23, blue: 0.19))
         }
     }
-
+    
     // MARK: - Buttons (Retry + Delete)
-
     @ViewBuilder
     private var rightButtons: some View {
         HStack(spacing: 10) {
-
-            // Retry only when failed
             if item.status == .failed, let retry = onRetry {
                 Button(action: retry) {
                     ZStack {
                         Circle()
-                            .fill(Color(red: 213/255, green: 228/255, blue: 240/255)) // #E4E4E4
+                            .fill(Color(red: 213/255, green: 228/255, blue: 240/255))
                             .frame(width: 28, height: 28)
-
                         Image(systemName: "arrow.clockwise")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(Color(red: 108/255, green: 178/255, blue: 231/255))
                     }
                 }
             }
-
-            // Delete always
             if let delete = onDelete {
                 Button(action: delete) {
                     ZStack {
                         Circle()
-                            .fill(Color(red: 0.89, green: 0.89, blue: 0.89)) // #E4E4E4
+                            .fill(Color(red: 0.89, green: 0.89, blue: 0.89))
                             .frame(width: 28, height: 28)
-
                         Image(systemName: "xmark")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(Color(red: 0.42, green: 0.42, blue: 0.44))
@@ -166,11 +151,11 @@ struct FileUploadRow: View {
 
 struct FileUploadList: View {
     @State var uploads: [UploadItem]
-
+    
     init(uploads: [UploadItem] = []) {
         _uploads = State(initialValue: uploads)
     }
-
+    
     var body: some View {
         VStack(spacing: 14) {
             ForEach(uploads) { item in
@@ -179,24 +164,37 @@ struct FileUploadList: View {
                     onRetry: { retryUpload(item) },
                     onDelete: { delete(item) }
                 )
+                .transition(.asymmetric(
+                    insertion: .scale(scale: 0.9).combined(with: .opacity).combined(with: .move(edge: .top)),
+                    removal: .scale(scale: 0.9).combined(with: .opacity)
+                ))
             }
         }
         .padding(.horizontal)
+        .animation(.spring(response: 0.5, dampingFraction: 0.7), value: uploads.count)
     }
-
+    
     private func retryUpload(_ item: UploadItem) {
         guard let idx = uploads.firstIndex(where: { $0.id == item.id }) else { return }
         uploads[idx].status = .uploading
         uploads[idx].progress = 0.0
     }
-
+    
     private func delete(_ item: UploadItem) {
-        uploads.removeAll { $0.id == item.id }
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+            uploads.removeAll { $0.id == item.id }
+        }
+    }
+    
+    // Helper function to add new uploads with animation
+    func addUpload(_ item: UploadItem) {
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.7).delay(0.1)) {
+            uploads.insert(item, at: 0)
+        }
     }
 }
 
 // MARK: - Preview
-
 struct FileUploadList_Previews: PreviewProvider {
     static var previews: some View {
         FileUploadList(uploads: [
