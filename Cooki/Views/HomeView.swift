@@ -5,7 +5,6 @@
 //  Created by Neth Botheju on 13/9/2025.
 //
 import SwiftUI
-
 struct HomeView: View {
     
     @State private var showBanner = true
@@ -20,19 +19,12 @@ struct HomeView: View {
                 .clipShape(TopRoundedModal(radius: 30))
                 .ignoresSafeArea(edges: .bottom)
             VStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .leading) {
-                    if notificationText != "" {
-                        NotificationBanner(text: notificationText)
+                VStack(alignment: .leading, spacing: 0) {
+                    if notificationText != "" && showBanner {
+                        NotificationBanner(showBanner: $showBanner, text: notificationText)
                             .padding(.top, 24)
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                            .onTapGesture {
-                                withAnimation {
-                                    showBanner = false
-                                }
-                            }
-                    } else {
-                        Spacer()
                     }
+                    
                     ScrollView(.vertical, showsIndicators: false) {
                         VStack(alignment: .center) {
                             Text("Your Stock")
@@ -61,6 +53,7 @@ struct HomeView: View {
                                 .padding(.vertical, 8)
                             }
                         }
+                        .padding(.top, 16)
                         VStack(alignment: .center) {
                             Text("Let's cook")
                                 .font(AppFonts.heading())
@@ -121,11 +114,11 @@ struct HomeView: View {
                         Spacer().frame(height: 150)
                     }
                 }
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: showBanner)
             }
         }
     }
 }
-
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView(notificationText: "4 items in pantry expiring soon!")

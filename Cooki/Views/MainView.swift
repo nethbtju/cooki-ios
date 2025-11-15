@@ -52,7 +52,11 @@ struct MainView: View {
 private func selectedView(_ tab: Int) -> some View {
     switch tab {
     case 0:
-        MainLayout(header: { HomeHeader() }, content: { HomeView() })
+        MainLayout(header: { HomeHeader() }, content: {
+            HomeView(notificationText: "4 items in pantry expiring soon!")
+                .previewDevice("iPhone 15 Pro")
+                .preferredColorScheme(.light)
+        })
     case 1:
         MainLayout(header: { Header(text: "Your Stock") }, content: { PantryView() })
     case 2:
