@@ -39,7 +39,7 @@ struct CustomTabBar: View {
                 // Background capsule
                 RoundedRectangle(cornerRadius: 52)
                     .fill(Color.accentViolet)
-                    .frame(height: 70)
+                    .frame(height: 60)
                     .padding(.horizontal, 20)
                     .shadow(radius: 4)
                     .background(LinearGradient(
@@ -60,7 +60,7 @@ struct CustomTabBar: View {
                         selectedTab = 1
                     }
                     
-                    Spacer(minLength: 64) // 👈 space for center button
+                    Spacer(minLength: 64)
                     
                     // Right two icons
                     TabBarItem(icon: "calendar", isSelected: selectedTab == 2) {

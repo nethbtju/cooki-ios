@@ -97,11 +97,12 @@ struct SuggestMealCard: View {
             }
             .padding(.trailing, 16)
         }
-        .background(Color.backgroundGrey.opacity(0.3))
+        .background(Color.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                .stroke(Color.gray.opacity(0.1), lineWidth: 0.7)
         )
     }
     
