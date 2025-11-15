@@ -17,9 +17,7 @@ struct MainView: View {
                 print("Scan tapped")
             }),
             ("cube.box", "Add new item", {
-                withAnimation(.spring(response: 0.45, dampingFraction: 0.75, blendDuration: 0.3)) {
-                    showAddItemSheet.toggle()
-                }
+                showAddItemSheet = true
             }),
             ("magnifyingglass", "Add new recipe", {
                 print("Recipe tapped")
@@ -32,29 +30,20 @@ struct MainView: View {
                 .animation(.easeInOut(duration: 0.3), value: selectedTab)
             
             CustomTabBar(selectedTab: $selectedTab, pillData: pillData)
-            
+        }
+        .overlay {
             if showAddItemSheet {
-                Color.black.opacity(0.001)
+                Color.black.opacity(0.4)
                     .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
-                            showAddItemSheet = false
-                        }
-                    }
-
-                VStack {
-                    Spacer()
-
-                    AddPantryItemView()
-                        .background(Color.white)
-                        .cornerRadius(24)
-                        .shadow(radius: 10)
-                        .padding(.horizontal)
-                        .offset(y: showAddItemSheet ? 0 : UIScreen.main.bounds.height) // Slide from bottom
-                        .animation(.spring(response: 0.5, dampingFraction: 0.8, blendDuration: 0.2), value: showAddItemSheet)
-                }
-                .zIndex(2)
+                    .animation(.easeInOut(duration: 0.3), value: showAddItemSheet)
             }
+        }
+        .sheet(isPresented: $showAddItemSheet) {
+            AddPantryItemView()
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(24)
+                .presentationBackground(.white)
         }
     }
 }

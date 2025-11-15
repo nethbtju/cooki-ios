@@ -7,40 +7,60 @@
 import SwiftUI
 
 struct AddPantryItemView: View {
+    @Environment(\.dismiss) var dismiss
+    @State private var navigateToUpload = false
+    
     var body: some View {
-        VStack {
-            Text("Add to pantry")
-                .font(.largeTitle.bold())
-                .foregroundColor(.black)
-            VStack(spacing: 20) { // consistent spacing between buttons
-                AddItemOptionButton(
-                    iconName: "camera.fill",
-                    title: "Use Camera",
-                    subtitle: "Take a photo of your receipt",
-                    primaryColor: Color.accentBurntOrange,
-                    secondaryColor: Color.accentPeach
-                ) {
-                    print("Camera tapped!")
-                }
-                
-                Divider()
-                    .background(Color.gray)
-                    .frame(height: 1)
-                    .padding(.horizontal, 24)
-                
-                AddItemOptionButton(
-                    iconName: "photo.on.rectangle",
-                    title: "Upload eReciept",
-                    subtitle: "Choose from your files",
-                    primaryColor: Color.accentViolet,
-                    secondaryColor: Color.secondaryPurple
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Content
+                VStack(spacing: 20) {
+                    AddItemOptionButton(
+                        iconName: "camera.fill",
+                        title: "Use Camera",
+                        subtitle: "Take a photo of your receipt",
+                        primaryColor: Color.accentBurntOrange,
+                        secondaryColor: Color.accentPeach
+                    ) {
+                        print("mao")
+                    }
                     
-                ) {
-                    print("Upload tapped!")
+                    Divider()
+                        .background(Color.gray)
+                        .frame(height: 1)
+                        .padding(.horizontal, 24)
+                    
+                    AddItemOptionButton(
+                        iconName: "photo.on.rectangle",
+                        title: "Upload eReceipt",
+                        subtitle: "Choose from your files",
+                        primaryColor: Color.accentViolet,
+                        secondaryColor: Color.secondaryPurple
+                    ) {
+                        navigateToUpload = true
+                    }
+                }
+                .padding(.horizontal, 20)
+                
+                Spacer()
+            }
+            .navigationTitle("Add to Pantry")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(isPresented: $navigateToUpload) {
+                UploadFileView()
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(Color.textGreyDark)
+                            .symbolRenderingMode(.hierarchical)
+                    }
                 }
             }
-            .padding(.horizontal)
-            Spacer().frame(height: 60)
         }
     }
 }

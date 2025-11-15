@@ -9,16 +9,10 @@ import SwiftUI
 struct UploadFileView: View {
     
     @State var uploads: [UploadItem] = []
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         VStack(spacing: 0) {
-            // Title at top with proper spacing
-            Text("Add to Pantry")
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(.primary)
-                .padding(.top, 16)
-                .padding(.bottom, 28)
-            
             // Upload button
             VStack(spacing: 20) {
                 AddItemOptionButton(
@@ -32,6 +26,7 @@ struct UploadFileView: View {
                 }
                 .frame(height: 200)
             }
+            .padding(.top, 20)
             
             // Spacing before upload list
             Spacer().frame(height: 32)
@@ -61,17 +56,59 @@ struct UploadFileView: View {
             }
         }
         .padding(.horizontal, 24)
+        .navigationTitle("Add to Pantry")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 17, weight: .semibold))
+                        Text("Back")
+                            .font(.system(size: 17))
+                    }
+                    .foregroundColor(.blue)
+                }
+            }
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Color.textGreyDark)
+                        .symbolRenderingMode(.hierarchical)
+                }
+            }
+        }
     }
 }
 
 struct UploadFileView_Previews: PreviewProvider {
     static var previews: some View {
-        UploadFileView(uploads: [
-            UploadItem(fileName: "ReciptName1.png", status: .uploading, progress: 0.7),
-            UploadItem(fileName: "ReciptNameSuccessful.png", status: .success),
-            UploadItem(fileName: "FailedUploadFile.pdf", status: .failed)
-        ])
+        NavigationStack {
+            UploadFileView(uploads: [
+                UploadItem(fileName: "ReciptName1.png", status: .uploading, progress: 0.7),
+                UploadItem(fileName: "ReciptNameSuccessful.png", status: .success),
+                UploadItem(fileName: "FailedUploadFile.pdf", status: .failed)
+            ])
+        }
         .previewDevice("iPhone 15 Pro")
         .preferredColorScheme(.light)
+    }
+}
+
+// Preview wrapper with sample data
+struct UploadFileViewPreviewWrapper: View {
+    var body: some View {
+        UploadFileView()
+            .onAppear {
+                // Simulate some uploads for preview
+            }
     }
 }
