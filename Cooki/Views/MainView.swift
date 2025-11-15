@@ -15,6 +15,7 @@ struct MainView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             CustomTabBar(selectedTab: $selectedTab)
+                .ignoresSafeArea(.keyboard)
         }
     }
 }
