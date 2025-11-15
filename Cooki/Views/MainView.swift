@@ -28,8 +28,8 @@ struct MainView: View {
             selectedView(selectedTab)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .animation(.easeInOut(duration: 0.3), value: selectedTab)
-            
             CustomTabBar(selectedTab: $selectedTab, pillData: pillData)
+                .ignoresSafeArea(.keyboard)
         }
         .overlay {
             if showAddItemSheet {
