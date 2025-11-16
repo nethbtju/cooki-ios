@@ -10,13 +10,13 @@ struct HomeView: View {
     @State private var showBanner = true
     let recipes = Recipe.mockRecipes
     let suggestions = Suggestion.mockSuggestion
-    let pantryItems = FoodItem.mockFoodItem
+    let pantryItems = PantryItem.mockPantrytems
     var notificationText: String? = nil
     
     var body: some View {
         ZStack {
             Color.white
-                .clipShape(TopRoundedModal(radius: 30))
+                .clipShape(TopRoundedModal())
                 .ignoresSafeArea(edges: .bottom)
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 0) {
@@ -41,11 +41,7 @@ struct HomeView: View {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
                                     ForEach(pantryItems, id: \.title) { pantryItem in
-                                        PantryItemCard(
-                                            imageName: pantryItem.imageName,
-                                            title: pantryItem.title,
-                                            quantity: pantryItem.quantity,
-                                            daysLeft: pantryItem.daysLeft
+                                        PantryItemCard(pantryItem: pantryItem
                                         )
                                     }
                                 }

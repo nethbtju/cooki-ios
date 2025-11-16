@@ -22,7 +22,6 @@ struct MealPlanView: View {
             // Modal sheet
             ModalSheet(
                 heightFraction: 0.87,
-                cornerRadius: 27,
                 content: {
                     VStack {
                         Text("mao")

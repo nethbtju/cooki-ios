@@ -11,7 +11,7 @@ struct PlaceholderView: View {
     var body: some View {
         ZStack {
             Color.white
-                .clipShape(TopRoundedModal(radius: 30))
+                .clipShape(TopRoundedModal())
                 .ignoresSafeArea(edges: .bottom) // keep safe area at bottom if needed
             
             Text(title)

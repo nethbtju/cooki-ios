@@ -49,7 +49,6 @@ struct LoginView: View {
                     // White modal sheet
                     ModalSheet(
                         heightFraction: 0.64,
-                        cornerRadius: 27,
                         content: {
                             VStack(alignment: .leading, spacing: 16) {
                                 Text("Welcome to your new pantry pal!")
