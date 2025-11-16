@@ -10,14 +10,7 @@ struct ScannedItemCard: View {
     let item: PantryItem
     let onRemove: () -> Void
     
-    var cardWidth: CGFloat {
-        let screenWidth = UIScreen.main.bounds.width
-        let horizontalPadding: CGFloat = 20
-        let spacing: CGFloat = 10
-        let columns: CGFloat = 3
-        
-        return (screenWidth - (horizontalPadding * 2) - (spacing * (columns - 1))) / columns
-    }
+    var cardWidth: CGFloat = 100
     
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -25,12 +18,12 @@ struct ScannedItemCard: View {
                 ZStack {
                     Rectangle()
                         .fill(Color.clear)
-                        .frame(height: 70)
+                        .frame(height: cardWidth * 0.45)
                     
                     item.image
                         .resizable()
                         .scaledToFit()
-                        .frame(maxHeight: 70)
+                        .frame(maxHeight: cardWidth * 0.55)
                         .cornerRadius(6)
                         .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 4)
                 }
@@ -51,7 +44,7 @@ struct ScannedItemCard: View {
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .padding(.horizontal, 10)
-            .padding(.vertical, 5)
+            .padding(.vertical, 8)
             .frame(width: cardWidth, height: cardWidth * 1.35)
             .background(Color(.systemGray6))
             .cornerRadius(12)
@@ -63,9 +56,9 @@ struct ScannedItemCard: View {
             
             Button(action: onRemove) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(.accent)
-                    .frame(width: 24, height: 24)
+                    .frame(width: 20, height: 20)
                     .background(Color.background.opacity(0.9))
                     .clipShape(Circle())
             }
@@ -79,7 +72,21 @@ struct ScannedItemCard_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             VStack {
-                ScannedItemCard(item: PantryItem.mockPantrytems[0], onRemove: { print("mao")})
+                let columns = [
+                    GridItem(.flexible(), spacing: 4),
+                    GridItem(.flexible(), spacing: 4),
+                    GridItem(.flexible(), spacing: 4)
+                ]
+                var items = PantryItem.mockPantrytems
+                LazyVGrid(columns: columns, spacing: 10) {
+                    ForEach(items) { item in
+                        ScannedItemCard(item: item) {
+                            withAnimation {
+                                items.removeAll { $0.id == item.id }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

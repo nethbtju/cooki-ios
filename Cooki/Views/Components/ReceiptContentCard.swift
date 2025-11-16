@@ -21,17 +21,17 @@ struct ReceiptContentCard: View {
             // White card
             VStack(spacing: 0) {
                 // Header with text
-                VStack(spacing: 12) {
+                VStack(spacing: 6) {
                     Spacer()
                         .frame(height: 40)
                     
                     Text("Receipt successfully read!")
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(.primary)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.text)
                     
                     Text("Cooki will add these items to your pantry")
-                        .font(.system(size: 16))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 12))
+                        .foregroundColor(.textGreyDark)
                 }
                 .padding(.bottom, 24)
                 
@@ -46,26 +46,42 @@ struct ReceiptContentCard: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 100)
+                    .padding(.horizontal, 15)
                 }
                 
+                
+                CtaButton(ctaText: "Add Items", action: {print("mao")})
+                    .padding(.horizontal, 15)
+                    .padding(.bottom, 10)
+                
                 // Scalloped edge
-                HStack(spacing: 0) {
-                    ForEach(0..<18, id: \.self) { _ in
-                        Circle()
-                            .fill(Color.blue)
-                            .frame(width: 20, height: 20)
-                            .padding(.horizontal, 2)
-                            .offset(y: 10)
+                GeometryReader { geometry in
+                    let availableWidth = geometry.size.width
+                    let maxScallopSize: CGFloat = 20
+                    let gapRatio: CGFloat = 1/6
+                    
+                    let estimatedScallops = Int(availableWidth / (maxScallopSize * (1 + gapRatio)))
+                    let actualScallopSize = min(maxScallopSize, availableWidth / (CGFloat(estimatedScallops) * (1 + gapRatio)))
+                    let actualGap = actualScallopSize * gapRatio
+                    
+                    HStack(spacing: actualGap) {
+                        ForEach(0..<estimatedScallops, id: \.self) { _ in
+                            Circle()
+                                .fill(Color.blue)
+                                .frame(width: actualScallopSize, height: actualScallopSize)
+                                .offset(y: actualScallopSize / 2)
+                        }
                     }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 20)
+                    .background(Color.white)
                 }
                 .frame(height: 20)
-                .background(Color.white)
             }
             .background(Color.white)
             .clipShape(TopRoundedModal())
-            .padding(.top, 50)
+            .padding(.horizontal, 20)
+            .padding(.top, 35)
             
             // Floating white circle with checkmark
             ZStack {
@@ -80,7 +96,7 @@ struct ReceiptContentCard: View {
                     .font(.system(size: 24, weight: .semibold))
                     .foregroundColor(.green)
             }
-            .offset(y: 10)
+            .offset(y: -3)
         }
     }
 }
@@ -88,11 +104,9 @@ struct ReceiptContentCard: View {
 // MARK: - Preview
 struct ReceiptContentCard_Previews: PreviewProvider {
     static var previews: some View {
-        ZStack {
-            Color.blue.ignoresSafeArea()
             VStack {
                 ReceiptContentCard(items: PantryItem.mockPantrytems)
             }
-        }
+            .background(Color.blue)
     }
 }
