@@ -8,7 +8,7 @@ import SwiftUI
 
 struct AddPantryItemView: View {
     @Environment(\.dismiss) var dismiss
-    @State private var navigateToUpload = false
+    var onUploadReceipt: () -> Void
     
     var body: some View {
         NavigationStack {
@@ -37,7 +37,10 @@ struct AddPantryItemView: View {
                         primaryColor: Color.accentViolet,
                         secondaryColor: Color.secondaryPurple
                     ) {
-                        navigateToUpload = true
+                        dismiss()  // Dismiss the sheet
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            onUploadReceipt()
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -46,9 +49,6 @@ struct AddPantryItemView: View {
             }
             .navigationTitle("Add to Pantry")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(isPresented: $navigateToUpload) {
-                UploadFileView()
-            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -67,7 +67,7 @@ struct AddPantryItemView: View {
 
 struct AddPantryItemView_Previews: PreviewProvider {
     static var previews: some View {
-        AddPantryItemView()
+        AddPantryItemView(onUploadReceipt: {})
             .previewDevice("iPhone 15 Pro")
             .preferredColorScheme(.light)
     }

@@ -29,21 +29,6 @@ struct ModalSheet<Content: View>: View {
     }
 }
 
-// Shape for top corners
-struct TopRoundedModal: Shape {
-    var radius: CGFloat?
-    let defaultRadius: CGFloat = 27
-    
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(
-            roundedRect: rect,
-            byRoundingCorners: [.topLeft, .topRight],
-            cornerRadii: CGSize(width: radius ?? defaultRadius, height: radius ?? defaultRadius)
-        )
-        return Path(path.cgPath)
-    }
-}
-
 struct ModalSheet_Previews: PreviewProvider {
     static var previews: some View {
         ModalSheet(

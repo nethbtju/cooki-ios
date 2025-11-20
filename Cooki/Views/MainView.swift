@@ -10,6 +10,7 @@ import SwiftUI
 struct MainView: View {
     @State private var selectedTab: Int = 0
     @State private var showAddItemSheet = false
+    @State private var navigateToUpload = false
 
     var body: some View {
         let pillData: [(icon: String, text: String, action: () -> Void)] = [
@@ -24,26 +25,34 @@ struct MainView: View {
             })
         ]
         
-        ZStack(alignment: .bottom) {
-            selectedView(selectedTab)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .animation(.easeInOut(duration: 0.3), value: selectedTab)
-            CustomTabBar(selectedTab: $selectedTab, pillData: pillData)
-                .ignoresSafeArea(.keyboard)
-        }
-        .overlay {
-            if showAddItemSheet {
-                Color.black.opacity(0.4)
-                    .ignoresSafeArea()
-                    .animation(.easeInOut(duration: 0.3), value: showAddItemSheet)
+        NavigationStack {
+            ZStack(alignment: .bottom) {
+                selectedView(selectedTab)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .animation(.easeInOut(duration: 0.3), value: selectedTab)
+                CustomTabBar(selectedTab: $selectedTab, pillData: pillData)
+                    .ignoresSafeArea(.keyboard)
             }
-        }
-        .sheet(isPresented: $showAddItemSheet) {
-            AddPantryItemView()
+            .overlay {
+                if showAddItemSheet {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .animation(.easeInOut(duration: 0.3), value: showAddItemSheet)
+                }
+            }
+            .sheet(isPresented: $showAddItemSheet) {
+                AddPantryItemView(onUploadReceipt: {
+                    navigateToUpload = true
+                })
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)
                 .presentationBackground(.white)
+            }
+            .navigationDestination(isPresented: $navigateToUpload) {
+                UploadReceiptView()
+                    .navigationBarBackButtonHidden(true)
+            }
         }
     }
 }
