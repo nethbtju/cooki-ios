@@ -48,7 +48,6 @@ struct RegisterView: View {
                     // White modal sheet
                     ModalSheet(
                         heightFraction: 0.55,
-                        cornerRadius: 27,
                         content: {
                             ScrollView(.vertical, showsIndicators: false) {
                                 Spacer().padding(.bottom, 24)

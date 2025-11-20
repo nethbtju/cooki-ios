@@ -4,7 +4,6 @@
 //
 //  Created by Neth Botheju on 7/9/2025.
 //
-
 import SwiftUI
 
 // MARK: - Shared card size constants
@@ -21,18 +20,7 @@ struct PantryView: View {
     
     let filterOptions = ["All", "Sort by location", "Filter"]
     
-    @State private var pantryItems: [(image: String, name: String, qty: Int, expiry: Int, location: String)] = [
-        ("StrawberryJam", "Apples", 6, 3, "Pantry"),
-        ("Bananas", "Bananas", 4, 1, "Pantry"),
-        ("Milk", "Milk", 1, -1, "Fridge"),
-        ("Bananas", "Eggs", 12, 7, "Fridge"),
-        ("StrawberryJam", "Bread", 2, 2, "Pantry"),
-        ("Milk", "Cheese", 1, 10, "Fridge"),
-        ("StrawberryJam", "Yogurt", 3, 5, "Fridge"),
-        ("Bananas", "Tomatoes", 8, 2, "Pantry"),
-        ("Milk", "Ice Cream", 2, 20, "Freezer"),
-        ("Bananas", "Frozen Peas", 1, 15, "Freezer"),
-    ]
+    @State private var pantryItems = PantryItem.mockPantrytems
     
     @State private var sections: [String] = ["Pantry", "Fridge", "Freezer"]
     
@@ -41,11 +29,11 @@ struct PantryView: View {
     @State private var newSectionName = ""
     
     // MARK: - Computed properties
-    var filteredItems: [(image: String, name: String, qty: Int, expiry: Int, location: String)] {
+    var filteredItems: [PantryItem] {
         if searchText.isEmpty {
             return pantryItems
         } else {
-            return pantryItems.filter { $0.name.lowercased().contains(searchText.lowercased()) }
+            return pantryItems.filter { $0.title.lowercased().contains(searchText.lowercased()) }
         }
     }
     
@@ -70,7 +58,7 @@ struct PantryView: View {
     var body: some View {
         ZStack {
             Color.white
-                .clipShape(TopRoundedModal(radius: 30))
+                .clipShape(TopRoundedModal())
                 .ignoresSafeArea(edges: .bottom)
             
             VStack {
@@ -146,14 +134,9 @@ struct PantryView: View {
                             .padding(.bottom, 130)
                         } else {
                             LazyVGrid(columns: columns, spacing: 12) {
-                                ForEach(filteredItems.indices, id: \.self) { index in
-                                    let item = filteredItems[index]
-                                    
+                                ForEach(filteredItems) { filteredItem in
                                     PantryItemCard(
-                                        imageName: item.image,
-                                        title: item.name,
-                                        quantity: "\(item.qty)",
-                                        daysLeft: item.expiry
+                                        pantryItem: filteredItem
                                     )
                                 }
                             }
@@ -171,7 +154,7 @@ struct PantryView: View {
 // MARK: - SectionView
 struct SectionView: View {
     let title: String
-    let items: [(image: String, name: String, qty: Int, expiry: Int, location: String)]
+    let items: [PantryItem]
     let isGridView: Bool
     
     var body: some View {
@@ -183,14 +166,9 @@ struct SectionView: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    ForEach(items.indices, id: \.self) { index in
-                        let item = items[index]
-                        
+                    ForEach(items) { item in
                         PantryItemCard(
-                            imageName: item.image,
-                            title: item.name,
-                            quantity: "\(item.qty)",
-                            daysLeft: item.expiry
+                            pantryItem: item
                         )
                     }
                 }

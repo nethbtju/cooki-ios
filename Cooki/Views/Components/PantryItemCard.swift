@@ -8,13 +8,11 @@
 import SwiftUI
 
 struct PantryItemCard: View {
-    let imageName: String
-    let title: String
-    let quantity: String
-    var daysLeft: Int
+    let pantryItem: PantryItem
+    var deleteOpt: Bool = false
     
     var status: (labelText: String, labelColor: Color, textColor: Color) {
-        formatDaysLeft(daysLeft: daysLeft)
+        formatDaysLeft(daysLeft: pantryItem.daysLeft)
     }
     
     var cardWidth: CGFloat {
@@ -35,7 +33,7 @@ struct PantryItemCard: View {
                         .fill(Color.clear)
                         .frame(height: 70)
                     
-                    Image(imageName)
+                    pantryItem.image
                         .resizable()
                         .scaledToFit()
                         .frame(maxHeight: 70)
@@ -46,7 +44,7 @@ struct PantryItemCard: View {
                 
                 
                 // Title
-                Text(title)
+                Text(pantryItem.title)
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(.black)
                     .lineLimit(2)
@@ -55,7 +53,7 @@ struct PantryItemCard: View {
                     .frame(maxWidth: .infinity, minHeight: 32, alignment: .leading)
                 
                 // Quantity
-                Text("Qty: \(quantity)")
+                Text("Qty: \(pantryItem.quantity)")
                     .font(.system(size: 10))
                     .foregroundColor(.gray)
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -110,12 +108,9 @@ struct PantryItemCard_Previews: PreviewProvider {
         
         ScrollView {
             LazyVGrid(columns: columns, spacing: 10) {
-                ForEach(0..<9) { _ in
+                ForEach(PantryItem.mockPantrytems) { item in
                     PantryItemCard(
-                        imageName: "StrawberryJam",
-                        title: "Cottee's Strawberry Jam",
-                        quantity: "375g",
-                        daysLeft: Int.random(in: 0...6)
+                        pantryItem: item
                     )
                 }
             }

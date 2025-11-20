@@ -36,7 +36,6 @@ struct UserDetailsView: View {
             // White modal sheet (always centered)
             ModalSheet(
                 heightFraction: 0.80,
-                cornerRadius: 27,
                 content: {
                     VStack(spacing: 20) {
                         Text("Hello Cooki 👋")
