@@ -9,10 +9,16 @@ struct HomeView: View {
     
     @State private var showBanner = true
     let recipes = Recipe.mockRecipes
-    let mealPlan = MockData.mealPlans
     let suggestions = MockData.suggestions
     let pantryItems = MockData.pantryItems
     var notificationText: String? = nil
+    var recentMeals: [PlannedMeal] {
+        let twoDaysAgo = Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+        
+        return MealPlan.mockMealPlans
+            .filter { $0.date >= twoDaysAgo }     // Only keep plans from the last 2 days
+            .flatMap { $0.meals }                 // Get their meals
+    }
     
     var body: some View {
         ZStack {
@@ -64,15 +70,11 @@ struct HomeView: View {
                                 .padding(.bottom, 6)
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
-                                    ForEach(MealPlan.mockMealPlans.flatMap { $0.meals }) { plannedMeal in
+                                    ForEach(recentMeals) { plannedMeal in
                                         RecipeCard.cooking(
-                                            image: plannedMeal.recipe.image,
-                                            title: plannedMeal.recipe.title,
-                                            date: plannedMeal.scheduledDate.dayOfWeek, // "Sat"
-                                            servings: plannedMeal.recipe.servings,
-                                            action: {
-                                                print("Start cooking \(plannedMeal.recipe.title)")
-                                            }
+                                            recipe: plannedMeal.recipe,
+                                            date: plannedMeal.scheduledDate.day,
+                                            action: { print("Start cooking \(plannedMeal.recipe.title)") }
                                         )
                                     }
                                 }
@@ -94,15 +96,13 @@ struct HomeView: View {
                                 .padding(.bottom, 6)
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
-                                    ForEach(suggestions, id: \.title) { suggestion in
-                                        RecipeCard.suggestion(
-                                            image: suggestion.image,
-                                            title: suggestion.title,
-                                            prepTime: suggestion.prepTime,
-                                            servings: suggestion.servings,
-                                            aiSuggestion: suggestion.aiText,
-                                            action: ({ print("Tapped!") })
-                                        )
+                                    ForEach(suggestions) { suggestion in RecipeCard.suggestion(
+                                        recipeSuggestion: suggestion,
+                                        aiSuggestion: suggestion.displayMessage,
+                                        action: {
+                                            print ("mao")
+                                        }
+                                    )
                                     }
                                 }
                                 .padding(.horizontal)

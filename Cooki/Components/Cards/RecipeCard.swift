@@ -83,8 +83,6 @@ struct RecipeCard: View {
                 // Metadata row
                 metadataRow
                 
-                Spacer().frame(maxHeight: 10)
-                
                 // Action button
                 actionButtonView
             }
@@ -192,8 +190,8 @@ struct RecipeCard: View {
                     Spacer()
                 }
             }
-            .padding(layout == .vertical ? .horizontal : .all, layout == .vertical ? 36 : 4)
-            .padding(.vertical, 4)
+            .padding(layout == .vertical ? .horizontal : .all, layout == .vertical ? 30 : 4)
+            .padding(layout == .vertical ? 4 : 4)
             .background(.white)
             .clipShape(Capsule())
             .overlay(
@@ -250,16 +248,16 @@ extension RecipeCard {
     
     /// Create a meal suggestion card (horizontal layout)
     static func suggestion(
-        recipe: Recipe,
+        recipeSuggestion: RecipeSuggestion,
         aiSuggestion: String,
         action: @escaping () -> Void
     ) -> RecipeCard {
         RecipeCard(
-            imageName: recipe.imageName,
-            title: recipe.title,
+            imageName: recipeSuggestion.recipe.imageName,
+            title: recipeSuggestion.recipe.title,
             metadata: RecipeMetadata(
-                prepTime: recipe.formattedTotalTime,
-                servings: recipe.servings,
+                prepTime: recipeSuggestion.recipe.formattedTotalTime,
+                servings: recipeSuggestion.recipe.servings,
                 date: nil,
                 aiSuggestion: aiSuggestion
             ),
@@ -279,14 +277,14 @@ struct RecipeCard_Previews: PreviewProvider {
         VStack(spacing: 20) {
             // Cooking card
             RecipeCard.cooking(
-                recipe: Recipe.mockRecipes[0],
+                recipe: MockData.recipes[0],
                 date: "Sat",
                 action: { print("Start cooking") }
             )
             
             // Suggestion card
             RecipeCard.suggestion(
-                recipe: Recipe.mockRecipes[1],
+                recipeSuggestion: MockData.suggestions[1],
                 aiSuggestion: "Meet your protein goals with this meal",
                 action: { print("Add to meal plan") }
             )

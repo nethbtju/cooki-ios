@@ -22,7 +22,7 @@ struct PantryView: View {
     
     @State private var pantryItems = Item.mockItems
     
-    @State private var sections: [String] = ["Pantry", "Fridge", "Freezer"]
+    @State private var sections: [StorageLocation] = [.pantry, .fridge, .freezer]
     
     // Alert state
     @State private var showNewSectionAlert = false
@@ -43,15 +43,6 @@ struct PantryView: View {
         } else {
             return [GridItem(.flexible(), spacing: 0)]
         }
-    }
-    
-    // MARK: - Helper method
-    private func createSection(title: StorageLocation) -> SectionView {
-        SectionView(
-            title: title,
-            items: filteredItems.filter { $0.location == title },
-            isGridView: isGridView
-        )
     }
     
     // MARK: - Body
@@ -100,7 +91,8 @@ struct PantryView: View {
                                     TextField("Section name", text: $newSectionName)
                                     Button("Add") {
                                         if !newSectionName.isEmpty {
-                                            sections.append(newSectionName)
+                                            // Note: Can't add custom sections with current enum structure
+                                            // This would need a different data model
                                         }
                                     }
                                     Button("Cancel", role: .cancel) { }
@@ -128,7 +120,11 @@ struct PantryView: View {
                         if selectedOption == "Sort by location" {
                             VStack(alignment: .leading, spacing: 10) {
                                 ForEach(sections, id: \.self) { section in
-                                    createSection(title: section)
+                                    SectionView(
+                                        title: section,
+                                        items: filteredItems.filter { $0.location == section },
+                                        isGridView: isGridView
+                                    )
                                 }
                             }
                             .padding(.bottom, 130)
@@ -157,7 +153,7 @@ struct SectionView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(title)
+            Text(title.rawValue)
                 .font(.headline)
                 .foregroundColor(.black)
                 .padding(.leading, 4)
