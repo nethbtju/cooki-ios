@@ -14,7 +14,7 @@ struct ReceiptSuccessView: View {
         VStack(spacing: 0) {
             ReceiptContentHeader()
             
-            ReceiptContentCard(items: PantryItem.mockPantrytems)
+            ReceiptContentCard(items: MockData.pantryItems)
         }
         .background {
             Image("BackgroundImage")
@@ -42,7 +42,7 @@ struct ReceiptSuccessView_Previews: PreviewProvider {
 
 // MARK: - Receipt Content Card
 struct ReceiptContentCard: View {
-    @State var items: [PantryItem]
+    @State var items: [Item]
     
     let columns = [
         GridItem(.flexible(), spacing: 10),
@@ -73,11 +73,13 @@ struct ReceiptContentCard: View {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 10) {
                         ForEach(items) { item in
-                            ScannedItemCard(item: item) {
+                            let deleteAction = {
                                 withAnimation {
                                     items.removeAll { $0.id == item.id }
                                 }
                             }
+
+                            ItemCard.scannedItem(item, onDelete: deleteAction)
                         }
                     }
                     .padding(.horizontal, 15)

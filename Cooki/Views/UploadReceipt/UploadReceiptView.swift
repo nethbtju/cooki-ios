@@ -21,7 +21,7 @@ struct UploadReceiptView_Previews: PreviewProvider {
 }
 
 public struct UploadReceiptContent: View {
-    @State var uploads: [UploadItem] = []
+    @State var uploads: [Upload] = []
     
     @State private var navigateToSuccessPage = false
     public var body: some View {
@@ -69,7 +69,7 @@ public struct UploadReceiptContent: View {
 //                    .frame(maxWidth: .infinity)
 //                } else {
                     ScrollView(.vertical, showsIndicators: true) {
-                        FileUploadList(uploads: uploads)
+                        UploadCardList(uploads: uploads)
                     }
                     
                     PrimaryButton(title: "Scan these receipts", action: { navigateToSuccessPage = true

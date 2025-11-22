@@ -20,7 +20,7 @@ struct PantryView: View {
     
     let filterOptions = ["All", "Sort by location", "Filter"]
     
-    @State private var pantryItems = PantryItem.mockPantrytems
+    @State private var pantryItems = Item.mockItems
     
     @State private var sections: [String] = ["Pantry", "Fridge", "Freezer"]
     
@@ -29,7 +29,7 @@ struct PantryView: View {
     @State private var newSectionName = ""
     
     // MARK: - Computed properties
-    var filteredItems: [PantryItem] {
+    var filteredItems: [Item] {
         if searchText.isEmpty {
             return pantryItems
         } else {
@@ -46,7 +46,7 @@ struct PantryView: View {
     }
     
     // MARK: - Helper method
-    private func createSection(title: String) -> SectionView {
+    private func createSection(title: StorageLocation) -> SectionView {
         SectionView(
             title: title,
             items: filteredItems.filter { $0.location == title },
@@ -135,9 +135,7 @@ struct PantryView: View {
                         } else {
                             LazyVGrid(columns: columns, spacing: 12) {
                                 ForEach(filteredItems) { filteredItem in
-                                    PantryItemCard(
-                                        pantryItem: filteredItem
-                                    )
+                                    ItemCard.pantryItem(filteredItem)
                                 }
                             }
                             .padding(.top, 4)
@@ -153,8 +151,8 @@ struct PantryView: View {
 
 // MARK: - SectionView
 struct SectionView: View {
-    let title: String
-    let items: [PantryItem]
+    let title: StorageLocation
+    let items: [Item]
     let isGridView: Bool
     
     var body: some View {
@@ -167,9 +165,7 @@ struct SectionView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(items) { item in
-                        PantryItemCard(
-                            pantryItem: item
-                        )
+                        ItemCard.pantryItem(item)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
