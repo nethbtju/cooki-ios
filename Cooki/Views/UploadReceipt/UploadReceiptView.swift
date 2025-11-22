@@ -87,36 +87,3 @@ public struct UploadReceiptContent: View {
         }
     }
 }
-
-public struct UploadReceiptHeader: View {
-    @Environment(\.dismiss) var dismiss
-    
-    public var body: some View {
-        // Navigation bar with back button
-        HStack {
-            Button(action: {
-                dismiss()
-            }) {
-                HStack(spacing: 8) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 18, weight: .semibold))
-                    Text("Back")
-                        .font(.system(size: 18, weight: .semibold))
-                }
-                .foregroundColor(.white)
-            }
-            
-            Spacer()
-            
-            Button(action: {
-                // Info action
-            }) {
-                Image(systemName: "info.circle")
-                    .font(.system(size: 28, weight: .semibold))
-                    .foregroundColor(.white)
-            }
-        }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 16)
-    }
-}
