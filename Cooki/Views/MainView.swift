@@ -11,7 +11,8 @@ struct MainView: View {
     @State private var selectedTab: Int = 0
     @State private var showAddItemSheet = false
     @State private var navigateToUpload = false
-
+    var user: User?
+    
     var body: some View {
         let pillData: [(icon: String, text: String, action: () -> Void)] = [
             ("scanner", "Scan receipt", {
@@ -27,7 +28,7 @@ struct MainView: View {
         
         NavigationStack {
             ZStack(alignment: .bottom) {
-                selectedView(selectedTab)
+                selectedView(selectedTab, user: user ?? User.mock)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .animation(.easeInOut(duration: 0.3), value: selectedTab)
                 CustomTabBar(selectedTab: $selectedTab, pillData: pillData)
@@ -58,24 +59,24 @@ struct MainView: View {
 }
 
 @ViewBuilder
-private func selectedView(_ tab: Int) -> some View {
+private func selectedView(_ tab: Int, user: User) -> some View {
     switch tab {
     case 0:
-        MainLayout(header: { HomeHeader() }, content: {
+        MainLayout(header: { HomeHeader(user: user) }, content: {
             HomeView(notificationText: "4 items in pantry expiring soon!")
                 .previewDevice("iPhone 15 Pro")
                 .preferredColorScheme(.light)
         })
     case 1:
-        MainLayout(header: { Header(text: "Your Stock") }, content: { PantryView() })
+        MainLayout(header: { TabHeader(text: "Your Stock") }, content: { PantryView() })
     case 2:
-        MainLayout(header: { Header(text: "Calendar") },
+        MainLayout(header: { TabHeader(text: "Calendar") },
                    content: { PlaceholderView(title: "Calendar") })
     case 3:
-        MainLayout(header: { Header(text: "Cart") },
+        MainLayout(header: { TabHeader(text: "Cart") },
                    content: { PlaceholderView(title: "Cart") })
     default:
-        MainLayout(header: { HomeHeader() }, content: { HomeView() })
+        MainLayout(header: { HomeHeader(user: user) }, content: { HomeView() })
     }
 }
 

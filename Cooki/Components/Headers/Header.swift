@@ -3,42 +3,83 @@
 //  Cooki
 //
 //  Created by Neth Botheju on 21/9/2025.
+//  Modified by Neth Botheju on 22/11/2025.
 //
 import SwiftUI
 
-struct HomeHeader: View {
+// MARK: - Simple Reusable Header
+struct AppHeader: View {
+    let leading: AnyView?
+    let center: AnyView?
+    let trailing: AnyView?
+    let padding: EdgeInsets
+    
+    init(
+        padding: EdgeInsets = EdgeInsets(top: 10, leading: 24, bottom: 10, trailing: 24),
+        @ViewBuilder leading: () -> some View = { EmptyView() },
+        @ViewBuilder center: () -> some View = { EmptyView() },
+        @ViewBuilder trailing: () -> some View = { EmptyView() }
+    ) {
+        self.leading = AnyView(leading())
+        self.center = AnyView(center())
+        self.trailing = AnyView(trailing())
+        self.padding = padding
+    }
+    
     var body: some View {
         HStack {
-            HStack(spacing: 10) {
-                Image("CookieMiniIcon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 40)
-                
-                Text("Hello, Neth")
-                    .foregroundColor(.backgroundWhite)
-                    .font(AppFonts.heading2())
+            if let leading = leading {
+                leading
             }
+            
             Spacer()
-            ProfileIcon(image: Image("ProfilePic"), size: 50)
+            
+            if let center = center {
+                center
+            }
+            
+            Spacer()
+            
+            if let trailing = trailing {
+                trailing
+            }
         }
-        .padding(.top, 10)
-        .padding(.bottom, 10)
-        .padding(.horizontal, 24)
+        .padding(padding)
     }
 }
 
-struct Header: View {
-    var text: String
-    var body: some View {
-        HStack {
-            Text(text)
-                .font(AppFonts.heading3())
-                .foregroundStyle(Color.backgroundWhite)
-                .padding(.leading, 24)
-            Spacer()
-        }
-        .padding(.top, 20)
-        .padding(.bottom, 10)
-    }
-}
+// MARK: - Usage Examples
+/*
+ 
+ SIMPLE USAGE
+ ============
+ 
+ // Custom header
+ AppHeader(
+     leading: { Text("Title") },
+     trailing: { Button("Done") {} }
+ )
+ 
+ // With back button
+ AppHeader(
+     leading: { BackButton(action: { dismiss() }) },
+     trailing: { IconButton(icon: "heart", action: {}) }
+ )
+ 
+ // Center title
+ AppHeader(
+     center: { Text("Recipe Details").font(.headline) }
+ )
+ 
+ // All three sections
+ AppHeader(
+     leading: { BackButton(action: {}) },
+     center: { Text("Title") },
+     trailing: { IconButton(icon: "ellipsis", action: {}) }
+ )
+ 
+ // Existing headers still work:
+ HomeHeader()
+ Header(text: "Your Stock")
+ 
+ */

@@ -2,6 +2,14 @@
 //  SearchBar.swift
 //  Cooki
 //
+//  Created by Neth Botheju on 22/11/2025.
+//
+
+
+//
+//  SearchBar.swift
+//  Cooki
+//
 //  Created by Rohit Valanki on 7/9/2025.
 //
 
@@ -30,7 +38,7 @@ struct SearchBar: View {
             }
         }
         .padding(10) // reduced padding to make it shorter
-        .background(Color(.systemGray6))
+        .background(Color.backgroundGrey)
         .cornerRadius(16.5)
     }
 }
