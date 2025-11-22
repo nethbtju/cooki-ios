@@ -125,31 +125,6 @@ struct ReceiptContentCard: View {
     }
 }
 
-// MARK: - Header
-public struct ReceiptContentHeader: View {
-    @Environment(\.dismiss) var dismiss
-    
-    public var body: some View {
-        // Navigation bar with back button
-        HStack {
-            Button(action: {
-                dismiss()
-            }) {
-                HStack(spacing: 8) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 18, weight: .semibold))
-                    Text("Back")
-                        .font(.system(size: 18, weight: .semibold))
-                }
-                .foregroundColor(.white)
-            }
-            
-            Spacer()
-        }
-        .padding(.horizontal, 20)
-    }
-}
-
 
 // MARK: - Scalloped Edge Mask
 struct ScallopedEdgeMask: Shape {
