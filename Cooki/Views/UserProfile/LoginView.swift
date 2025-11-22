@@ -129,9 +129,9 @@ struct LoginView: View {
                                         .foregroundColor(.textGrey)
                                     
                                     HStack(spacing: 12) {
-                                        SocialButton(bg: .red, systemIcon: "envelope.fill")
-                                        SocialButton(bg: .black, systemIcon: "apple.logo")
-                                        SocialButton(bg: .blue, systemIcon: "f.circle.fill")
+                                        IconButton.google(action: { print("Tapped Google")})
+                                        IconButton.apple(action: { print("Tapped Apple")})
+                                        IconButton.facebook(action: { print("Tapped Facebook")})
                                     }
                                 }
                                 .frame(maxWidth: .infinity, alignment: .center)

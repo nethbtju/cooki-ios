@@ -15,8 +15,8 @@ struct AddPantryItemView: View {
             VStack(spacing: 0) {
                 // Content
                 VStack(spacing: 20) {
-                    AddItemOptionButton(
-                        iconName: "camera.fill",
+                    OptionCardButton(
+                        icon: "camera.fill",
                         title: "Use Camera",
                         subtitle: "Take a photo of your receipt",
                         primaryColor: Color.accentBurntOrange,
@@ -30,8 +30,8 @@ struct AddPantryItemView: View {
                         .frame(height: 1)
                         .padding(.horizontal, 24)
                     
-                    AddItemOptionButton(
-                        iconName: "photo.on.rectangle",
+                    OptionCardButton(
+                        icon: "photo.on.rectangle",
                         title: "Upload eReceipt",
                         subtitle: "Choose from your files",
                         primaryColor: Color.accentViolet,

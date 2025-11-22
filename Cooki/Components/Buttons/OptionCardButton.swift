@@ -3,25 +3,43 @@
 //  Cooki
 //
 //  Created by Neth Botheju on 6/10/2025.
+//  Modified by Neth Botheju on 22/11/2025.
 //
 import SwiftUI
 
-struct AddItemOptionButton: View {
-    var iconName: String
-    var title: String
-    var subtitle: String
-    var primaryColor: Color
-    var secondaryColor: Color
-    var action: () -> Void
+/// Large card-style button with icon, title, and subtitle
+struct OptionCardButton: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    let primaryColor: Color
+    let secondaryColor: Color
+    let action: () -> Void
+    
+    init(
+        icon: String,
+        title: String,
+        subtitle: String,
+        primaryColor: Color = .accentBurntOrange,
+        secondaryColor: Color = .accentPeach,
+        action: @escaping () -> Void
+    ) {
+        self.icon = icon
+        self.title = title
+        self.subtitle = subtitle
+        self.primaryColor = primaryColor
+        self.secondaryColor = secondaryColor
+        self.action = action
+    }
     
     var body: some View {
         Button(action: action) {
             ZStack {
-                // Outer background (peach)
+                // Outer background
                 RoundedRectangle(cornerRadius: 28)
                     .fill(secondaryColor.opacity(0.3))
                 
-                // Inner card (white with orange border)
+                // Inner card with border
                 RoundedRectangle(cornerRadius: 22)
                     .fill(.white)
                     .overlay(
@@ -32,12 +50,13 @@ struct AddItemOptionButton: View {
                 
                 // Content
                 VStack(spacing: 10) {
+                    // Icon container
                     ZStack {
                         Circle()
-                            .fill(secondaryColor.opacity(0.1)) // soft peach circle
+                            .fill(secondaryColor.opacity(0.1))
                             .frame(width: 80, height: 80)
                         
-                        Image(systemName: iconName)
+                        Image(systemName: icon)
                             .font(.system(size: 38, weight: .regular))
                             .foregroundColor(primaryColor)
                     }
@@ -60,20 +79,24 @@ struct AddItemOptionButton: View {
     }
 }
 
-struct AddItemOptionButton_Previews: PreviewProvider {
+// MARK: - Preview
+struct OptionCardButton_Previews: PreviewProvider {
     static var previews: some View {
-        VStack(spacing: 20) { // consistent spacing between buttons
-            AddItemOptionButton(
-                iconName: "camera.fill",
+        VStack(spacing: 20) {
+            OptionCardButton(
+                icon: "camera.fill",
                 title: "Use Camera",
                 subtitle: "Take a photo of your receipt",
-                primaryColor: Color.accentBurntOrange,
-                secondaryColor: Color.accentPeach
-            ) {
-                print("Camera tapped!")
-            }
+                action: { print("Camera tapped") }
+            )
+            
+            OptionCardButton(
+                icon: "photo.fill",
+                title: "Choose Photo",
+                subtitle: "Select from your gallery",
+                action: { print("Photo tapped") }
+            )
         }
-        .padding(.horizontal)
-        .padding(.vertical, 24)
+        .padding()
     }
 }

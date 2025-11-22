@@ -70,7 +70,7 @@ struct PantryView: View {
                         // Filter buttons
                         HStack(spacing: 12) {
                             ForEach(filterOptions, id: \.self) { option in
-                                FilterButton(
+                                ToggleButton(
                                     title: option,
                                     isSelected: Binding(
                                         get: { selectedOption == option },

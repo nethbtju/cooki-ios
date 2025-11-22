@@ -83,7 +83,7 @@ struct ReceiptContentCard: View {
                     .padding(.horizontal, 15)
                 }
                 
-                CtaButton(ctaText: "Add Items", action: {print("mao")})
+                PrimaryButton(title: "Add Items", action: {print("mao")})
                     .padding(.horizontal, 15)
                     .padding(.bottom, 28)
             }

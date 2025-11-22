@@ -32,8 +32,8 @@ public struct UploadReceiptContent: View {
             
             VStack(spacing: 0) {
                 VStack(spacing: 20) {
-                    AddItemOptionButton(
-                        iconName: "receipt",
+                    OptionCardButton(
+                        icon: "receipt",
                         title: "Click here to add your receipt files",
                         subtitle: "Supported files: PNG, JPG, JPEG, PDF (10mb each)",
                         primaryColor: Color.accentDarkPurple,
@@ -72,7 +72,7 @@ public struct UploadReceiptContent: View {
                         FileUploadList(uploads: uploads)
                     }
                     
-                    CtaButton(ctaText: "Scan these receipts", action: { navigateToSuccessPage = true
+                    PrimaryButton(title: "Scan these receipts", action: { navigateToSuccessPage = true
                     })
                     .navigationDestination(isPresented: $navigateToSuccessPage) {
                         ReceiptSuccessView()
