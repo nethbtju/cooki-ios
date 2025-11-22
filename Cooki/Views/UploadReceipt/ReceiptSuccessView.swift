@@ -12,7 +12,7 @@ struct ReceiptSuccessView: View {
     // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
-            ReceiptContentHeader()
+            BackHeader()
             
             ReceiptContentCard(items: MockData.pantryItems)
         }

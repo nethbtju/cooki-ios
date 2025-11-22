@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct ReceiptContentHeader: View {
+struct BackHeader: View {
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
