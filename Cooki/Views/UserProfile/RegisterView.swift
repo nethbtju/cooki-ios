@@ -7,16 +7,21 @@
 import SwiftUI
 
 struct RegisterView: View {
-    @State private var email: String = ""
-    @State private var password: String = ""
+    @EnvironmentObject var appViewModel: AppViewModel
+    @StateObject private var loginViewModel: LoginViewModel
+    
     @State private var confirmPassword: String = ""
+    @State private var passwordMismatch: Bool = false
     @FocusState private var focusedField: Field?
     
     @State private var navigateToNext: Bool = false
-    @State private var errorMessage: String? = nil
     
     enum Field {
         case email, password, confirmPassword
+    }
+    
+    init() {
+        _loginViewModel = StateObject(wrappedValue: LoginViewModel(appViewModel: AppViewModel()))
     }
     
     var body: some View {
@@ -47,7 +52,7 @@ struct RegisterView: View {
                     
                     // White modal sheet
                     ModalSheet(
-                        heightFraction: 0.55,
+                        heightFraction: 0.65,
                         content: {
                             ScrollView(.vertical, showsIndicators: false) {
                                 Spacer().padding(.bottom, 24)
@@ -60,7 +65,7 @@ struct RegisterView: View {
                                             .padding(.trailing, 10)
                                         
                                         // Email
-                                        TextField("Email Address", text: $email)
+                                        TextField("Email Address", text: $loginViewModel.email)
                                             .padding(16)
                                             .background(
                                                 RoundedRectangle(cornerRadius: 8)
@@ -73,7 +78,7 @@ struct RegisterView: View {
                                             .foregroundColor(Color.textGrey)
                                         
                                         // Password
-                                        SecureField("Password", text: $password)
+                                        SecureField("Password", text: $loginViewModel.password)
                                             .padding(16)
                                             .background(
                                                 RoundedRectangle(cornerRadius: 8)
@@ -95,15 +100,25 @@ struct RegisterView: View {
                                             .foregroundColor(Color.textGrey)
                                         
                                         // Error message
-                                        if let errorMessage = errorMessage {
-                                            Text(errorMessage)
+                                        if passwordMismatch {
+                                            Text("Passwords do not match")
+                                                .foregroundColor(.red)
+                                                .font(AppFonts.smallBody())
+                                        }
+                                        
+                                        if let error = appViewModel.errorMessage {
+                                            Text(error)
                                                 .foregroundColor(.red)
                                                 .font(AppFonts.smallBody())
                                         }
                                     }
                                     
                                     // Register button
-                                    Button(action: { register() }) {
+                                    Button(action: {
+                                        Task {
+                                            await register()
+                                        }
+                                    }) {
                                         Text("Register")
                                             .font(AppFonts.buttonFont())
                                             .foregroundColor(.white)
@@ -126,33 +141,24 @@ struct RegisterView: View {
         }
     }
     
-    private func register() {
-        // ✅ Check password match first
-        guard password == confirmPassword else {
-            errorMessage = "Passwords do not match"
+    private func register() async {
+        // Check password match first
+        guard loginViewModel.password == confirmPassword else {
+            passwordMismatch = true
             return
         }
         
-        Task {
-            do {
-                try await AuthService.shared.login(email: email, password: password)
-                
-                // Clear error if successful
-                errorMessage = nil
-                
-                DispatchQueue.main.async {
-                    navigateToNext = true
-                }
-            } catch {
-                errorMessage = "Registration failed: \(error.localizedDescription)"
-            }
-        }
+        passwordMismatch = false
+        
+        // Need first and last name for signup - navigate to UserDetailsView first
+        navigateToNext = true
     }
 }
 
 struct RegisterView_Previews: PreviewProvider {
     static var previews: some View {
         RegisterView()
+            .environmentObject(AppViewModel())
             .previewDevice("iPhone 15 Pro")
             .preferredColorScheme(.light)
     }

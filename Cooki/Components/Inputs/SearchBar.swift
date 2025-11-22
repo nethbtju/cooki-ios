@@ -3,8 +3,8 @@
 //  Cooki
 //
 //  Created by Rohit Valanki on 7/9/2025.
+//  Modified by Neth Botheju on 22/11/2025.
 //
-
 import SwiftUI
 
 struct SearchBar: View {
@@ -30,7 +30,7 @@ struct SearchBar: View {
             }
         }
         .padding(10) // reduced padding to make it shorter
-        .background(Color(.systemGray6))
+        .background(Color.backgroundGrey)
         .cornerRadius(16.5)
     }
 }

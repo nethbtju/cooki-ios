@@ -10,6 +10,48 @@ import Foundation
 /// Centralized location for all mock/preview data
 enum MockData {
     
+    // MARK: - Users
+    static let user = User(
+        firstName: "Neth",
+        lastName: "Botheju",
+        email: "neth@example.com",
+        profileImageName: "ProfilePic",
+        preferences: User.UserPreferences(
+            dietaryPreferences: [.highProtein],
+            servingsPerMeal: 2
+        )
+    )
+    
+    static let users: [User] = [
+        User(
+            firstName: "Neth",
+            lastName: "Botheju",
+            email: "neth@example.com",
+            profileImageName: "ProfilePic",
+            preferences: User.UserPreferences(
+                dietaryPreferences: [.highProtein],
+                servingsPerMeal: 2
+            )
+        ),
+        User(
+            firstName: "John",
+            lastName: "Doe",
+            email: "john@example.com",
+            preferences: User.UserPreferences(
+                dietaryPreferences: [.vegetarian, .glutenFree]
+            )
+        ),
+        User(
+            firstName: "Jane",
+            lastName: "Smith",
+            email: "jane@example.com",
+            preferences: User.UserPreferences(
+                dietaryPreferences: [.vegan],
+                allergies: ["Nuts", "Soy"]
+            )
+        )
+    ]
+    
     // MARK: - Pantry Items
     static let pantryItems: [Item] = [
         Item(
@@ -188,6 +230,11 @@ enum MockData {
 }
 
 // MARK: - Convenience Extensions for Preview Data
+extension User {
+    static var mock: User { MockData.user }
+    static var mockUsers: [User] { MockData.users }
+}
+
 extension Item {
     static var mockItems: [Item] { MockData.pantryItems }
     static var mockItem: Item { MockData.pantryItems[0] }

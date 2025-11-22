@@ -2,22 +2,30 @@
 //  LoginView.swift
 //  Cooki
 //
-//  Created by Neth Botheju on 6/9/2025.
+//  Modified by Neth Botheju on 22/11/2025.
 //
 
 import SwiftUI
 
 struct LoginView: View {
-    @State private var email: String = ""
-    @State private var password: String = ""
+    // 1. Inject the ViewModels
+    @EnvironmentObject var appViewModel: AppViewModel  // Global app state
+    @StateObject private var loginViewModel: LoginViewModel  // Form logic
+    
     @FocusState private var focusedField: Field?
 
-    @State private var navigateToRegisterPage = false
-    @State private var navigateToUserDetailsPage = false
-    @State private var navigateToHomePage = false
-    
     enum Field {
-        case email, password
+        case email, password, firstName, lastName
+    }
+    
+    // 2. Initialize LoginViewModel with AppViewModel
+    init(appViewModel: AppViewModel) {
+        _loginViewModel = StateObject(wrappedValue: LoginViewModel(appViewModel: appViewModel))
+    }
+    
+    // Required for EnvironmentObject injection
+    init() {
+        _loginViewModel = StateObject(wrappedValue: LoginViewModel(appViewModel: AppViewModel()))
     }
 
     var body: some View {
@@ -48,18 +56,43 @@ struct LoginView: View {
                     
                     // White modal sheet
                     ModalSheet(
-                        heightFraction: 0.64,
+                        heightFraction: loginViewModel.isSignUpMode ? 0.75 : 0.64,
                         content: {
                             VStack(alignment: .leading, spacing: 16) {
-                                Text("Welcome to your new pantry pal!")
+                                Text(loginViewModel.isSignUpMode ? "Join the Cooki family!" : "Welcome to your pantry pal!")
                                     .font(AppFonts.heading())
                                     .multilineTextAlignment(.leading)
                                     .lineLimit(nil)
                                     .fixedSize(horizontal: false, vertical: true)
                                     .padding(.trailing, 6)
                                 
-                                // Email
-                                TextField("Email Address", text: $email)
+                                // Sign up fields (shown only in sign-up mode)
+                                if loginViewModel.isSignUpMode {
+                                    TextField("First Name", text: $loginViewModel.firstName)
+                                        .padding(16)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(Color.textGrey)
+                                        )
+                                        .autocapitalization(.words)
+                                        .focused($focusedField, equals: .firstName)
+                                        .font(AppFonts.lightBody())
+                                        .foregroundColor(Color.textGrey)
+                                    
+                                    TextField("Last Name", text: $loginViewModel.lastName)
+                                        .padding(16)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(Color.textGrey)
+                                        )
+                                        .autocapitalization(.words)
+                                        .focused($focusedField, equals: .lastName)
+                                        .font(AppFonts.lightBody())
+                                        .foregroundColor(Color.textGrey)
+                                }
+                                
+                                // Email - 3. Bind to ViewModel property
+                                TextField("Email Address", text: $loginViewModel.email)
                                     .padding(16)
                                     .background(
                                         RoundedRectangle(cornerRadius: 8)
@@ -71,8 +104,8 @@ struct LoginView: View {
                                     .font(AppFonts.lightBody())
                                     .foregroundColor(Color.textGrey)
                                 
-                                // Password
-                                SecureField("Password", text: $password)
+                                // Password - 3. Bind to ViewModel property
+                                SecureField("Password", text: $loginViewModel.password)
                                     .padding(16)
                                     .background(
                                         RoundedRectangle(cornerRadius: 8)
@@ -82,39 +115,68 @@ struct LoginView: View {
                                     .font(AppFonts.lightBody())
                                     .foregroundColor(Color.textGrey)
                                 
-                                // Forgot password
-                                Button("Forgot password?") {
-                                    print("Forgot password tapped")
-                                }
-                                .font(AppFonts.regularBody())
-                                .foregroundColor(.accentColor)
-                                
-                                // Login button
-                                Button(action: { print("Login clicked!") }) {
-                                    Text("Login")
-                                        .font(AppFonts.buttonFont())
-                                        .foregroundColor(.white)
-                                        .frame(maxWidth: .infinity)
-                                        .padding()
-                                        .background(Color.accentBurntOrange)
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                                }
-                                .navigationDestination(isPresented: $navigateToHomePage) {
-                                    HomeView()
-                                        .navigationBarBackButtonHidden(true)
+                                // Password hint for sign-up
+                                if loginViewModel.isSignUpMode {
+                                    Text("Password must be at least 6 characters")
+                                        .font(AppFonts.smallBody())
+                                        .foregroundColor(Color.textGrey.opacity(0.7))
+                                        .padding(.horizontal, 4)
                                 }
                                 
-                                // Register link
+                                // Forgot password (login mode only)
+                                if !loginViewModel.isSignUpMode {
+                                    Button("Forgot password?") {
+                                        Task {
+                                            await loginViewModel.handleForgotPassword()
+                                        }
+                                    }
+                                    .font(AppFonts.regularBody())
+                                    .foregroundColor(.accentColor)
+                                }
+                                
+                                // 4. Show error message from ViewModel
+                                if let error = appViewModel.errorMessage {
+                                    Text(error)
+                                        .font(AppFonts.smallBody())
+                                        .foregroundColor(.textRed)
+                                        .padding(.horizontal, 4)
+                                }
+                                
+                                // 5. Call ViewModel method with async action
+                                Button(action: {
+                                    Task {
+                                        await loginViewModel.handleAuth()
+                                    }
+                                }) {
+                                    ZStack {
+                                        Text(loginViewModel.isSignUpMode ? "Sign Up" : "Login")
+                                            .font(AppFonts.buttonFont())
+                                            .foregroundColor(.white)
+                                            .opacity(appViewModel.isLoading ? 0 : 1)
+                                        
+                                        // 6. Show loading indicator from ViewModel
+                                        if appViewModel.isLoading {
+                                            ProgressView()
+                                                .tint(.white)
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(loginViewModel.isFormValid ? Color.accentBurntOrange : Color.textGrey.opacity(0.3))
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                }
+                                .disabled(!loginViewModel.isFormValid || appViewModel.isLoading)
+                                
+                                // Toggle between login/signup
+                                // Toggle between login/signup
                                 HStack(spacing: 4) {
                                     Text("Not a member?")
                                         .foregroundColor(.textGrey)
-                                    Button("Register now") {
+                                    NavigationLink(destination: RegisterView()) {
+                                        Text("Register now")
+                                            .foregroundColor(.accentBurntOrange)
+                                            .fontWeight(.medium)
                                     }
-                                    .navigationDestination(isPresented: $navigateToRegisterPage) {
-                                        RegisterView()
-                                    }
-                                    .foregroundColor(.accentBurntOrange)
-                                    .fontWeight(.medium)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 
@@ -149,6 +211,7 @@ struct LoginView: View {
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
+            .environmentObject(AppViewModel())
             .previewDevice("iPhone 15 Pro")
             .preferredColorScheme(.light)
     }
