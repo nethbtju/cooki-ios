@@ -16,7 +16,6 @@ class MockAuthService: AuthServiceProtocol {
         // Pre-populate with mock user
         let mockUser = User.mock
         mockUsers[mockUser.email] = (password: "password123", user: mockUser)
-        self.currentUser = mockUser // Start logged in for development
     }
     
     // MARK: - Sign Up

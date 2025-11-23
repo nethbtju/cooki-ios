@@ -11,7 +11,7 @@ struct BackHeader: View {
     
     var body: some View {
         AppHeader(
-            padding: EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20),
+            padding: EdgeInsets(top: 5, leading: 20, bottom: 10, trailing: 20),
             leading: {
                 BackButton(action: { dismiss() })
             }

@@ -22,4 +22,7 @@ struct AppConfig {
     // MARK: - API Configuration
     static let apiTimeout: TimeInterval = 30
     static let maxImageUploadSize = 5_000_000 // 5MB
+    
+    // MARK: - Debug Settings
+    static let skipLoginInDevelopment = false  // Toggle this as needed
 }

@@ -13,7 +13,10 @@ struct CookiApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if appViewModel.isAuthenticated {
+            if AppConfig.skipLoginInDevelopment && AppConfig.environment == .development {
+                MainView()
+                    .environmentObject(appViewModel)
+            } else if appViewModel.isAuthenticated {
                 MainView()
                     .environmentObject(appViewModel)
             } else {
