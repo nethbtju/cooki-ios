@@ -2,7 +2,7 @@
 //  User.swift
 //  Cooki
 //
-//  Created by Neth Botheju on 22/11/2025.
+//  Modified by Neth Botheju on 23/11/2025.
 //
 import Foundation
 import SwiftUI
@@ -14,15 +14,17 @@ struct User: Identifiable, Codable, Equatable {
     var lastName: String
     var email: String
     var profileImageName: String?
+    var pantryIds: [UUID]
     var createdAt: Date
     var preferences: UserPreferences
     
     init(
         id: UUID = UUID(),
-        firstName: String,
-        lastName: String,
+        firstName: String = "",
+        lastName: String = "",
         email: String,
         profileImageName: String? = nil,
+        pantryIds: [UUID] = [],
         createdAt: Date = Date(),
         preferences: UserPreferences = UserPreferences()
     ) {
@@ -31,21 +33,30 @@ struct User: Identifiable, Codable, Equatable {
         self.lastName = lastName
         self.email = email
         self.profileImageName = profileImageName
+        self.pantryIds = pantryIds
         self.createdAt = createdAt
         self.preferences = preferences
     }
     
     // MARK: - Computed Properties
     var fullName: String {
-        "\(firstName) \(lastName)"
+        if firstName.isEmpty && lastName.isEmpty {
+            return email // Fallback to email if no name set
+        }
+        return "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
     }
     
     var greeting: String {
-        "Hello, \(firstName)"
+        firstName.isEmpty ? "Hello" : "Hello, \(firstName)"
     }
     
     var getProfilePicture: Image {
-        Image(profileImageName ?? "ProfilePic") // TODO: Add a default user profile image
+        Image(profileImageName ?? "ProfilePic")
+    }
+    
+    // Check if user has completed onboarding
+    var hasCompletedProfile: Bool {
+        !firstName.isEmpty && !lastName.isEmpty
     }
 }
 

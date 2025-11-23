@@ -3,18 +3,23 @@
 //  Cooki
 //
 //  Created by Neth Botheju on 7/9/2025.
+//  Modified by Neth Botheju on 23/11/2025.
 //
 
 import SwiftUI
 
 public struct UserDetailsView: View {
     public var body: some View {
-        MainLayout(header: { LogoHeader(enableBackButton: true) }, content: { UserDetailsContent() })
+        MainLayout(header: { LogoHeader(enableBackButton: false) }, content: { UserDetailsContent() })
             .navigationBarHidden(true)
+            .navigationBarBackButtonHidden(true) // Prevent going back to registration
     }
 }
 
 struct UserDetailsContent: View {
+    @EnvironmentObject var appViewModel: AppViewModel
+    @Environment(\.dismiss) var dismiss
+    
     @State private var preferredName: String = ""
     @State private var selectedGender: Gender = .preferNotToSay
     @State private var selectedCountry: String = "United States"
@@ -64,7 +69,7 @@ struct UserDetailsContent: View {
                         
                         // Form fields
                         VStack(spacing: 16) {
-                            // Preferred Name
+                            // Preferred Name (optional, pre-filled with first name)
                             FormTextField(
                                 placeholder: "Preferred Name",
                                 text: $preferredName,
@@ -75,6 +80,12 @@ struct UserDetailsContent: View {
                             .focused($focusedField, equals: .preferredName)
                             .submitLabel(.done)
                             .onSubmit { focusedField = nil }
+                            .onAppear {
+                                // Pre-fill with first name from registration
+                                if preferredName.isEmpty, let currentUser = appViewModel.currentUser {
+                                    preferredName = currentUser.firstName
+                                }
+                            }
                             
                             // Gender Picker
                             VStack(alignment: .leading, spacing: 8) {
@@ -196,28 +207,50 @@ struct UserDetailsContent: View {
                                 }
                             }
                         }
+                        
+                        // Error message
+                        if let error = appViewModel.errorMessage {
+                            HStack(spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 14))
+                                Text(error)
+                                    .font(AppFonts.smallBody())
+                            }
+                            .foregroundColor(.textRed)
+                            .padding(12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.textRed.opacity(0.1))
+                            .cornerRadius(8)
+                        }
                     }
                     // Get Started Button
                     PrimaryButton.primary(
-                        title: "Get Started",
+                        title: appViewModel.isLoading ? "" : "Get Started",
                         action: {
                             focusedField = nil
-                            getStarted()
+                            Task { await getStarted() }
                         },
-                        isEnabled: isFormValid
+                        isEnabled: isFormValid && !appViewModel.isLoading
                     )
+                    .overlay {
+                        if appViewModel.isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        }
+                    }
                     .padding(.top, 16)
                     
                     // Skip button
                     Button(action: {
                         focusedField = nil
-                        skip()
+                        Task { await skip() }
                     }) {
                         Text("Skip for now")
                             .font(AppFonts.regularBody())
                             .foregroundColor(.textGrey)
                     }
                     .frame(maxWidth: .infinity)
+                    .disabled(appViewModel.isLoading)
                 }
             }
             .padding(.horizontal, 24)
@@ -287,25 +320,65 @@ struct UserDetailsContent: View {
     private var isFormValid: Bool {
         !preferredName.isEmpty
     }
-    
-    private func getStarted() {
-        print("Get started tapped with:")
-        print("Name: \(preferredName)")
-        print("Gender: \(selectedGender.rawValue)")
-        print("Country: \(selectedCountry)")
-        print("Height: \(height) \(useMetric ? "cm" : "in")")
-        print("Weight: \(weight) \(useMetric ? "kg" : "lb")")
-        print("Dietary Preferences: \(selectedDietaryPreferences.map { $0.rawValue })")
+
+    private func getStarted() async {
+        // Validate required fields
+        guard !preferredName.isEmpty else {
+            appViewModel.errorMessage = "Please enter your name"
+            appViewModel.showError = true
+            return
+        }
+        
+        let firstName = preferredName
+        
+        // Create preferences
+        let updatedPreferences = User.UserPreferences(
+            dietaryPreferences: Array(selectedDietaryPreferences),
+            allergies: [],
+            dislikedIngredients: [],
+            servingsPerMeal: 2,
+            notificationsEnabled: true
+        )
+        
+        // Complete registration in Firebase (creates user document + pantry)
+        await appViewModel.completeUserRegistration(
+            firstName: firstName,
+            preferences: updatedPreferences
+        )
+        
+        // If successful, user will be fully authenticated and MainView will show
+        if appViewModel.isAuthenticated {
+            if AppConfig.enableDebugLogging {
+                print("✅ UserDetailsView: Registration completed successfully")
+                print("   Name: \(firstName)")
+                print("   Preferences saved")
+                print("   Pantry created")
+            }
+        }
     }
-    
-    private func skip() {
-        print("Skipped onboarding")
+
+    private func skip() async {
+        // Skip with default name and preferences
+        guard let email = appViewModel.currentUser?.email else { return }
+        
+        let defaultFirstName = email.components(separatedBy: "@").first ?? "User"
+        let defaultPreferences = User.UserPreferences()
+        
+        await appViewModel.completeUserRegistration(
+            firstName: defaultFirstName,
+            preferences: defaultPreferences
+        )
+        
+        if AppConfig.enableDebugLogging {
+            print("⏭️ UserDetailsView: Skipped onboarding")
+        }
     }
 }
 
 struct UserDetailsView_Previews: PreviewProvider {
     static var previews: some View {
         UserDetailsView()
+            .environmentObject(AppViewModel())
             .previewDevice("iPhone 15 Pro")
             .preferredColorScheme(.light)
     }

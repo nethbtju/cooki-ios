@@ -68,8 +68,8 @@ class ProfileViewModel: ObservableObject {
         await appViewModel.updatePreferences(preferences)
     }
     
-    func signOut() {
-        appViewModel.signOut()
+    func signOut() async {
+        await appViewModel.signOut()
     }
     
     func deleteAccount() async {

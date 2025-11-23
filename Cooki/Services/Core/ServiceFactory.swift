@@ -2,7 +2,7 @@
 //  ServiceFactory.swift
 //  Cooki
 //
-//  Created by Neth Botheju on 22/11/2025.
+//  Modified by Neth Botheju on 22/11/2025.
 //
 import Foundation
 
@@ -21,10 +21,10 @@ class ServiceFactory {
     func makeAuthService() -> AuthServiceProtocol {
         switch AppConfig.environment {
         case .development:
-            return MockAuthService()
+            // Use Firebase in development now
+            return FirebaseAuthService()
         case .staging, .production:
-            // TODO: return FirebaseAuthService()
-            return MockAuthService()
+            return FirebaseAuthService()
         }
     }
     
@@ -32,10 +32,9 @@ class ServiceFactory {
     func makeUserService() -> UserServiceProtocol {
         switch AppConfig.environment {
         case .development:
-            return MockUserService()
+            return FirebaseUserService() // Create this next
         case .staging, .production:
-            // TODO: return FirebaseUserService()
-            return MockUserService()
+            return FirebaseUserService()
         }
     }
 }

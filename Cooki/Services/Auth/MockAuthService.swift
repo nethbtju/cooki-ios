@@ -7,7 +7,7 @@
 import Foundation
 
 class MockAuthService: AuthServiceProtocol {
-    
+
     // MARK: - Properties
     private var currentUser: User?
     private var mockUsers: [String: (password: String, user: User)] = [:]
@@ -18,8 +18,12 @@ class MockAuthService: AuthServiceProtocol {
         mockUsers[mockUser.email] = (password: "password123", user: mockUser)
     }
     
+    func completeUserRegistration(firstName: String, preferences: User.UserPreferences) async throws -> User {
+        return currentUser ?? User.mock
+    }
+    
     // MARK: - Sign Up
-    func signUp(email: String, password: String, firstName: String, lastName: String) async throws -> User {
+    func signUp(email: String, password: String) async throws -> User {
         // Simulate network delay
         try await Task.sleep(nanoseconds: 1_000_000_000)
         
@@ -40,8 +44,6 @@ class MockAuthService: AuthServiceProtocol {
         
         // Create new user
         let user = User(
-            firstName: firstName,
-            lastName: lastName,
             email: email
         )
         
