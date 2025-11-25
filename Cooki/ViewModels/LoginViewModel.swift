@@ -12,8 +12,7 @@ class LoginViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var email = ""
     @Published var password = ""
-    @Published var firstName = ""
-    @Published var lastName = ""
+    @Published var displayName = ""
     @Published var isSignUpMode = false
     @Published var showForgotPassword = false
     
@@ -30,8 +29,6 @@ class LoginViewModel: ObservableObject {
         if isSignUpMode {
             return !email.isEmpty &&
                    !password.isEmpty &&
-                   !firstName.isEmpty &&
-                   !lastName.isEmpty &&
                    password.count >= 6 &&
                    isValidEmail(email)
         } else {
@@ -51,19 +48,10 @@ class LoginViewModel: ObservableObject {
     
     // MARK: - Actions
     func handleAuth() async {
-        if isSignUpMode {
-            await appViewModel.signUp(
-                email: email.trimmingCharacters(in: .whitespacesAndNewlines),
-                password: password,
-                firstName: firstName.trimmingCharacters(in: .whitespacesAndNewlines),
-                lastName: lastName.trimmingCharacters(in: .whitespacesAndNewlines)
-            )
-        } else {
-            await appViewModel.signIn(
-                email: email.trimmingCharacters(in: .whitespacesAndNewlines),
-                password: password
-            )
-        }
+        await appViewModel.signUp(
+            email: email.trimmingCharacters(in: .whitespacesAndNewlines),
+            password: password,
+        )
     }
     
     func toggleMode() {
@@ -79,8 +67,6 @@ class LoginViewModel: ObservableObject {
     private func clearForm() {
         email = ""
         password = ""
-        firstName = ""
-        lastName = ""
     }
     
     private func isValidEmail(_ email: String) -> Bool {

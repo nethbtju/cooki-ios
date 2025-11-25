@@ -13,6 +13,9 @@ import UIKit
 class FirebaseUserService: UserServiceProtocol {
     private let db = Firestore.firestore()
     private let storage = Storage.storage()
+
+    let pantryIdStrings = data["pantryIds"] as? [String] ?? []
+    let pantryIds = pantryIdStrings.compactMap { UUID(uuidString: $0) }
     
     // MARK: - Fetch User Profile
     func fetchUserProfile() async throws -> User {
@@ -34,6 +37,7 @@ class FirebaseUserService: UserServiceProtocol {
                 lastName: data["lastName"] as? String ?? "",
                 email: data["email"] as? String ?? "",
                 profileImageName: data["profileImageName"] as? String,
+                pantryIds: pantryIds,
                 createdAt: (data["createdAt"] as? Timestamp)?.dateValue() ?? Date(),
                 preferences: parsePreferences(data["preferences"] as? [String: Any])
             )

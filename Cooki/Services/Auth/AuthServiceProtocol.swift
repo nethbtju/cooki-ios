@@ -8,11 +8,11 @@ import Foundation
 
 // MARK: - Auth Service Protocol
 protocol AuthServiceProtocol {
-    /// Sign up a new user (creates Firebase Auth account only, no Firestore doc)
+    /// Sign up a new user (creates Firebase Auth account only)
     func signUp(email: String, password: String) async throws -> User
     
     /// Complete user registration with name and preferences (creates Firestore doc + pantry)
-    func completeUserRegistration(firstName: String, preferences: User.UserPreferences) async throws -> User
+    func completeUserRegistration(displayName: String, preferences: User.UserPreferences) async throws -> User
     
     /// Sign in an existing user
     func signIn(email: String, password: String) async throws -> User

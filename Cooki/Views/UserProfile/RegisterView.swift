@@ -20,8 +20,7 @@ struct RegisterContent: View {
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
-    @State private var firstName: String = ""
-    @State private var lastName: String = ""
+    @State private var displayName: String = ""
     
     @State private var passwordMismatch: Bool = false
     @FocusState private var focusedField: Field?
@@ -29,7 +28,7 @@ struct RegisterContent: View {
     @State private var navigateToUserDetails: Bool = false
     
     enum Field {
-        case firstName, lastName, email, password, confirmPassword
+        case displayName, email, password, confirmPassword
     }
     
     var body: some View {

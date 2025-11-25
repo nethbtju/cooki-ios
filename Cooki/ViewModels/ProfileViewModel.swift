@@ -10,8 +10,7 @@ import SwiftUI
 @MainActor
 class ProfileViewModel: ObservableObject {
     // MARK: - Published Properties
-    @Published var firstName = ""
-    @Published var lastName = ""
+    @Published var displayName = ""
     @Published var email = ""
     @Published var preferences: User.UserPreferences
     @Published var showImagePicker = false
@@ -26,8 +25,7 @@ class ProfileViewModel: ObservableObject {
         
         // Initialize with current user data
         if let user = appViewModel.currentUser {
-            self.firstName = user.firstName
-            self.lastName = user.lastName
+            self.displayName = user.displayName
             self.email = user.email
             self.preferences = user.preferences
         } else {
@@ -39,13 +37,12 @@ class ProfileViewModel: ObservableObject {
     var hasChanges: Bool {
         guard let currentUser = appViewModel.currentUser else { return false }
         
-        return firstName != currentUser.firstName ||
-               lastName != currentUser.lastName ||
+        return displayName != currentUser.displayName ||
                preferences != currentUser.preferences
     }
     
     var isFormValid: Bool {
-        !firstName.isEmpty && !lastName.isEmpty
+        !displayName.isEmpty && !preferences.dietaryPreferences.isEmpty
     }
     
     // MARK: - Actions
@@ -53,8 +50,7 @@ class ProfileViewModel: ObservableObject {
         guard let currentUser = appViewModel.currentUser else { return }
         
         var updatedUser = currentUser
-        updatedUser.firstName = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
-        updatedUser.lastName = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+        updatedUser.displayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
         updatedUser.preferences = preferences
         
         await appViewModel.updateProfile(updatedUser)

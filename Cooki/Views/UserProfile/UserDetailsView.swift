@@ -83,7 +83,7 @@ struct UserDetailsContent: View {
                             .onAppear {
                                 // Pre-fill with first name from registration
                                 if preferredName.isEmpty, let currentUser = appViewModel.currentUser {
-                                    preferredName = currentUser.firstName
+                                    preferredName = currentUser.displayName
                                 }
                             }
                             
@@ -329,7 +329,7 @@ struct UserDetailsContent: View {
             return
         }
         
-        let firstName = preferredName
+        let displayName = preferredName
         
         // Create preferences
         let updatedPreferences = User.UserPreferences(
@@ -342,7 +342,7 @@ struct UserDetailsContent: View {
         
         // Complete registration in Firebase (creates user document + pantry)
         await appViewModel.completeUserRegistration(
-            firstName: firstName,
+            displayName: displayName,
             preferences: updatedPreferences
         )
         
@@ -350,7 +350,7 @@ struct UserDetailsContent: View {
         if appViewModel.isAuthenticated {
             if AppConfig.enableDebugLogging {
                 print("✅ UserDetailsView: Registration completed successfully")
-                print("   Name: \(firstName)")
+                print("   Name: \(displayName)")
                 print("   Preferences saved")
                 print("   Pantry created")
             }
@@ -361,11 +361,11 @@ struct UserDetailsContent: View {
         // Skip with default name and preferences
         guard let email = appViewModel.currentUser?.email else { return }
         
-        let defaultFirstName = email.components(separatedBy: "@").first ?? "User"
+        let defaultDisplayName = email.components(separatedBy: "@").first ?? "User"
         let defaultPreferences = User.UserPreferences()
         
         await appViewModel.completeUserRegistration(
-            firstName: defaultFirstName,
+            displayName: defaultDisplayName,
             preferences: defaultPreferences
         )
         

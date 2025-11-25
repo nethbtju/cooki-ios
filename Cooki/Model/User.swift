@@ -10,8 +10,7 @@ import SwiftUI
 // MARK: - User Model
 struct User: Identifiable, Codable, Equatable {
     let id: UUID
-    var firstName: String
-    var lastName: String
+    var displayName: String
     var email: String
     var profileImageName: String?
     var pantryIds: [UUID]
@@ -20,8 +19,7 @@ struct User: Identifiable, Codable, Equatable {
     
     init(
         id: UUID = UUID(),
-        firstName: String = "",
-        lastName: String = "",
+        displayName: String = "",
         email: String,
         profileImageName: String? = nil,
         pantryIds: [UUID] = [],
@@ -29,8 +27,7 @@ struct User: Identifiable, Codable, Equatable {
         preferences: UserPreferences = UserPreferences()
     ) {
         self.id = id
-        self.firstName = firstName
-        self.lastName = lastName
+        self.displayName = displayName
         self.email = email
         self.profileImageName = profileImageName
         self.pantryIds = pantryIds
@@ -38,16 +35,9 @@ struct User: Identifiable, Codable, Equatable {
         self.preferences = preferences
     }
     
-    // MARK: - Computed Properties
-    var fullName: String {
-        if firstName.isEmpty && lastName.isEmpty {
-            return email // Fallback to email if no name set
-        }
-        return "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
-    }
     
     var greeting: String {
-        firstName.isEmpty ? "Hello" : "Hello, \(firstName)"
+        displayName.isEmpty ? "Hello" : "Hello, \(displayName)"
     }
     
     var getProfilePicture: Image {
@@ -56,7 +46,7 @@ struct User: Identifiable, Codable, Equatable {
     
     // Check if user has completed onboarding
     var hasCompletedProfile: Bool {
-        !firstName.isEmpty && !lastName.isEmpty
+        !displayName.isEmpty
     }
 }
 

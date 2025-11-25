@@ -25,7 +25,7 @@ class MockUserService: UserServiceProtocol {
         
         if AppConfig.enableDebugLogging {
             print("✅ MockUserService: Updated user profile")
-            print("   Name: \(user.fullName)")
+            print("   Name: \(user.displayName)")
             print("   Email: \(user.email)")
         }
     }

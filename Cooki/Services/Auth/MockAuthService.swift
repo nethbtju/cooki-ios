@@ -18,10 +18,6 @@ class MockAuthService: AuthServiceProtocol {
         mockUsers[mockUser.email] = (password: "password123", user: mockUser)
     }
     
-    func completeUserRegistration(firstName: String, preferences: User.UserPreferences) async throws -> User {
-        return currentUser ?? User.mock
-    }
-    
     // MARK: - Sign Up
     func signUp(email: String, password: String) async throws -> User {
         // Simulate network delay
@@ -53,7 +49,28 @@ class MockAuthService: AuthServiceProtocol {
         
         if AppConfig.enableDebugLogging {
             print("✅ MockAuthService: Sign up successful")
-            print("   User: \(user.fullName)")
+            print("   User: \(user.displayName)")
+        }
+        
+        return user
+    }
+    
+    func completeUserRegistration(displayName: String, preferences: User.UserPreferences) async throws -> User {
+        guard var user = currentUser else {
+            throw AuthServiceError.notAuthenticated
+        }
+        
+        user.displayName = displayName
+        user.preferences = preferences
+        
+        // Create mock pantry
+        let pantryId = UUID()
+        user.pantryIds = [pantryId]
+        
+        currentUser = user
+        
+        if let userData = mockUsers[user.email] {
+            mockUsers[user.email] = (password: userData.password, user: user)
         }
         
         return user
@@ -84,7 +101,7 @@ class MockAuthService: AuthServiceProtocol {
         
         if AppConfig.enableDebugLogging {
             print("✅ MockAuthService: Sign in successful")
-            print("   User: \(userData.user.fullName)")
+            print("   User: \(userData.user.displayName)")
         }
         
         return userData.user
@@ -110,7 +127,7 @@ class MockAuthService: AuthServiceProtocol {
         
         if AppConfig.enableDebugLogging {
             print("✅ MockAuthService: Updating profile")
-            print("   Name: \(user.fullName)")
+            print("   Name: \(user.displayName)")
         }
         
         // Update stored user

@@ -75,7 +75,7 @@ class AppViewModel: ObservableObject {
             
             if AppConfig.enableDebugLogging {
                 print("✅ AppViewModel: Current user fetched")
-                print("   User: \(user.fullName)")
+                print("   User: \(user.displayName)")
             }
         } catch {
             self.isAuthenticated = false
@@ -115,13 +115,13 @@ class AppViewModel: ObservableObject {
     }
 
     // MARK: - Complete User Registration
-    func completeUserRegistration(firstName: String, preferences: User.UserPreferences) async {
+    func completeUserRegistration(displayName: String, preferences: User.UserPreferences) async {
         isLoading = true
         errorMessage = nil
         
         do {
             let completedUser = try await authService.completeUserRegistration(
-                firstName: firstName,
+                displayName: displayName,
                 preferences: preferences
             )
             self.currentUser = completedUser
@@ -129,7 +129,7 @@ class AppViewModel: ObservableObject {
             
             if AppConfig.enableDebugLogging {
                 print("✅ AppViewModel: User registration completed")
-                print("   Name: \(completedUser.fullName)")
+                print("   Name: \(completedUser.displayName)")
                 print("   Pantry IDs: \(completedUser.pantryIds)")
             }
         } catch {
