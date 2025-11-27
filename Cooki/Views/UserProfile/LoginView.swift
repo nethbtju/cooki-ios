@@ -7,18 +7,9 @@
 
 import SwiftUI
 
-public struct LoginView: View {
-    public var body: some View {
-        NavigationStack {
-            MainLayout(header: {}, content: { LoginContent() })
-                .navigationBarBackButtonHidden(true)
-                .toolbar(.hidden, for: .navigationBar)
-        }
-    }
-}
-
 struct LoginContent: View {
     @EnvironmentObject var appViewModel: AppViewModel
+    @EnvironmentObject var authCoordinator: AuthCoordinator
     @StateObject private var loginViewModel: LoginViewModel
     
     @FocusState private var focusedField: Field?
@@ -143,8 +134,8 @@ struct LoginContent: View {
                             Text("Not a member?")
                                 .font(AppFonts.regularBody())
                                 .foregroundColor(.textGrey)
-                            NavigationLink {
-                                RegisterView()
+                            Button {
+                                authCoordinator.push(.register)
                             } label: {
                                 Text("Register now")
                                     .font(AppFonts.regularBody())
@@ -198,6 +189,8 @@ struct LoginContent: View {
                 }
             }
         }
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             // Sync with environment's appViewModel
             loginViewModel.appViewModel = appViewModel
@@ -211,7 +204,7 @@ struct LoginContent: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView()
+        LoginContent()
             .environmentObject(AppViewModel())
             .previewDevice("iPhone 15 Pro")
             .preferredColorScheme(.light)

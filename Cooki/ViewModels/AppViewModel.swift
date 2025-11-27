@@ -28,6 +28,9 @@ class AppViewModel: ObservableObject {
     // MARK: - Auth State Listener Handle
     private var authStateHandle: AuthStateDidChangeListenerHandle?
     
+    // Flag to prevent fetching during registration flow
+    private var isRegistering = false
+    
     // MARK: - Init
     init() {
         self.authService = ServiceFactory.shared.makeAuthService()
@@ -51,13 +54,21 @@ class AppViewModel: ObservableObject {
                 guard let self = self else { return }
                 
                 if user != nil {
-                    // User is signed in, fetch user data
-                    await self.fetchCurrentUser()
+                    // User is signed in
+                    // Don't fetch if we're in the middle of registration
+                    if !self.isRegistering && !self.needsProfileCompletion {
+                        await self.fetchCurrentUser()
+                    } else {
+                        if AppConfig.enableDebugLogging {
+                            print("🔐 AppViewModel: Auth state changed but user is registering/completing profile, skipping fetch")
+                        }
+                    }
                 } else {
                     // User is signed out
                     self.currentUser = nil
                     self.isAuthenticated = false
                     self.needsProfileCompletion = false
+                    self.isRegistering = false
                     
                     if AppConfig.enableDebugLogging {
                         print("🔐 AppViewModel: User signed out")
@@ -74,38 +85,46 @@ class AppViewModel: ObservableObject {
     private func fetchCurrentUser() async {
         do {
             let user = try await userService.fetchUserProfile()
-            self.currentUser = user
             
-            // Check if user has completed their profile
-            let hasCompletedProfile = !user.displayName.isEmpty && !user.pantryIds.isEmpty
-            
-            if hasCompletedProfile {
-                // User has completed profile, fully authenticated
-                self.isAuthenticated = true
-                self.needsProfileCompletion = false
+            // Only update if we're not in the middle of registration
+            // (to prevent overwriting the state we just set in signUp)
+            if !needsProfileCompletion || !user.displayName.isEmpty {
+                self.currentUser = user
                 
-                if AppConfig.enableDebugLogging {
-                    print("✅ AppViewModel: Current user fetched (Profile Complete)")
-                    print("   User: \(user.displayName)")
-                    print("   Pantries: \(user.pantryIds.count)")
-                }
-            } else {
-                // User exists but hasn't completed profile
-                self.isAuthenticated = true // Firebase auth is valid
-                self.needsProfileCompletion = true
+                // Check if user has completed their profile
+                let hasCompletedProfile = !user.displayName.isEmpty && !user.pantryIds.isEmpty
                 
-                if AppConfig.enableDebugLogging {
-                    print("⚠️ AppViewModel: Current user fetched (Profile Incomplete)")
-                    print("   Email: \(user.email)")
-                    print("   Needs profile completion")
+                if hasCompletedProfile {
+                    // User has completed profile, fully authenticated
+                    self.isAuthenticated = true
+                    self.needsProfileCompletion = false
+                    
+                    if AppConfig.enableDebugLogging {
+                        print("✅ AppViewModel: Current user fetched (Profile Complete)")
+                        print("   User: \(user.displayName)")
+                        print("   Pantries: \(user.pantryIds.count)")
+                    }
+                } else {
+                    // User exists but hasn't completed profile
+                    self.isAuthenticated = true
+                    self.needsProfileCompletion = true
+                    
+                    if AppConfig.enableDebugLogging {
+                        print("⚠️ AppViewModel: Current user fetched (Profile Incomplete)")
+                        print("   Email: \(user.email)")
+                        print("   Needs profile completion")
+                    }
                 }
             }
         } catch {
-            self.isAuthenticated = false
-            self.needsProfileCompletion = false
+            // If fetch fails during registration, keep the registration state
+            if !needsProfileCompletion {
+                self.isAuthenticated = false
+                self.needsProfileCompletion = false
+            }
             
             if AppConfig.enableDebugLogging {
-                print("❌ AppViewModel: Failed to fetch current user - \(error.localizedDescription)")
+                print("⚠️ AppViewModel: Failed to fetch user (might be during registration) - \(error.localizedDescription)")
             }
         }
     }
@@ -114,13 +133,16 @@ class AppViewModel: ObservableObject {
     func signUp(email: String, password: String) async {
         isLoading = true
         errorMessage = nil
+        isRegistering = true // Set flag to prevent auth listener from fetching
         
         do {
+            // Create Firebase Auth user (this does NOT create Firestore document yet)
             let user = try await authService.signUp(
                 email: email,
                 password: password
             )
             
+            // Immediately set the state before auth listener fires
             currentUser = user
             isAuthenticated = true
             needsProfileCompletion = true // New users need to complete profile
@@ -129,13 +151,15 @@ class AppViewModel: ObservableObject {
                 print("✅ AppViewModel: Sign up successful")
                 print("   Email: \(email)")
                 print("   User ID: \(user.id)")
-                print("   Needs profile completion: true")
+                print("   isAuthenticated: \(isAuthenticated)")
+                print("   needsProfileCompletion: \(needsProfileCompletion)")
             }
         } catch {
             errorMessage = error.localizedDescription
             showError = true
             isAuthenticated = false
             needsProfileCompletion = false
+            isRegistering = false
             
             if AppConfig.enableDebugLogging {
                 print("❌ AppViewModel: Sign up failed - \(error.localizedDescription)")
@@ -159,6 +183,7 @@ class AppViewModel: ObservableObject {
             self.currentUser = completedUser
             self.isAuthenticated = true
             self.needsProfileCompletion = false // Profile is now complete
+            self.isRegistering = false // Registration flow complete
             
             if AppConfig.enableDebugLogging {
                 print("✅ AppViewModel: User registration completed")

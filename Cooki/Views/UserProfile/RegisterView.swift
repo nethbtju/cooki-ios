@@ -7,17 +7,10 @@
 //
 import SwiftUI
 
-public struct RegisterView: View {
-    public var body: some View {
-        MainLayout(header: { BackHeader() }, content: { RegisterContent() })
-            .navigationBarHidden(true)
-    }
-}
-
 struct RegisterContent: View {
     @EnvironmentObject var appViewModel: AppViewModel
+    @EnvironmentObject var authCoordinator: AuthCoordinator
     @StateObject private var loginViewModel: LoginViewModel
-    @Environment(\.dismiss) private var dismiss
     
     @State private var confirmPassword: String = ""
     @State private var passwordMismatch: Bool = false
@@ -148,7 +141,7 @@ struct RegisterContent: View {
                                 .font(AppFonts.regularBody())
                                 .foregroundColor(.textGrey)
                             Button(action: {
-                                dismiss()
+                                authCoordinator.pop()
                             }) {
                                 Text("Sign In")
                                     .font(AppFonts.regularBody())
@@ -165,6 +158,7 @@ struct RegisterContent: View {
                 }
             }
         }
+        .navigationBarBackButtonHidden(true)
         .onAppear {
             // Sync the loginViewModel with the environment's appViewModel
             loginViewModel.appViewModel = appViewModel
@@ -193,15 +187,14 @@ struct RegisterContent: View {
         
         print("🔵 RegisterView - Starting registration...")
         print("🔵 RegisterView - Email: \(loginViewModel.email)")
+        print("🔵 RegisterView - BEFORE signUp: isAuth=\(appViewModel.isAuthenticated), needsProfile=\(appViewModel.needsProfileCompletion)")
         
         // Use the loginViewModel's handleAuth which will call signUp
         await loginViewModel.handleAuth()
         
-        print("🔵 RegisterView - Registration completed. isAuthenticated: \(appViewModel.isAuthenticated)")
-        print("🔵 RegisterView - needsProfileCompletion: \(appViewModel.needsProfileCompletion)")
-        
-        // Root coordinator will automatically navigate to UserDetailsView
-        // when needsProfileCompletion becomes true
+        print("🔵 RegisterView - AFTER signUp: isAuth=\(appViewModel.isAuthenticated), needsProfile=\(appViewModel.needsProfileCompletion)")
+        print("🔵 RegisterView - Registration completed successfully!")
+        print("🔵 RegisterView - Waiting for RootCoordinator to detect state change...")
     }
 }
 
@@ -228,7 +221,7 @@ struct ErrorMessageView: View {
 struct RegisterView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            RegisterView()
+            RegisterContent()
                 .environmentObject(AppViewModel())
         }
         .previewDevice("iPhone 15 Pro")
