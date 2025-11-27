@@ -9,8 +9,11 @@ import SwiftUI
 
 public struct LoginView: View {
     public var body: some View {
-        MainLayout(header: {}, content: { LoginContent() })
-            .navigationBarHidden(true)
+        NavigationStack {
+            MainLayout(header: {}, content: { LoginContent() })
+                .navigationBarBackButtonHidden(true)
+                .toolbar(.hidden, for: .navigationBar)
+        }
     }
 }
 
@@ -24,12 +27,9 @@ struct LoginContent: View {
         case email, password
     }
     
-    init(appViewModel: AppViewModel) {
-        _loginViewModel = StateObject(wrappedValue: LoginViewModel(appViewModel: appViewModel))
-    }
-    
     init() {
-        _loginViewModel = StateObject(wrappedValue: LoginViewModel(appViewModel: AppViewModel()))
+        // Initialize with a placeholder - will be set in onAppear
+        _loginViewModel = StateObject(wrappedValue: LoginViewModel(appViewModel: AppViewModel(), isSignUpMode: false))
     }
     
     var body: some View {
@@ -143,7 +143,9 @@ struct LoginContent: View {
                             Text("Not a member?")
                                 .font(AppFonts.regularBody())
                                 .foregroundColor(.textGrey)
-                            NavigationLink(destination: RegisterView()) {
+                            NavigationLink {
+                                RegisterView()
+                            } label: {
                                 Text("Register now")
                                     .font(AppFonts.regularBody())
                                     .foregroundColor(.accentBurntOrange)
@@ -195,6 +197,14 @@ struct LoginContent: View {
                     .padding(.bottom, 48)
                 }
             }
+        }
+        .onAppear {
+            // Sync with environment's appViewModel
+            loginViewModel.appViewModel = appViewModel
+            loginViewModel.isSignUpMode = false
+            
+            // Clear any previous errors when returning to login
+            appViewModel.errorMessage = nil
         }
     }
 }

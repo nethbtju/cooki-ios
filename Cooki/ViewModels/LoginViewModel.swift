@@ -12,34 +12,36 @@ class LoginViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var email = ""
     @Published var password = ""
-    @Published var displayName = ""
     @Published var isSignUpMode = false
     @Published var showForgotPassword = false
     
     // MARK: - App View Model
-    private let appViewModel: AppViewModel
+    var appViewModel: AppViewModel
     
     // MARK: - Init
-    init(appViewModel: AppViewModel) {
+    init(appViewModel: AppViewModel, isSignUpMode: Bool = false) {
         self.appViewModel = appViewModel
+        self.isSignUpMode = isSignUpMode
     }
     
     // MARK: - Computed Properties
     var isFormValid: Bool {
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        
         if isSignUpMode {
-            return !email.isEmpty &&
+            return !trimmedEmail.isEmpty &&
                    !password.isEmpty &&
                    password.count >= 6 &&
-                   isValidEmail(email)
+                   isValidEmail(trimmedEmail)
         } else {
-            return !email.isEmpty &&
+            return !trimmedEmail.isEmpty &&
                    !password.isEmpty &&
-                   isValidEmail(email)
+                   isValidEmail(trimmedEmail)
         }
     }
     
     var buttonTitle: String {
-        isSignUpMode ? "Sign Up" : "Sign In"
+        isSignUpMode ? "Create Account" : "Login"
     }
     
     var toggleModeText: String {
@@ -48,10 +50,17 @@ class LoginViewModel: ObservableObject {
     
     // MARK: - Actions
     func handleAuth() async {
-        await appViewModel.signUp(
-            email: email.trimmingCharacters(in: .whitespacesAndNewlines),
-            password: password,
-        )
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if isSignUpMode {
+            print("🔵 LoginViewModel - Calling signUp for: \(trimmedEmail)")
+            await appViewModel.signUp(email: trimmedEmail, password: password)
+            print("🔵 LoginViewModel - signUp completed. isAuthenticated: \(appViewModel.isAuthenticated)")
+        } else {
+            print("🔵 LoginViewModel - Calling signIn for: \(trimmedEmail)")
+            await appViewModel.signIn(email: trimmedEmail, password: password)
+            print("🔵 LoginViewModel - signIn completed. isAuthenticated: \(appViewModel.isAuthenticated)")
+        }
     }
     
     func toggleMode() {
@@ -60,13 +69,15 @@ class LoginViewModel: ObservableObject {
     }
     
     func handleForgotPassword() async {
-        await appViewModel.resetPassword(email: email.trimmingCharacters(in: .whitespacesAndNewlines))
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        await appViewModel.resetPassword(email: trimmedEmail)
     }
     
     // MARK: - Helpers
     private func clearForm() {
         email = ""
         password = ""
+        appViewModel.errorMessage = nil
     }
     
     private func isValidEmail(_ email: String) -> Bool {

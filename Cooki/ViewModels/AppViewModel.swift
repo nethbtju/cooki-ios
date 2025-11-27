@@ -18,6 +18,9 @@ class AppViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var showError = false
     
+    // New property to track if user needs to complete profile
+    @Published var needsProfileCompletion = false
+    
     // MARK: - Services
     private let authService: AuthServiceProtocol
     private let userService: UserServiceProtocol
@@ -54,6 +57,7 @@ class AppViewModel: ObservableObject {
                     // User is signed out
                     self.currentUser = nil
                     self.isAuthenticated = false
+                    self.needsProfileCompletion = false
                     
                     if AppConfig.enableDebugLogging {
                         print("🔐 AppViewModel: User signed out")
@@ -71,14 +75,34 @@ class AppViewModel: ObservableObject {
         do {
             let user = try await userService.fetchUserProfile()
             self.currentUser = user
-            self.isAuthenticated = true
             
-            if AppConfig.enableDebugLogging {
-                print("✅ AppViewModel: Current user fetched")
-                print("   User: \(user.displayName)")
+            // Check if user has completed their profile
+            let hasCompletedProfile = !user.displayName.isEmpty && !user.pantryIds.isEmpty
+            
+            if hasCompletedProfile {
+                // User has completed profile, fully authenticated
+                self.isAuthenticated = true
+                self.needsProfileCompletion = false
+                
+                if AppConfig.enableDebugLogging {
+                    print("✅ AppViewModel: Current user fetched (Profile Complete)")
+                    print("   User: \(user.displayName)")
+                    print("   Pantries: \(user.pantryIds.count)")
+                }
+            } else {
+                // User exists but hasn't completed profile
+                self.isAuthenticated = true // Firebase auth is valid
+                self.needsProfileCompletion = true
+                
+                if AppConfig.enableDebugLogging {
+                    print("⚠️ AppViewModel: Current user fetched (Profile Incomplete)")
+                    print("   Email: \(user.email)")
+                    print("   Needs profile completion")
+                }
             }
         } catch {
             self.isAuthenticated = false
+            self.needsProfileCompletion = false
             
             if AppConfig.enableDebugLogging {
                 print("❌ AppViewModel: Failed to fetch current user - \(error.localizedDescription)")
@@ -94,17 +118,24 @@ class AppViewModel: ObservableObject {
         do {
             let user = try await authService.signUp(
                 email: email,
-                password: password,
+                password: password
             )
+            
             currentUser = user
             isAuthenticated = true
+            needsProfileCompletion = true // New users need to complete profile
             
             if AppConfig.enableDebugLogging {
                 print("✅ AppViewModel: Sign up successful")
+                print("   Email: \(email)")
+                print("   User ID: \(user.id)")
+                print("   Needs profile completion: true")
             }
         } catch {
             errorMessage = error.localizedDescription
             showError = true
+            isAuthenticated = false
+            needsProfileCompletion = false
             
             if AppConfig.enableDebugLogging {
                 print("❌ AppViewModel: Sign up failed - \(error.localizedDescription)")
@@ -124,13 +155,16 @@ class AppViewModel: ObservableObject {
                 displayName: displayName,
                 preferences: preferences
             )
+            
             self.currentUser = completedUser
             self.isAuthenticated = true
+            self.needsProfileCompletion = false // Profile is now complete
             
             if AppConfig.enableDebugLogging {
                 print("✅ AppViewModel: User registration completed")
                 print("   Name: \(completedUser.displayName)")
                 print("   Pantry IDs: \(completedUser.pantryIds)")
+                print("   Profile complete: true")
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -152,14 +186,23 @@ class AppViewModel: ObservableObject {
         do {
             let user = try await authService.signIn(email: email, password: password)
             currentUser = user
+            
+            // Check if user has completed their profile
+            let hasCompletedProfile = !user.displayName.isEmpty && !user.pantryIds.isEmpty
+            
             isAuthenticated = true
+            needsProfileCompletion = !hasCompletedProfile
             
             if AppConfig.enableDebugLogging {
                 print("✅ AppViewModel: Sign in successful")
+                print("   User: \(user.displayName.isEmpty ? user.email : user.displayName)")
+                print("   Profile complete: \(hasCompletedProfile)")
             }
         } catch {
             errorMessage = error.localizedDescription
             showError = true
+            isAuthenticated = false
+            needsProfileCompletion = false
             
             if AppConfig.enableDebugLogging {
                 print("❌ AppViewModel: Sign in failed - \(error.localizedDescription)")
@@ -175,6 +218,7 @@ class AppViewModel: ObservableObject {
             try authService.signOut()
             currentUser = nil
             isAuthenticated = false
+            needsProfileCompletion = false
             
             if AppConfig.enableDebugLogging {
                 print("👋 AppViewModel: Sign out successful")
@@ -263,6 +307,7 @@ class AppViewModel: ObservableObject {
             try await authService.deleteAccount()
             currentUser = nil
             isAuthenticated = false
+            needsProfileCompletion = false
             
             if AppConfig.enableDebugLogging {
                 print("🗑️ AppViewModel: Account deleted")

@@ -16,19 +16,26 @@ public struct RegisterView: View {
 
 struct RegisterContent: View {
     @EnvironmentObject var appViewModel: AppViewModel
+    @StateObject private var loginViewModel: LoginViewModel
+    @Environment(\.dismiss) private var dismiss
     
-    @State private var email: String = ""
-    @State private var password: String = ""
     @State private var confirmPassword: String = ""
-    @State private var displayName: String = ""
-    
     @State private var passwordMismatch: Bool = false
+    
     @FocusState private var focusedField: Field?
     
-    @State private var navigateToUserDetails: Bool = false
-    
     enum Field {
-        case displayName, email, password, confirmPassword
+        case email, password, confirmPassword
+    }
+    
+    init() {
+        // Initialize with placeholder - will be set in onAppear
+        _loginViewModel = StateObject(wrappedValue: LoginViewModel(appViewModel: AppViewModel(), isSignUpMode: true))
+    }
+    
+    // Check if confirm password matches
+    private var isConfirmPasswordValid: Bool {
+        !confirmPassword.isEmpty && confirmPassword == loginViewModel.password
     }
     
     var body: some View {
@@ -64,11 +71,10 @@ struct RegisterContent: View {
                         
                         // Form Fields using FormTextField
                         VStack(spacing: 16) {
-                            
                             // Email
                             FormTextField(
                                 placeholder: "Email Address",
-                                text: $email,
+                                text: $loginViewModel.email,
                                 keyboardType: .emailAddress,
                                 textContentType: .emailAddress,
                                 autocapitalization: .never
@@ -80,7 +86,7 @@ struct RegisterContent: View {
                             // Password
                             FormTextField(
                                 placeholder: "Password (min 6 characters)",
-                                text: $password,
+                                text: $loginViewModel.password,
                                 textContentType: .newPassword,
                                 isSecure: true
                             )
@@ -126,7 +132,7 @@ struct RegisterContent: View {
                                 focusedField = nil
                                 Task { await register() }
                             },
-                            isEnabled: isFormValid && !appViewModel.isLoading
+                            isEnabled: loginViewModel.isFormValid && isConfirmPasswordValid && !appViewModel.isLoading
                         )
                         .overlay {
                             if appViewModel.isLoading {
@@ -142,7 +148,7 @@ struct RegisterContent: View {
                                 .font(AppFonts.regularBody())
                                 .foregroundColor(.textGrey)
                             Button(action: {
-                                // Navigate back (pop to login)
+                                dismiss()
                             }) {
                                 Text("Sign In")
                                     .font(AppFonts.regularBody())
@@ -159,44 +165,43 @@ struct RegisterContent: View {
                 }
             }
         }
-        .navigationDestination(isPresented: $navigateToUserDetails) {
-            UserDetailsView()
+        .onAppear {
+            // Sync the loginViewModel with the environment's appViewModel
+            loginViewModel.appViewModel = appViewModel
+            loginViewModel.isSignUpMode = true
+            
+            // Clear any previous errors when entering register view
+            appViewModel.errorMessage = nil
+            passwordMismatch = false
+            
+            print("🔵 RegisterView appeared")
         }
-    }
-    
-    private var isFormValid: Bool {
-        !email.isEmpty &&
-        !password.isEmpty &&
-        !confirmPassword.isEmpty &&
-        password.count >= 6 &&
-        isValidEmail(email)
     }
     
     private func register() async {
+        // Reset error states
+        passwordMismatch = false
+        appViewModel.errorMessage = nil
+        
         // Check password match first
-        guard password == confirmPassword else {
+        guard loginViewModel.password == confirmPassword else {
             passwordMismatch = true
+            appViewModel.errorMessage = "Passwords do not match"
+            print("🔴 RegisterView - Passwords do not match")
             return
         }
         
-        passwordMismatch = false
+        print("🔵 RegisterView - Starting registration...")
+        print("🔵 RegisterView - Email: \(loginViewModel.email)")
         
-        // Sign up with Firebase Auth (creates auth account only)
-        await appViewModel.signUp(
-            email: email.trimmingCharacters(in: .whitespacesAndNewlines),
-            password: password
-        )
+        // Use the loginViewModel's handleAuth which will call signUp
+        await loginViewModel.handleAuth()
         
-        // If successful, navigate to UserDetailsView to complete registration
-        if appViewModel.isAuthenticated {
-            navigateToUserDetails = true
-        }
-    }
-    
-    private func isValidEmail(_ email: String) -> Bool {
-        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
-        return emailPredicate.evaluate(with: email)
+        print("🔵 RegisterView - Registration completed. isAuthenticated: \(appViewModel.isAuthenticated)")
+        print("🔵 RegisterView - needsProfileCompletion: \(appViewModel.needsProfileCompletion)")
+        
+        // Root coordinator will automatically navigate to UserDetailsView
+        // when needsProfileCompletion becomes true
     }
 }
 

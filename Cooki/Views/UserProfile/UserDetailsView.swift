@@ -12,7 +12,8 @@ public struct UserDetailsView: View {
     public var body: some View {
         MainLayout(header: { LogoHeader(enableBackButton: false) }, content: { UserDetailsContent() })
             .navigationBarHidden(true)
-            .navigationBarBackButtonHidden(true) // Prevent going back to registration
+            .navigationBarBackButtonHidden(true)
+            .interactiveDismissDisabled(true) // Prevent swipe back gesture
     }
 }
 
@@ -54,175 +55,175 @@ struct UserDetailsContent: View {
             Color.white
                 .clipShape(TopRoundedModal())
                 .ignoresSafeArea(edges: .bottom)
-            VStack {
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 24) {
-                        // Header
+            
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 24) {
+                    // Header
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Welcome to your new pantry manager! 🍪")
+                            .font(AppFonts.heading())
+                        
+                        Text("Help us personalize your experience")
+                            .font(AppFonts.regularBody())
+                            .foregroundColor(.textGrey)
+                    }
+                    
+                    // Form fields
+                    VStack(spacing: 16) {
+                        // Preferred Name (optional, pre-filled with first name)
+                        FormTextField(
+                            placeholder: "Preferred Name",
+                            text: $preferredName,
+                            keyboardType: .default,
+                            textContentType: .givenName,
+                            autocapitalization: .words
+                        )
+                        .focused($focusedField, equals: .preferredName)
+                        .submitLabel(.done)
+                        .onSubmit { focusedField = nil }
+                        .onAppear {
+                            // Pre-fill with first name from registration
+                            if preferredName.isEmpty, let currentUser = appViewModel.currentUser {
+                                preferredName = currentUser.displayName
+                            }
+                        }
+                        
+                        // Gender Picker
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Welcome to your new pantry manager! 🍪")
-                                .font(AppFonts.heading())
-                            
-                            Text("Help us personalize your experience")
-                                .font(AppFonts.regularBody())
+                            Text("Gender")
+                                .font(AppFonts.lightBody())
                                 .foregroundColor(.textGrey)
-                        }
-                        
-                        // Form fields
-                        VStack(spacing: 16) {
-                            // Preferred Name (optional, pre-filled with first name)
-                            FormTextField(
-                                placeholder: "Preferred Name",
-                                text: $preferredName,
-                                keyboardType: .default,
-                                textContentType: .givenName,
-                                autocapitalization: .words
-                            )
-                            .focused($focusedField, equals: .preferredName)
-                            .submitLabel(.done)
-                            .onSubmit { focusedField = nil }
-                            .onAppear {
-                                // Pre-fill with first name from registration
-                                if preferredName.isEmpty, let currentUser = appViewModel.currentUser {
-                                    preferredName = currentUser.displayName
-                                }
-                            }
-                            
-                            // Gender Picker
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Gender")
-                                    .font(AppFonts.lightBody())
-                                    .foregroundColor(.textGrey)
-                                    .padding(.horizontal, 4)
-                                
-                                PickerTextField(
-                                    placeholder: "Select Gender",
-                                    selectedValue: selectedGender.rawValue,
-                                    isFocused: focusedField == .gender
-                                ) {
-                                    focusedField = .gender
-                                }
-                                .focused($focusedField, equals: .gender)
-                            }
-                            
-                            // Country Picker
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Country")
-                                    .font(AppFonts.lightBody())
-                                    .foregroundColor(.textGrey)
-                                    .padding(.horizontal, 4)
-                                
-                                PickerTextField(
-                                    placeholder: "Select Country",
-                                    selectedValue: selectedCountry,
-                                    isFocused: focusedField == .country
-                                ) {
-                                    focusedField = .country
-                                }
-                                .focused($focusedField, equals: .country)
-                            }
-                            
-                            // Height & Weight with Unit Toggle
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Text("Height & Weight")
-                                        .font(AppFonts.lightBody())
-                                        .foregroundColor(.textGrey)
-                                    
-                                    Spacer()
-                                    
-                                    // Unit Toggle
-                                    HStack(spacing: 4) {
-                                        Button(action: { useMetric = true }) {
-                                            Text("Metric")
-                                                .font(AppFonts.smallBody())
-                                                .padding(.horizontal, 8)
-                                                .padding(.vertical, 4)
-                                                .background(useMetric ? Color.accentBurntOrange : Color.clear)
-                                                .foregroundColor(useMetric ? .white : .textGrey)
-                                                .cornerRadius(6)
-                                        }
-                                        
-                                        Button(action: { useMetric = false }) {
-                                            Text("Imperial")
-                                                .font(AppFonts.smallBody())
-                                                .padding(.horizontal, 8)
-                                                .padding(.vertical, 4)
-                                                .background(!useMetric ? Color.accentBurntOrange : Color.clear)
-                                                .foregroundColor(!useMetric ? .white : .textGrey)
-                                                .cornerRadius(6)
-                                        }
-                                    }
-                                    .padding(2)
-                                    .background(Color.backgroundGrey)
-                                    .cornerRadius(8)
-                                }
                                 .padding(.horizontal, 4)
-                                
-                                HStack(spacing: 12) {
-                                    FormTextField(
-                                        placeholder: useMetric ? "Height (cm)" : "Height (in)",
-                                        text: $height,
-                                        keyboardType: .decimalPad
-                                    )
-                                    .focused($focusedField, equals: .height)
-                                    
-                                    FormTextField(
-                                        placeholder: useMetric ? "Weight (kg)" : "Weight (lb)",
-                                        text: $weight,
-                                        keyboardType: .decimalPad
-                                    )
-                                    .focused($focusedField, equals: .weight)
-                                }
-                            }
                             
-                            // Dietary Preferences
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Dietary Preferences")
+                            PickerTextField(
+                                placeholder: "Select Gender",
+                                selectedValue: selectedGender.rawValue,
+                                isFocused: focusedField == .gender
+                            ) {
+                                focusedField = .gender
+                            }
+                            .focused($focusedField, equals: .gender)
+                        }
+                        
+                        // Country Picker
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Country")
+                                .font(AppFonts.lightBody())
+                                .foregroundColor(.textGrey)
+                                .padding(.horizontal, 4)
+                            
+                            PickerTextField(
+                                placeholder: "Select Country",
+                                selectedValue: selectedCountry,
+                                isFocused: focusedField == .country
+                            ) {
+                                focusedField = .country
+                            }
+                            .focused($focusedField, equals: .country)
+                        }
+                        
+                        // Height & Weight with Unit Toggle
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("Height & Weight")
                                     .font(AppFonts.lightBody())
                                     .foregroundColor(.textGrey)
-                                    .padding(.horizontal, 4)
                                 
-                                Text("Select all that apply")
-                                    .font(AppFonts.smallBody())
-                                    .foregroundColor(.textGrey.opacity(0.7))
-                                    .padding(.horizontal, 4)
+                                Spacer()
                                 
-                                LazyVGrid(columns: [
-                                    GridItem(.flexible()),
-                                    GridItem(.flexible())
-                                ], spacing: 8) {
-                                    ForEach(DietaryPreference.allCases, id: \.self) { preference in
-                                        SelectionChip(
-                                            title: preference.rawValue,
-                                            icon: preference.icon,
-                                            isSelected: selectedDietaryPreferences.contains(preference)
-                                        ) {
-                                            if selectedDietaryPreferences.contains(preference) {
-                                                selectedDietaryPreferences.remove(preference)
-                                            } else {
-                                                selectedDietaryPreferences.insert(preference)
-                                            }
+                                // Unit Toggle
+                                HStack(spacing: 4) {
+                                    Button(action: { useMetric = true }) {
+                                        Text("Metric")
+                                            .font(AppFonts.smallBody())
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(useMetric ? Color.accentBurntOrange : Color.clear)
+                                            .foregroundColor(useMetric ? .white : .textGrey)
+                                            .cornerRadius(6)
+                                    }
+                                    
+                                    Button(action: { useMetric = false }) {
+                                        Text("Imperial")
+                                            .font(AppFonts.smallBody())
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(!useMetric ? Color.accentBurntOrange : Color.clear)
+                                            .foregroundColor(!useMetric ? .white : .textGrey)
+                                            .cornerRadius(6)
+                                    }
+                                }
+                                .padding(2)
+                                .background(Color.backgroundGrey)
+                                .cornerRadius(8)
+                            }
+                            .padding(.horizontal, 4)
+                            
+                            HStack(spacing: 12) {
+                                FormTextField(
+                                    placeholder: useMetric ? "Height (cm)" : "Height (in)",
+                                    text: $height,
+                                    keyboardType: .decimalPad
+                                )
+                                .focused($focusedField, equals: .height)
+                                
+                                FormTextField(
+                                    placeholder: useMetric ? "Weight (kg)" : "Weight (lb)",
+                                    text: $weight,
+                                    keyboardType: .decimalPad
+                                )
+                                .focused($focusedField, equals: .weight)
+                            }
+                        }
+                        
+                        // Dietary Preferences
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Dietary Preferences")
+                                .font(AppFonts.lightBody())
+                                .foregroundColor(.textGrey)
+                                .padding(.horizontal, 4)
+                            
+                            Text("Select all that apply")
+                                .font(AppFonts.smallBody())
+                                .foregroundColor(.textGrey.opacity(0.7))
+                                .padding(.horizontal, 4)
+                            
+                            LazyVGrid(columns: [
+                                GridItem(.flexible()),
+                                GridItem(.flexible())
+                            ], spacing: 8) {
+                                ForEach(DietaryPreference.allCases, id: \.self) { preference in
+                                    SelectionChip(
+                                        title: preference.rawValue,
+                                        icon: preference.icon,
+                                        isSelected: selectedDietaryPreferences.contains(preference)
+                                    ) {
+                                        if selectedDietaryPreferences.contains(preference) {
+                                            selectedDietaryPreferences.remove(preference)
+                                        } else {
+                                            selectedDietaryPreferences.insert(preference)
                                         }
                                     }
                                 }
                             }
-                        }
-                        
-                        // Error message
-                        if let error = appViewModel.errorMessage {
-                            HStack(spacing: 8) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.system(size: 14))
-                                Text(error)
-                                    .font(AppFonts.smallBody())
-                            }
-                            .foregroundColor(.textRed)
-                            .padding(12)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.textRed.opacity(0.1))
-                            .cornerRadius(8)
                         }
                     }
+                    
+                    // Error message
+                    if let error = appViewModel.errorMessage {
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 14))
+                            Text(error)
+                                .font(AppFonts.smallBody())
+                        }
+                        .foregroundColor(.textRed)
+                        .padding(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.textRed.opacity(0.1))
+                        .cornerRadius(8)
+                    }
+                    
                     // Get Started Button
                     PrimaryButton.primary(
                         title: appViewModel.isLoading ? "" : "Get Started",
@@ -252,9 +253,10 @@ struct UserDetailsContent: View {
                     .frame(maxWidth: .infinity)
                     .disabled(appViewModel.isLoading)
                 }
+                .padding(.horizontal, 24)
+                .padding(.top, 28)
+                .padding(.bottom, 48)
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 28)
             
             // Pickers that appear as keyboard
             if focusedField == .gender {

@@ -18,21 +18,15 @@ struct CookiApp: App {
         
         if AppConfig.enableDebugLogging {
             print("🔥 Firebase configured successfully")
+            print("🔧 Environment: \(AppConfig.environment)")
+            print("🔧 Skip Login: \(AppConfig.skipLoginInDevelopment)")
         }
     }
     
     var body: some Scene {
         WindowGroup {
-            if AppConfig.skipLoginInDevelopment && AppConfig.environment == .development {
-                MainView()
-                    .environmentObject(appViewModel)
-            } else if appViewModel.isAuthenticated {
-                MainView()
-                    .environmentObject(appViewModel)
-            } else {
-                LoginView()
-                    .environmentObject(appViewModel)
-            }
+            RootCoordinatorView()
+                .environmentObject(appViewModel)
         }
     }
 }

@@ -155,7 +155,7 @@ class FirebaseAuthService: AuthServiceProtocol {
     
     // MARK: - Get Current User
     func getCurrentUser() -> User? {
-        guard let firebaseUser = auth.currentUser else { return nil }
+        guard auth.currentUser != nil else { return nil }
         
         // Return nil to force async fetch
         return nil
