@@ -19,9 +19,9 @@ class FirebaseAuthService: AuthServiceProtocol {
             let authResult = try await auth.createUser(withEmail: email, password: password)
             let firebaseUser = authResult.user
             
-            // Create minimal User model (no Firestore doc yet)
+            // Create minimal User model using Firebase Auth UID directly
             let user = User(
-                id: UUID(uuidString: firebaseUser.uid) ?? UUID(),
+                id: firebaseUser.uid, // Use Firebase UID directly as string
                 displayName: "", // Empty - will be set in UserDetailsView
                 email: email,
                 profileImageName: nil,
@@ -33,7 +33,8 @@ class FirebaseAuthService: AuthServiceProtocol {
             if AppConfig.enableDebugLogging {
                 print("✅ FirebaseAuthService: Auth account created")
                 print("   Email: \(email)")
-                print("   UID: \(firebaseUser.uid)")
+                print("   Firebase UID: \(firebaseUser.uid)")
+                print("   User ID: \(user.id)")
                 print("   ⚠️ Firestore document NOT created yet")
                 print("   → User must complete profile in UserDetailsView")
             }
@@ -55,12 +56,13 @@ class FirebaseAuthService: AuthServiceProtocol {
         }
         
         do {
-            let userId = UUID(uuidString: firebaseUser.uid) ?? UUID()
+            // Use Firebase UID directly as user ID
+            let userId = firebaseUser.uid
             
-            // 1. Create empty pantry for user
+            // 1. Create empty pantry for user with Firebase UID
             let pantry = Pantry(
                 name: "\(displayName)'s Pantry",
-                memberIds: [userId]
+                memberIds: [userId] // Use Firebase UID directly
             )
             
             // Store pantry in Firestore
@@ -69,14 +71,14 @@ class FirebaseAuthService: AuthServiceProtocol {
                 "id": pantry.id.uuidString,
                 "name": pantry.name,
                 "items": [], // Empty array
-                "memberIds": [userId.uuidString],
+                "memberIds": [userId], // Store Firebase UID in memberIds array
                 "createdAt": FieldValue.serverTimestamp(),
                 "updatedAt": FieldValue.serverTimestamp()
             ])
             
-            // 2. Create complete user object
+            // 2. Create complete user object with Firebase UID
             let user = User(
-                id: userId,
+                id: userId, // Firebase Auth UID
                 displayName: displayName,
                 email: firebaseUser.email ?? "",
                 profileImageName: nil,
@@ -85,14 +87,16 @@ class FirebaseAuthService: AuthServiceProtocol {
                 preferences: preferences
             )
             
-            // 3. Create user document in Firestore
-            try await createUserDocument(user: user, firebaseUID: firebaseUser.uid)
+            // 3. Create user document in Firestore using Firebase UID as document ID
+            try await createUserDocument(user: user, firebaseUID: userId)
             
             if AppConfig.enableDebugLogging {
                 print("✅ FirebaseAuthService: User registration completed")
-                print("   User ID: \(user.id)")
+                print("   Firebase UID: \(firebaseUser.uid)")
+                print("   User ID (same as Firebase UID): \(user.id)")
                 print("   Name: \(user.displayName)")
                 print("   Pantry ID: \(pantry.id)")
+                print("   Pantry Members: \(pantry.memberIds)")
                 print("   Dietary Prefs: \(preferences.dietaryPreferences.map { $0.rawValue })")
             }
             
@@ -242,7 +246,7 @@ class FirebaseAuthService: AuthServiceProtocol {
         let userRef = db.collection("users").document(firebaseUID)
         
         let userData: [String: Any] = [
-            "id": user.id.uuidString,
+            "id": user.id, // Now stores Firebase UID string directly
             "displayName": user.displayName,
             "email": user.email,
             "profileImageName": user.profileImageName as Any,
@@ -273,9 +277,9 @@ class FirebaseAuthService: AuthServiceProtocol {
         let pantryIdStrings = data["pantryIds"] as? [String] ?? []
         let pantryIds = pantryIdStrings.compactMap { UUID(uuidString: $0) }
         
-        // Parse user data
+        // Parse user data - use Firebase UID directly
         let user = User(
-            id: UUID(uuidString: data["id"] as? String ?? "") ?? UUID(),
+            id: data["id"] as? String ?? firebaseUID, // Use stored ID or fallback to Firebase UID
             displayName: data["displayName"] as? String ?? "",
             email: data["email"] as? String ?? "",
             profileImageName: data["profileImageName"] as? String,

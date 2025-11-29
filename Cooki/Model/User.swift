@@ -9,7 +9,7 @@ import SwiftUI
 
 // MARK: - User Model
 struct User: Identifiable, Codable, Equatable {
-    let id: UUID
+    let id: String // Changed from UUID to String to match Firebase Auth UID
     var displayName: String
     var email: String
     var profileImageName: String?
@@ -18,7 +18,7 @@ struct User: Identifiable, Codable, Equatable {
     var preferences: UserPreferences
     
     init(
-        id: UUID = UUID(),
+        id: String = UUID().uuidString, // Default to UUID string for compatibility
         displayName: String = "",
         email: String,
         profileImageName: String? = nil,

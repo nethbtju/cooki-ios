@@ -11,7 +11,7 @@ struct Pantry: Identifiable, Codable, Equatable {
     let id: UUID
     var name: String
     var items: [UUID] // Item IDs
-    var memberIds: [UUID] // User IDs who have access
+    var memberIds: [String] // User IDs (Firebase Auth UIDs) who have access
     var createdAt: Date
     var updatedAt: Date
     
@@ -19,7 +19,7 @@ struct Pantry: Identifiable, Codable, Equatable {
         id: UUID = UUID(),
         name: String = "My Pantry",
         items: [UUID] = [],
-        memberIds: [UUID] = [],
+        memberIds: [String] = [],
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
