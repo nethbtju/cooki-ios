@@ -6,7 +6,6 @@
 //
 import SwiftUI
 
-// MARK: - Reusable FormTextField Component
 struct FormTextField: View {
     let placeholder: String
     @Binding var text: String
@@ -14,14 +13,16 @@ struct FormTextField: View {
     let textContentType: UITextContentType?
     let autocapitalization: TextInputAutocapitalization
     let isSecure: Bool
-    
+    let isFocused: Bool   // ← NEW
+
     init(
         placeholder: String,
         text: Binding<String>,
         keyboardType: UIKeyboardType = .default,
         textContentType: UITextContentType? = nil,
         autocapitalization: TextInputAutocapitalization = .never,
-        isSecure: Bool = false
+        isSecure: Bool = false,
+        isFocused: Bool = false   // ← NEW
     ) {
         self.placeholder = placeholder
         self._text = text
@@ -29,26 +30,27 @@ struct FormTextField: View {
         self.textContentType = textContentType
         self.autocapitalization = autocapitalization
         self.isSecure = isSecure
+        self.isFocused = isFocused
     }
-    
+
     var body: some View {
         Group {
             if isSecure {
                 SecureField(placeholder, text: $text)
                     .placeholder(when: text.isEmpty) {
-                        Text(placeholder).foregroundColor(.gray)
+                        Text(placeholder).foregroundColor(.gray.opacity(0.3))
                     }
             } else {
                 TextField(placeholder, text: $text)
                     .placeholder(when: text.isEmpty) {
-                        Text(placeholder).foregroundColor(.gray)
+                        Text(placeholder).foregroundColor(.gray.opacity(0.3))
                     }
             }
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.textGrey)
+                .stroke(isFocused ? Color.accentPeach : Color.textGrey, lineWidth: 1) // ← USE FOCUS
         )
         .keyboardType(keyboardType)
         .textContentType(textContentType)

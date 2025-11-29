@@ -135,7 +135,7 @@ struct LoginContent: View {
                                 .font(AppFonts.regularBody())
                                 .foregroundColor(.textGrey)
                             Button {
-                                authCoordinator.push(.register)
+                                authCoordinator.startRegistrationFlow()
                             } label: {
                                 Text("Register now")
                                     .font(AppFonts.regularBody())

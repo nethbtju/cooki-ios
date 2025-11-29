@@ -14,7 +14,7 @@ struct RootCoordinatorView: View {
     // Create unique view ID based on state
     private var viewStateId: String {
         if !appViewModel.isAuthenticated {
-            return "auth-flow"
+            return "auth-flow-\(authCoordinator.currentFlow)"
         } else if appViewModel.needsProfileCompletion {
             return "profile-completion"
         } else {
@@ -23,7 +23,7 @@ struct RootCoordinatorView: View {
     }
     
     var body: some View {
-        let _ = print("🎯 RootCoordinator BODY - isAuth: \(appViewModel.isAuthenticated), needsProfile: \(appViewModel.needsProfileCompletion), viewId: \(viewStateId)")
+        let _ = print("🎯 RootCoordinator BODY - isAuth: \(appViewModel.isAuthenticated), needsProfile: \(appViewModel.needsProfileCompletion), flow: \(authCoordinator.currentFlow)")
         
         ZStack {
             // Development skip login feature
@@ -31,16 +31,24 @@ struct RootCoordinatorView: View {
                 let _ = print("🎯 RootCoordinator - Showing MainView (DEV MODE)")
                 MainView()
             }
-            // User is not authenticated - show login flow with navigation
-            else if !appViewModel.isAuthenticated {
-                let _ = print("🎯 RootCoordinator - Showing AuthFlowView")
-                AuthFlowView()
-                    .environmentObject(authCoordinator)
-            }
-            // User is authenticated but needs to complete profile
-            else if appViewModel.needsProfileCompletion {
+            // User is authenticated but needs to complete profile (takes precedence)
+            else if appViewModel.isAuthenticated && appViewModel.needsProfileCompletion {
                 let _ = print("🎯 RootCoordinator - Showing UserDetailsView")
                 UserDetailsView()
+            }
+            // User is not authenticated - show appropriate flow
+            else if !appViewModel.isAuthenticated {
+                switch authCoordinator.currentFlow {
+                case .login:
+                    let _ = print("🎯 RootCoordinator - Showing LoginFlow")
+                    LoginFlowView()
+                        .environmentObject(authCoordinator)
+                        
+                case .registration:
+                    let _ = print("🎯 RootCoordinator - Showing RegistrationFlow")
+                    RegistrationFlowView()
+                        .environmentObject(authCoordinator)
+                }
             }
             // User is fully authenticated with complete profile - show main app
             else {
@@ -48,7 +56,7 @@ struct RootCoordinatorView: View {
                 MainView()
             }
         }
-        .id(viewStateId) // Force view recreation when state changes
+        .id(viewStateId)
         .transition(.opacity)
         .animation(.easeInOut(duration: 0.3), value: viewStateId)
         .onChange(of: appViewModel.isAuthenticated) { isAuth in
@@ -64,23 +72,48 @@ struct RootCoordinatorView: View {
     }
 }
 
-// MARK: - Auth Flow View with NavigationStack
-struct AuthFlowView: View {
+// MARK: - Login Flow (No Navigation Stack)
+struct LoginFlowView: View {
     @EnvironmentObject var authCoordinator: AuthCoordinator
     
     var body: some View {
-        NavigationStack(path: $authCoordinator.path) {
-            MainLayout(header: {}, content: { LoginContent() })
-                .navigationBarBackButtonHidden(true)
-                .toolbar(.hidden, for: .navigationBar)
-                .navigationDestination(for: AuthRoute.self) { route in
-                    switch route {
-                    case .login:
-                        MainLayout(header: {}, content: { LoginContent() })
-                    case .register:
-                        MainLayout(header: { BackHeader() }, content: { RegisterContent() })
-                    }
+        MainLayout(
+            header: {},
+            content: { LoginContent() }
+        )
+        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+    }
+}
+
+// MARK: - Registration Flow (Separate Navigation Stack)
+struct RegistrationFlowView: View {
+    @EnvironmentObject var authCoordinator: AuthCoordinator
+    @EnvironmentObject var appViewModel: AppViewModel
+    
+    var body: some View {
+        NavigationStack(path: $authCoordinator.registrationPath) {
+            // Root of registration stack - Register screen with NO back button
+            MainLayout(
+                header: { BackHeader(action: authCoordinator.returnToLogin) },
+                content: { RegisterContent() }
+            )
+            .navigationBarBackButtonHidden(true)
+            .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(for: RegistrationRoute.self) { route in
+                switch route {
+                case .register:
+                    // This shouldn't be called as register is the root
+                    MainLayout(
+                        header: { BackHeader(action: authCoordinator.returnToLogin) },
+                        content: { RegisterContent() }
+                    )
+                    
+                case .userDetails:
+                    // User details shown after registration completes
+                    UserDetailsView()
                 }
+            }
         }
     }
 }

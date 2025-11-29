@@ -2,15 +2,26 @@
 //  BackButton.swift
 //  Cooki
 //
-//  Created by Neth Botheju on 22/11/2025.
+//  Modified by Neth Botheju on 29/11/2025.
 //
+
 import SwiftUI
 
 struct BackButton: View {
-    let action: () -> Void
+    @Environment(\.dismiss) var dismiss
+    
+    var action: (() -> Void)? = nil
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            if let action = action {
+                // Use custom action if provided
+                action()
+            } else {
+                // Otherwise use default dismiss
+                dismiss()
+            }
+        }) {
             HStack(spacing: 8) {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 18, weight: .semibold))
@@ -19,5 +30,22 @@ struct BackButton: View {
             }
             .foregroundColor(.white)
         }
+    }
+}
+
+// MARK: - Preview
+struct BackButton_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack(spacing: 20) {
+            // Default dismiss behavior
+            BackButton()
+            
+            // Custom action
+            BackButton(action: {
+                print("Custom back action")
+            })
+        }
+        .padding()
+        .background(Color.accentBurntOrange)
     }
 }
