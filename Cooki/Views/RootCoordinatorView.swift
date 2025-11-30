@@ -12,43 +12,39 @@ struct RootCoordinatorView: View {
     @StateObject private var authCoordinator = AuthCoordinator()
     
     var body: some View {
-        let _ = print("🎯 RootCoordinator BODY - isAuth: \(appViewModel.isAuthenticated), needsProfile: \(appViewModel.needsProfileCompletion)")
-        
-        Group {
-            // Development skip login feature
+        ZStack {
             if AppConfig.skipLoginInDevelopment && AppConfig.environment == .development {
-                let _ = print("🎯 RootCoordinator - Showing MainView (DEV MODE)")
+                // Development: Skip login
                 MainView()
-            }
-            // User is authenticated but needs to complete profile
-            else if appViewModel.isAuthenticated && appViewModel.needsProfileCompletion {
-                let _ = print("🎯 RootCoordinator - Showing AuthFlowView with UserDetails")
+                    .transition(.opacity)
+            } else if !appViewModel.isAuthenticated || appViewModel.needsProfileCompletion {
+                // Show auth flow for: not authenticated OR needs profile completion
                 AuthFlowView()
                     .environmentObject(authCoordinator)
-            }
-            // User is not authenticated - show auth flow with navigation
-            else if !appViewModel.isAuthenticated {
-                let _ = print("🎯 RootCoordinator - Showing AuthFlowView")
-                AuthFlowView()
-                    .environmentObject(authCoordinator)
-            }
-            // User is fully authenticated with complete profile - show main app
-            else {
-                let _ = print("🎯 RootCoordinator - Showing MainView")
+                    .transition(.opacity)
+                    .onAppear {
+                        // Push UserDetails if needed when AuthFlowView appears
+                        if appViewModel.isAuthenticated && appViewModel.needsProfileCompletion {
+                            print("🎯 AuthFlowView appeared - pushing UserDetails")
+                            authCoordinator.pushUserDetails()
+                        }
+                    }
+            } else {
+                // Fully authenticated with complete profile
                 MainView()
+                    .transition(.opacity)
             }
         }
-        .onChange(of: appViewModel.isAuthenticated) { isAuth in
-            print("🎯 RootCoordinator onChange - isAuthenticated: \(isAuth)")
-        }
+        .animation(.easeInOut(duration: 0.3), value: appViewModel.isAuthenticated)
+        .animation(.easeInOut(duration: 0.3), value: appViewModel.needsProfileCompletion)
         .onChange(of: appViewModel.needsProfileCompletion) { needsProfile in
-            print("🎯 RootCoordinator onChange - needsProfileCompletion: \(needsProfile)")
-            
+            print("🎯 onChange needsProfile: \(needsProfile), isAuth: \(appViewModel.isAuthenticated)")
             // Push UserDetailsView when profile completion is needed
             if needsProfile && appViewModel.isAuthenticated {
+                print("🎯 Pushing UserDetails from onChange")
                 authCoordinator.pushUserDetails()
             } else if !needsProfile && appViewModel.isAuthenticated {
-                // Profile completed, clear the stack
+                print("🎯 Resetting navigation from onChange")
                 authCoordinator.reset()
             }
         }
@@ -62,30 +58,26 @@ struct AuthFlowView: View {
     var body: some View {
         NavigationStack(path: $authCoordinator.path) {
             // Root: LoginView
-            MainLayout(
-                header: {},
-                content: { LoginContent() }
-            )
-            .navigationBarHidden(true)
-            .toolbar(.hidden, for: .navigationBar)
-            .navigationDestination(for: AuthRoute.self) { route in
-                switch route {
-                case .login:
-                    MainLayout(
-                        header: {},
-                        content: { LoginContent() }
-                    )
-                    
-                case .register:
-                    MainLayout(
-                        header: { BackHeader() },
-                        content: { RegisterContent() }
-                    )
-                    
-                case .userDetails:
-                    UserDetailsView()
+            LoginView()
+                .navigationBarHidden(true)
+                .toolbar(.hidden, for: .navigationBar)
+                .navigationDestination(for: AuthRoute.self) { route in
+                    viewForRoute(route)
                 }
-            }
+        }
+    }
+    
+    @ViewBuilder
+    private func viewForRoute(_ route: AuthRoute) -> some View {
+        switch route {
+        case .login:
+            LoginView()
+            
+        case .register:
+            RegisterView()
+            
+        case .userDetails:
+            UserDetailsView()
         }
     }
 }

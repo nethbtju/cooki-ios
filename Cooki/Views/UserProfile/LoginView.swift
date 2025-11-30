@@ -7,6 +7,15 @@
 
 import SwiftUI
 
+struct LoginView: View {
+    var body: some View {
+        MainLayout(
+            header: {},
+            content: { LoginContent() }
+        )
+    }
+}
+
 struct LoginContent: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var authCoordinator: AuthCoordinator

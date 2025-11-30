@@ -7,6 +7,15 @@
 //
 import SwiftUI
 
+struct RegisterView: View {
+    var body: some View {
+        MainLayout(
+            header: { BackHeader() },
+            content: { RegisterContent() }
+        )
+    }
+}
+
 struct RegisterContent: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var authCoordinator: AuthCoordinator
