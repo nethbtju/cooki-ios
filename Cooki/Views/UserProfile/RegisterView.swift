@@ -3,157 +3,228 @@
 //  Cooki
 //
 //  Created by Neth Botheju on 7/9/2025.
+//  Modified by Neth Botheju on 23/11/2025.
 //
 import SwiftUI
 
-struct RegisterView: View {
-    @State private var email: String = ""
-    @State private var password: String = ""
-    @State private var confirmPassword: String = ""
-    @FocusState private var focusedField: Field?
+struct RegisterContent: View {
+    @EnvironmentObject var appViewModel: AppViewModel
+    @EnvironmentObject var authCoordinator: AuthCoordinator
+    @StateObject private var loginViewModel: LoginViewModel
     
-    @State private var navigateToNext: Bool = false
-    @State private var errorMessage: String? = nil
+    @State private var confirmPassword: String = ""
+    @State private var passwordMismatch: Bool = false
+    
+    @FocusState private var focusedField: Field?
     
     enum Field {
         case email, password, confirmPassword
     }
     
+    init() {
+        // Initialize with placeholder - will be set in onAppear
+        _loginViewModel = StateObject(wrappedValue: LoginViewModel(appViewModel: AppViewModel(), isSignUpMode: true))
+    }
+    
+    // Check if confirm password matches
+    private var isConfirmPasswordValid: Bool {
+        !confirmPassword.isEmpty && confirmPassword == loginViewModel.password
+    }
+    
     var body: some View {
-        NavigationStack {
+        VStack(spacing: 0) {
+            // Cookie logo
+            Image("CookieIcon")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 180)
+                .padding(.top, 40)
+                .padding(.bottom, 24)
+            
+            // White modal
             ZStack {
-                // Purple background
-                Color.secondaryPurple
-                    .ignoresSafeArea()
+                Color.white
+                    .clipShape(TopRoundedModal())
+                    .ignoresSafeArea(edges: .bottom)
                 
-                // Background image
-                Image("BackgroundImage")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: UIScreen.main.bounds.width * 1.4,
-                           height: UIScreen.main.bounds.height * 1.1,
-                           alignment: .top)
-                    .clipped()
-                    .ignoresSafeArea()
-                
-                VStack {
-                    // Logo
-                    Image("CookieIcon")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 180)
-                        .padding(.top, 120)
-                        .padding(.bottom, 24)
-                    
-                    // White modal sheet
-                    ModalSheet(
-                        heightFraction: 0.55,
-                        content: {
-                            ScrollView(.vertical, showsIndicators: false) {
-                                Spacer().padding(.bottom, 24)
-                                
-                                VStack(alignment: .leading, spacing: 24) {
-                                    VStack(alignment: .leading, spacing: 16) {
-                                        Text("Let's get you registered!")
-                                            .font(AppFonts.heading())
-                                            .multilineTextAlignment(.leading)
-                                            .padding(.trailing, 10)
-                                        
-                                        // Email
-                                        TextField("Email Address", text: $email)
-                                            .padding(16)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: 8)
-                                                    .stroke(Color.textGrey)
-                                            )
-                                            .keyboardType(.emailAddress)
-                                            .autocapitalization(.none)
-                                            .focused($focusedField, equals: .email)
-                                            .font(AppFonts.lightBody())
-                                            .foregroundColor(Color.textGrey)
-                                        
-                                        // Password
-                                        SecureField("Password", text: $password)
-                                            .padding(16)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: 8)
-                                                    .stroke(Color.textGrey)
-                                            )
-                                            .focused($focusedField, equals: .password)
-                                            .font(AppFonts.lightBody())
-                                            .foregroundColor(Color.textGrey)
-                                        
-                                        // Confirm Password
-                                        SecureField("Confirm Password", text: $confirmPassword)
-                                            .padding(16)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: 8)
-                                                    .stroke(Color.textGrey)
-                                            )
-                                            .focused($focusedField, equals: .confirmPassword)
-                                            .font(AppFonts.lightBody())
-                                            .foregroundColor(Color.textGrey)
-                                        
-                                        // Error message
-                                        if let errorMessage = errorMessage {
-                                            Text(errorMessage)
-                                                .foregroundColor(.red)
-                                                .font(AppFonts.smallBody())
-                                        }
-                                    }
-                                    
-                                    // Register button
-                                    Button(action: { register() }) {
-                                        Text("Register")
-                                            .font(AppFonts.buttonFont())
-                                            .foregroundColor(.white)
-                                            .frame(maxWidth: .infinity)
-                                            .padding()
-                                            .background(Color.accentBurntOrange)
-                                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                                    }
-                                    .navigationDestination(isPresented: $navigateToNext) {
-                                        UserDetailsView()
-                                    }
-                                    .padding(.top, 24)
-                                }
-                                .padding(24)
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 24) {
+                        // Header
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Let's get you registered!")
+                                .font(AppFonts.heading())
+                                .foregroundStyle(.text)
+                                .multilineTextAlignment(.leading)
+                            
+                            Text("Create your account to get started")
+                                .font(AppFonts.regularBody())
+                                .foregroundColor(.textGrey)
+                        }
+                        .padding(.top, 12)
+                        
+                        // Form Fields using FormTextField
+                        VStack(spacing: 16) {
+                            // Email
+                            FormTextField(
+                                placeholder: "Email Address",
+                                text: $loginViewModel.email,
+                                keyboardType: .emailAddress,
+                                textContentType: .emailAddress,
+                                autocapitalization: .never
+                            )
+                            .focused($focusedField, equals: .email)
+                            .submitLabel(.next)
+                            .onSubmit { focusedField = .password }
+                            
+                            // Password
+                            FormTextField(
+                                placeholder: "Password (min 6 characters)",
+                                text: $loginViewModel.password,
+                                textContentType: .newPassword,
+                                isSecure: true
+                            )
+                            .focused($focusedField, equals: .password)
+                            .submitLabel(.next)
+                            .onSubmit { focusedField = .confirmPassword }
+                            
+                            // Confirm Password
+                            FormTextField(
+                                placeholder: "Confirm Password",
+                                text: $confirmPassword,
+                                textContentType: .newPassword,
+                                isSecure: true
+                            )
+                            .focused($focusedField, equals: .confirmPassword)
+                            .submitLabel(.go)
+                            .onSubmit {
+                                focusedField = nil
+                                Task { await register() }
                             }
                         }
-                    )
+                        .padding(.top, 12)
+                        
+                        // Error messages
+                        if passwordMismatch {
+                            ErrorMessageView(
+                                message: "Passwords do not match",
+                                icon: "exclamationmark.triangle.fill"
+                            )
+                        }
+                        
+                        if let error = appViewModel.errorMessage {
+                            ErrorMessageView(
+                                message: error,
+                                icon: "exclamationmark.triangle.fill"
+                            )
+                        }
+                        
+                        // Register button using PrimaryButton
+                        PrimaryButton.primary(
+                            title: appViewModel.isLoading ? "" : "Create Account",
+                            action: {
+                                focusedField = nil
+                                Task { await register() }
+                            },
+                            isEnabled: loginViewModel.isFormValid && isConfirmPasswordValid && !appViewModel.isLoading
+                        )
+                        .overlay {
+                            if appViewModel.isLoading {
+                                ProgressView()
+                                    .tint(.white)
+                            }
+                        }
+                        .padding(.top, 8)
+                        
+                        // Sign in link
+                        HStack(spacing: 4) {
+                            Text("Already have an account?")
+                                .font(AppFonts.regularBody())
+                                .foregroundColor(.textGrey)
+                            Button(action: {
+                                authCoordinator.returnToLogin()
+                            }) {
+                                Text("Sign In")
+                                    .font(AppFonts.regularBody())
+                                    .foregroundColor(.accentBurntOrange)
+                                    .fontWeight(.medium)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, 8)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 24)
+                    .padding(.bottom, 48)
                 }
             }
+        }
+        .navigationBarBackButtonHidden(true)
+        .onAppear {
+            // Sync the loginViewModel with the environment's appViewModel
+            loginViewModel.appViewModel = appViewModel
+            loginViewModel.isSignUpMode = true
+            
+            // Clear any previous errors when entering register view
+            appViewModel.errorMessage = nil
+            passwordMismatch = false
+            
+            print("🔵 RegisterView appeared")
         }
     }
     
-    private func register() {
-        // ✅ Check password match first
-        guard password == confirmPassword else {
-            errorMessage = "Passwords do not match"
+    private func register() async {
+        // Reset error states
+        passwordMismatch = false
+        appViewModel.errorMessage = nil
+        
+        // Check password match first
+        guard loginViewModel.password == confirmPassword else {
+            passwordMismatch = true
+            appViewModel.errorMessage = "Passwords do not match"
+            print("🔴 RegisterView - Passwords do not match")
             return
         }
         
-        Task {
-            do {
-                try await AuthService.shared.login(email: email, password: password)
-                
-                // Clear error if successful
-                errorMessage = nil
-                
-                DispatchQueue.main.async {
-                    navigateToNext = true
-                }
-            } catch {
-                errorMessage = "Registration failed: \(error.localizedDescription)"
-            }
+        print("🔵 RegisterView - Starting registration...")
+        print("🔵 RegisterView - Email: \(loginViewModel.email)")
+        print("🔵 RegisterView - BEFORE signUp: isAuth=\(appViewModel.isAuthenticated), needsProfile=\(appViewModel.needsProfileCompletion)")
+        
+        // Use the loginViewModel's handleAuth which will call signUp
+        await loginViewModel.handleAuth()
+        
+        print("🔵 RegisterView - AFTER signUp: isAuth=\(appViewModel.isAuthenticated), needsProfile=\(appViewModel.needsProfileCompletion)")
+        print("🔵 RegisterView - Registration completed successfully!")
+        print("🔵 RegisterView - Waiting for RootCoordinator to detect state change...")
+    }
+}
+
+// MARK: - Error Message Component
+struct ErrorMessageView: View {
+    let message: String
+    let icon: String
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 14))
+            Text(message)
+                .font(AppFonts.smallBody())
         }
+        .foregroundColor(.textRed)
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.textRed.opacity(0.1))
+        .cornerRadius(8)
     }
 }
 
 struct RegisterView_Previews: PreviewProvider {
     static var previews: some View {
-        RegisterView()
-            .previewDevice("iPhone 15 Pro")
-            .preferredColorScheme(.light)
+        NavigationStack {
+            RegisterContent()
+                .environmentObject(AppViewModel())
+        }
+        .previewDevice("iPhone 15 Pro")
+        .preferredColorScheme(.light)
     }
 }

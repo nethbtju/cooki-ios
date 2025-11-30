@@ -2,50 +2,51 @@
 //  User.swift
 //  Cooki
 //
-//  Created by Neth Botheju on 22/11/2025.
+//  Modified by Neth Botheju on 23/11/2025.
 //
 import Foundation
 import SwiftUI
 
 // MARK: - User Model
 struct User: Identifiable, Codable, Equatable {
-    let id: UUID
-    var firstName: String
-    var lastName: String
+    let id: String // Changed from UUID to String to match Firebase Auth UID
+    var displayName: String
     var email: String
     var profileImageName: String?
+    var pantryIds: [UUID]
     var createdAt: Date
     var preferences: UserPreferences
     
     init(
-        id: UUID = UUID(),
-        firstName: String,
-        lastName: String,
+        id: String = UUID().uuidString, // Default to UUID string for compatibility
+        displayName: String = "",
         email: String,
         profileImageName: String? = nil,
+        pantryIds: [UUID] = [],
         createdAt: Date = Date(),
         preferences: UserPreferences = UserPreferences()
     ) {
         self.id = id
-        self.firstName = firstName
-        self.lastName = lastName
+        self.displayName = displayName
         self.email = email
         self.profileImageName = profileImageName
+        self.pantryIds = pantryIds
         self.createdAt = createdAt
         self.preferences = preferences
     }
     
-    // MARK: - Computed Properties
-    var fullName: String {
-        "\(firstName) \(lastName)"
-    }
     
     var greeting: String {
-        "Hello, \(firstName)"
+        displayName.isEmpty ? "Hello" : "Hello, \(displayName)"
     }
     
     var getProfilePicture: Image {
-        Image(profileImageName ?? "ProfilePic") // TODO: Add a default user profile image
+        Image(profileImageName ?? "ProfilePic")
+    }
+    
+    // Check if user has completed onboarding
+    var hasCompletedProfile: Bool {
+        !displayName.isEmpty
     }
 }
 

@@ -1,183 +1,306 @@
 //
-//  RegisterView.swift
+//  UserDetailsView.swift
 //  Cooki
 //
-//  Created by Neth Botheju on 7/9/2025.
+//  Modified by Neth Botheju on 29/11/2025.
 //
-
 import SwiftUI
 
-struct UserDetailsView: View {
-    @State private var showSheet: Bool = true
-    
+public struct UserDetailsView: View {
+    public var body: some View {
+        MainLayout(header: { LogoHeader(enableBackButton: false) }, content: { UserDetailsContent() })
+            .navigationBarHidden(true)
+            .navigationBarBackButtonHidden(true)
+            .interactiveDismissDisabled(true) // Prevent swipe back gesture
+    }
+}
+
+// MARK: - User Details Content
+struct UserDetailsContent: View {
+    @EnvironmentObject var appViewModel: AppViewModel
+
     @State private var preferredName: String = ""
-    @State private var gender: String = ""
-    @State private var country: String = ""
+    @State private var selectedGender: String = ""
+    @State private var selectedCountry: String = ""
     @State private var height: String = ""
     @State private var weight: String = ""
-    @State private var dietarypref: String = ""
-    
+    @State private var useMetric: Bool = true
+    @State private var selectedDietaryPreferences: Set<DietaryPreference> = []
+
+    @FocusState private var focusedField: Field?
+
+    enum Field: Hashable {
+        case preferredName, gender, country, height, weight
+    }
+
+    let gender = ["Male", "Female", "Non-Binary", "Prefer not to say"]
+
+    let countries = [
+        "United States", "Canada", "United Kingdom", "Australia", "Germany",
+        "France", "Italy", "Spain", "Japan", "China", "India", "Brazil",
+        "Mexico", "Netherlands", "Sweden", "Norway", "Denmark", "Finland",
+        "New Zealand", "Singapore", "South Korea", "Thailand", "Vietnam"
+    ].sorted()
+
     var body: some View {
+        // White modal
         ZStack {
-            // Purple background
-            Color.secondaryPurple
-                .ignoresSafeArea()
-            
-            // Background image (oversized, top-aligned)
-            Image("BackgroundImage")
-                .resizable()
-                .scaledToFit()
-                .frame(width: UIScreen.main.bounds.width * 1.4,
-                       height: UIScreen.main.bounds.height * 1.1,
-                       alignment: .top)
-                .clipped()
-                .ignoresSafeArea()
-            
-            // White modal sheet (always centered)
-            ModalSheet(
-                heightFraction: 0.80,
-                content: {
-                    VStack(spacing: 20) {
-                        Text("Hello Cooki 👋")
-                            .font(.title)
-                            .foregroundColor(.black)
-                        Text("This is a preview of the modal sheet.")
-                            .foregroundColor(.gray)
-                        Button("Test Button") {
-                            print("Tapped in preview")
-                        }
-                        .padding()
-                        .background(Color.accentColor)
-                        .foregroundColor(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+            Color.white
+                .clipShape(TopRoundedModal())
+                .ignoresSafeArea(edges: .bottom)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 24) {
+                    // Header
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Welcome to your new pantry manager! 🍪")
+                            .font(AppFonts.heading())
+                            .foregroundStyle(Color.textBlack)
+                        Text("Help us personalize your experience")
+                            .font(AppFonts.regularBody())
+                            .foregroundStyle(Color.textGrey)
                     }
-                    .padding()
-//                    ScrollView(.vertical, showsIndicators: false) {
-//                        VStack(alignment: .leading, spacing: 16) {
-//                            VStack(alignment: .leading) {
-//                                Text("Nice to meet you...")
-//                                    .font(AppFonts.heading())
-//                            }
-//                            .padding(.bottom, 8)
-//                            
-//                            // Text fields
-//                            TextField("Preferred Name", text: $preferredName)
-//                                .padding(16)
-//                                .background(
-//                                    RoundedRectangle(cornerRadius: 8)
-//                                        .stroke(Color.textGrey)
-//                                )
-//                                .keyboardType(.emailAddress)
-//                                .autocapitalization(.none)
-//                                .font(AppFonts.lightBody())
-//                                .foregroundColor(Color.textGrey)
-//                            
-//                            TextField("Gender", text: $gender)
-//                                .padding(16)
-//                                .background(
-//                                    RoundedRectangle(cornerRadius: 8)
-//                                        .stroke(Color.textGrey)
-//                                )
-//                                .keyboardType(.emailAddress)
-//                                .autocapitalization(.none)
-//                                .font(AppFonts.lightBody())
-//                                .foregroundColor(Color.textGrey)
-//                            
-//                            TextField("Country", text: $country)
-//                                .padding(16)
-//                                .background(
-//                                    RoundedRectangle(cornerRadius: 8)
-//                                        .stroke(Color.textGrey)
-//                                )
-//                                .keyboardType(.emailAddress)
-//                                .autocapitalization(.none)
-//                                .font(AppFonts.lightBody())
-//                                .foregroundColor(Color.textGrey)
-//                            
-//                            HStack {
-//                                TextField("Height", text: $preferredName)
-//                                    .padding(16)
-//                                    .background(
-//                                        RoundedRectangle(cornerRadius: 8)
-//                                            .stroke(Color.textGrey)
-//                                    )
-//                                    .keyboardType(.emailAddress)
-//                                    .autocapitalization(.none)
-//                                    .font(AppFonts.lightBody())
-//                                    .foregroundColor(Color.textGrey)
-//                                
-//                                TextField("Weight", text: $preferredName)
-//                                    .padding(16)
-//                                    .background(
-//                                        RoundedRectangle(cornerRadius: 8)
-//                                            .stroke(Color.textGrey)
-//                                    )
-//                                    .keyboardType(.emailAddress)
-//                                    .autocapitalization(.none)
-//                                    .font(AppFonts.lightBody())
-//                                    .foregroundColor(Color.textGrey)
-//                            }
-//                            
-//                            VStack(alignment: .leading, spacing: 8) {
-//                                TextField("Dietary Preferences", text: $preferredName)
-//                                    .padding(16)
-//                                    .background(
-//                                        RoundedRectangle(cornerRadius: 8)
-//                                            .stroke(Color.textGrey)
-//                                    )
-//                                    .keyboardType(.emailAddress)
-//                                    .autocapitalization(.none)
-//                                    .font(AppFonts.lightBody())
-//                                    .foregroundColor(Color.textGrey)
-//                                
-//                                Text("Select one or more")
-//                                    .foregroundColor(.textGrey)
-//                                    .font(AppFonts.smallBody())
-//                                    .contentMargins(-100)
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                            }
-//                            
-//                            // Get Started
-//                            Button(action: { getStarted() }) {
-//                                Text("Get Started")
-//                                    .font(AppFonts.buttonFont())
-//                                    .foregroundColor(.white)  // Text color
-//                                    .frame(maxWidth: .infinity)
-//                                    .padding()
-//                                    .background(Color.accentBurntOrange)
-//                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-//                            }
-//                            .padding(.top, 16)
-//                        }
-//                        .padding(24)
-//                    }
+                    
+                    // Form fields
+                    VStack(spacing: 16) {
+                        // Preferred Name
+                        FormTextField(
+                            placeholder: "Preferred Name",
+                            text: $preferredName,
+                            keyboardType: .default,
+                            textContentType: .givenName,
+                            autocapitalization: .words,
+                            isFocused: focusedField == .preferredName
+                        )
+                        .focused($focusedField, equals: .preferredName)
+                        .submitLabel(.done)
+                        .onSubmit { focusedField = nil }
+                        
+                        // Gender Picker
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Gender")
+                                .font(AppFonts.lightBody())
+                                .foregroundColor(.textGrey)
+                                .padding(.horizontal, 4)
+                            
+                            PickerTextField(
+                                placeholder: "Gender",
+                                isFocused: focusedField == .gender,
+                                selectedValue: $selectedGender,
+                                options: gender
+                            )
+                            .onTapGesture {
+                                focusedField = .gender
+                            }
+                        }
+                        
+                        // Country Picker
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Country")
+                                .font(AppFonts.lightBody())
+                                .foregroundColor(.textGrey)
+                                .padding(.horizontal, 4)
+                            
+                            PickerTextField(
+                                placeholder: "Country",
+                                isFocused: focusedField == .country,
+                                selectedValue: $selectedCountry,
+                                options: countries
+                            )
+                            .onTapGesture {
+                                focusedField = .country
+                            }
+                        }
+                        
+                        // Height & Weight
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("Height & Weight")
+                                    .font(AppFonts.lightBody())
+                                    .foregroundColor(.textGrey)
+                                Spacer()
+                                // Unit Toggle
+                                HStack(spacing: 4) {
+                                    Button(action: { useMetric = true }) {
+                                        Text("Metric")
+                                            .font(AppFonts.smallBody())
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(useMetric ? Color.accentBurntOrange : Color.clear)
+                                            .foregroundColor(useMetric ? .white : .textGrey)
+                                            .cornerRadius(6)
+                                    }
+                                    Button(action: { useMetric = false }) {
+                                        Text("Imperial")
+                                            .font(AppFonts.smallBody())
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(!useMetric ? Color.accentBurntOrange : Color.clear)
+                                            .foregroundColor(!useMetric ? .white : .textGrey)
+                                            .cornerRadius(6)
+                                    }
+                                }
+                                .padding(2)
+                                .background(Color.backgroundGrey)
+                                .cornerRadius(8)
+                            }
+                            .padding(.horizontal, 4)
+                            
+                            HStack(spacing: 12) {
+                                FormTextField(
+                                    placeholder: useMetric ? "Height (cm)" : "Height (in)",
+                                    text: $height,
+                                    keyboardType: .decimalPad,
+                                    isFocused: focusedField == .height
+                                )
+                                .focused($focusedField, equals: .height)
+                                
+                                FormTextField(
+                                    placeholder: useMetric ? "Weight (kg)" : "Weight (lb)",
+                                    text: $weight,
+                                    keyboardType: .decimalPad,
+                                    isFocused: focusedField == .weight
+                                )
+                                .focused($focusedField, equals: .weight)
+                            }
+                        }
+                        
+                        // Dietary Preferences
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Dietary Preferences")
+                                .font(AppFonts.lightBody())
+                                .foregroundColor(.textGrey)
+                                .padding(.horizontal, 4)
+                            Text("Select all that apply")
+                                .font(AppFonts.smallBody())
+                                .foregroundColor(.textGrey.opacity(0.7))
+                                .padding(.horizontal, 4)
+                            
+                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                                ForEach(DietaryPreference.allCases, id: \.self) { preference in
+                                    SelectionChip(
+                                        title: preference.rawValue,
+                                        icon: preference.icon,
+                                        isSelected: selectedDietaryPreferences.contains(preference)
+                                    ) {
+                                        if selectedDietaryPreferences.contains(preference) {
+                                            selectedDietaryPreferences.remove(preference)
+                                        } else {
+                                            selectedDietaryPreferences.insert(preference)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Error message
+                    if let error = appViewModel.errorMessage {
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 14))
+                            Text(error)
+                                .font(AppFonts.smallBody())
+                        }
+                        .foregroundColor(.textRed)
+                        .padding(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.textRed.opacity(0.1))
+                        .cornerRadius(8)
+                    }
+                    
+                    // Get Started Button
+                    PrimaryButton.primary(
+                        title: appViewModel.isLoading ? "" : "Get Started",
+                        action: {
+                            focusedField = nil
+                            Task { await getStarted() }
+                        },
+                        isEnabled: isFormValid && !appViewModel.isLoading
+                    )
+                    .overlay {
+                        if appViewModel.isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        }
+                    }
+                    .padding(.top, 16)
+                    
+                    // Skip button
+                    Button(action: {
+                        focusedField = nil
+                        Task { await skip() }
+                    }) {
+                        Text("Skip for now")
+                            .font(AppFonts.regularBody())
+                            .foregroundColor(.textGrey)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .disabled(appViewModel.isLoading)
                 }
-            )
-            
-            // Top-left App Icon (safe area respected, floating above sheet)
-            VStack {
-                HStack {
-                    Image("AppIconMini")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 120)
-                        .padding(.leading, 100)
-                        .padding(.top, 100)
-                    Spacer()
-                }
-                Spacer()
+                .padding(.horizontal, 24)
+                .padding(.top, 28)
+                .padding(.bottom, 48)
             }
         }
     }
-    
-    private func getStarted() {
-        print("Clicked get started")
+
+    // MARK: - Validation
+    private var isFormValid: Bool {
+        !preferredName.isEmpty
+    }
+
+    // MARK: - Actions
+    private func getStarted() async {
+        guard !preferredName.isEmpty else {
+            appViewModel.errorMessage = "Please enter your name"
+            appViewModel.showError = true
+            return
+        }
+
+        let displayName = preferredName
+
+        let updatedPreferences = User.UserPreferences(
+            dietaryPreferences: Array(selectedDietaryPreferences),
+            allergies: [],
+            dislikedIngredients: [],
+            servingsPerMeal: 2,
+            notificationsEnabled: true
+        )
+
+        await appViewModel.completeUserRegistration(
+            displayName: displayName,
+            preferences: updatedPreferences
+        )
+
+        if appViewModel.isAuthenticated, AppConfig.enableDebugLogging {
+            print("✅ UserDetailsView: Registration completed successfully")
+            print("   Name: \(displayName)")
+            print("   Preferences saved")
+            print("   Pantry created")
+        }
+    }
+
+    private func skip() async {
+        guard let email = appViewModel.currentUser?.email else { return }
+
+        let defaultDisplayName = email.components(separatedBy: "@").first ?? "User"
+        let defaultPreferences = User.UserPreferences()
+
+        await appViewModel.completeUserRegistration(
+            displayName: defaultDisplayName,
+            preferences: defaultPreferences
+        )
+
+        if AppConfig.enableDebugLogging {
+            print("⏭️ UserDetailsView: Skipped onboarding")
+        }
     }
 }
 
 struct UserDetailsView_Previews: PreviewProvider {
     static var previews: some View {
         UserDetailsView()
+            .environmentObject(AppViewModel())
             .previewDevice("iPhone 15 Pro")
             .preferredColorScheme(.light)
     }
