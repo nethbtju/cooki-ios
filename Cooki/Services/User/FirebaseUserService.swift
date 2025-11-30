@@ -29,7 +29,7 @@ class FirebaseUserService: UserServiceProtocol {
             }
             
             let user = User(
-                id: UUID(uuidString: data["id"] as? String ?? "") ?? UUID(),
+                id: firebaseUser.uid,
                 displayName: data["displayName"] as? String ?? "",
                 email: data["email"] as? String ?? "",
                 profileImageName: data["profileImageName"] as? String,

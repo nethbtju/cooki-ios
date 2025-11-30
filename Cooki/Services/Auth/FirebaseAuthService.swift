@@ -11,6 +11,12 @@ import FirebaseFirestore
 class FirebaseAuthService: AuthServiceProtocol {
     private let auth = Auth.auth()
     private let db = Firestore.firestore()
+    private let pantryService: PantryServiceProtocol
+    
+    // MARK: - Init
+    init(pantryService: PantryServiceProtocol = ServiceFactory.shared.makePantryService()) {
+        self.pantryService = pantryService
+    }
     
     // MARK: - Sign Up (Step 1: Create Firebase Auth account only)
     func signUp(email: String, password: String) async throws -> User {
@@ -59,22 +65,11 @@ class FirebaseAuthService: AuthServiceProtocol {
             // Use Firebase UID directly as user ID
             let userId = firebaseUser.uid
             
-            // 1. Create empty pantry for user with Firebase UID
-            let pantry = Pantry(
+            // 1. Create pantry using PantryService
+            let pantry = try await pantryService.createPantry(
                 name: "\(displayName)'s Pantry",
-                memberIds: [userId] // Use Firebase UID directly
+                memberIds: [userId]
             )
-            
-            // Store pantry in Firestore
-            let pantryRef = db.collection("pantries").document(pantry.id.uuidString)
-            try await pantryRef.setData([
-                "id": pantry.id.uuidString,
-                "name": pantry.name,
-                "items": [], // Empty array
-                "memberIds": [userId], // Store Firebase UID in memberIds array
-                "createdAt": FieldValue.serverTimestamp(),
-                "updatedAt": FieldValue.serverTimestamp()
-            ])
             
             // 2. Create complete user object with Firebase UID
             let user = User(
@@ -133,7 +128,14 @@ class FirebaseAuthService: AuthServiceProtocol {
             
             return user
             
+        } catch let authError as AuthServiceError {
+            // Re-throw our custom errors directly (don't remap)
+            if AppConfig.enableDebugLogging {
+                print("⚠️ FirebaseAuthService: Auth service error - \(authError.localizedDescription ?? "unknown")")
+            }
+            throw authError
         } catch let error as NSError {
+            // Map Firebase errors
             if AppConfig.enableDebugLogging {
                 print("❌ FirebaseAuthService: Sign in failed - \(error.localizedDescription)")
             }

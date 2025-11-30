@@ -141,7 +141,7 @@ struct RegisterContent: View {
                                 .font(AppFonts.regularBody())
                                 .foregroundColor(.textGrey)
                             Button(action: {
-                                authCoordinator.returnToLogin()
+                                authCoordinator.pop()
                             }) {
                                 Text("Sign In")
                                     .font(AppFonts.regularBody())

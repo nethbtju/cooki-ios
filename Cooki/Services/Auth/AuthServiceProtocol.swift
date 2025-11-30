@@ -34,7 +34,7 @@ protocol AuthServiceProtocol {
 }
 
 // MARK: - Auth Service Errors
-enum AuthServiceError: LocalizedError {
+enum AuthServiceError: LocalizedError, Equatable {
     case invalidEmail
     case invalidCredentials
     case emailAlreadyInUse
