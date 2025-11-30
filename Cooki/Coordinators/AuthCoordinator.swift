@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-/// Routes available in the registration flow
-enum RegistrationRoute: Hashable {
+/// Routes available in the auth navigation stack
+enum AuthRoute: Hashable {
+    case login
     case register
     case userDetails
 }
@@ -16,87 +17,39 @@ enum RegistrationRoute: Hashable {
 /// Coordinator for managing authentication navigation
 @MainActor
 class AuthCoordinator: ObservableObject {
-    /// Current authentication flow state
-    @Published var currentFlow: AuthFlow = .login
+    /// Single navigation path for all auth screens
+    @Published var path = NavigationPath()
     
-    /// Navigation path for the registration stack
-    @Published var registrationPath: NavigationPath = NavigationPath()
+    // MARK: - Navigation Methods
     
-    /// Available authentication flows
-    enum AuthFlow {
-        case login          // Login screen (no navigation stack)
-        case registration   // Registration flow (register → user details)
+    /// Push a route onto the navigation stack
+    func push(_ route: AuthRoute) {
+        path.append(route)
+        print("🧭 AuthCoordinator - Pushed \(route), path count: \(path.count)")
     }
     
-    // MARK: - Flow Navigation
-    
-    /// Start the registration flow (creates a new stack)
-    func startRegistrationFlow() {
-        currentFlow = .registration
-        registrationPath = NavigationPath()
-        
-        if AppConfig.enableDebugLogging {
-            print("🧭 AuthCoordinator: Started registration flow")
-        }
+    /// Push UserDetailsView when profile completion is needed
+    func pushUserDetails() {
+        path.append(AuthRoute.userDetails)
+        print("🧭 AuthCoordinator - Pushed userDetails, path count: \(path.count)")
     }
     
-    /// Return to login flow (discards registration stack)
-    func returnToLogin() {
-        currentFlow = .login
-        registrationPath = NavigationPath()
-        
-        if AppConfig.enableDebugLogging {
-            print("🧭 AuthCoordinator: Returned to login flow")
-        }
-    }
-    
-    // MARK: - Registration Stack Navigation
-    
-    /// Push a route onto the registration stack
-    func push(_ route: RegistrationRoute) {
-        registrationPath.append(route)
-        
-        if AppConfig.enableDebugLogging {
-            print("🧭 AuthCoordinator: Pushed \(route)")
-            print("   Registration path count: \(registrationPath.count)")
-        }
-    }
-    
-    /// Pop from the registration stack
+    /// Pop from the navigation stack
     func pop() {
-        guard !registrationPath.isEmpty else { return }
-        registrationPath.removeLast()
-        
-        if AppConfig.enableDebugLogging {
-            print("🧭 AuthCoordinator: Popped from registration stack")
-            print("   Registration path count: \(registrationPath.count)")
-        }
+        guard !path.isEmpty else { return }
+        path.removeLast()
+        print("🧭 AuthCoordinator - Popped, path count: \(path.count)")
     }
     
-    /// Reset the coordinator (used when authentication completes)
+    /// Pop to root (LoginView)
+    func popToRoot() {
+        path = NavigationPath()
+        print("🧭 AuthCoordinator - Popped to root")
+    }
+    
+    /// Reset the coordinator (clears navigation)
     func reset() {
-        currentFlow = .login
-        registrationPath = NavigationPath()
-        
-        if AppConfig.enableDebugLogging {
-            print("🧭 AuthCoordinator: Reset")
-        }
-    }
-    
-    // MARK: - Computed Properties
-    
-    /// Check if currently in registration flow
-    var isInRegistrationFlow: Bool {
-        currentFlow == .registration
-    }
-    
-    /// Check if we can navigate back in registration flow
-    var canGoBackInRegistration: Bool {
-        !registrationPath.isEmpty
-    }
-    
-    /// Current depth of the registration stack
-    var registrationStackDepth: Int {
-        registrationPath.count
+        path = NavigationPath()
+        print("🧭 AuthCoordinator - Reset navigation")
     }
 }

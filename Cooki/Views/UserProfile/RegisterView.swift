@@ -7,6 +7,15 @@
 //
 import SwiftUI
 
+struct RegisterView: View {
+    var body: some View {
+        MainLayout(
+            header: { BackHeader() },
+            content: { RegisterContent() }
+        )
+    }
+}
+
 struct RegisterContent: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var authCoordinator: AuthCoordinator
@@ -141,7 +150,7 @@ struct RegisterContent: View {
                                 .font(AppFonts.regularBody())
                                 .foregroundColor(.textGrey)
                             Button(action: {
-                                authCoordinator.returnToLogin()
+                                authCoordinator.pop()
                             }) {
                                 Text("Sign In")
                                     .font(AppFonts.regularBody())

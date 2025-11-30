@@ -53,6 +53,12 @@ class AppViewModel: ObservableObject {
             Task { @MainActor [weak self] in
                 guard let self = self else { return }
                 
+                if AppConfig.enableDebugLogging {
+                    print("🔐 AppViewModel: Auth state listener fired")
+                    print("   User: \(user?.uid ?? "nil")")
+                    print("   Email: \(user?.email ?? "none")")
+                }
+                
                 if user != nil {
                     // User is signed in
                     // Don't fetch if we're in the middle of registration
@@ -224,13 +230,29 @@ class AppViewModel: ObservableObject {
                 print("   Profile complete: \(hasCompletedProfile)")
             }
         } catch {
-            errorMessage = error.localizedDescription
-            showError = true
-            isAuthenticated = false
-            needsProfileCompletion = false
-            
-            if AppConfig.enableDebugLogging {
-                print("❌ AppViewModel: Sign in failed - \(error.localizedDescription)")
+            // Handle profile incomplete as special case (not an error)
+            let authError = error as? AuthServiceError
+
+            if authError == .profileIncomplete {
+                // User authenticated but profile incomplete - NOT an error
+                errorMessage = nil
+                showError = false
+                isAuthenticated = true
+                needsProfileCompletion = true
+                
+                if AppConfig.enableDebugLogging {
+                    print("⚠️ AppViewModel: Sign in - Profile incomplete, redirecting to UserDetailsView")
+                }
+            } else {
+                // Actual error - failed login
+                errorMessage = error.localizedDescription
+                showError = true
+                isAuthenticated = false
+                needsProfileCompletion = false
+                
+                if AppConfig.enableDebugLogging {
+                    print("❌ AppViewModel: Sign in failed - \(error.localizedDescription)")
+                }
             }
         }
         

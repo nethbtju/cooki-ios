@@ -8,10 +8,15 @@
 import SwiftUI
 
 struct MainView: View {
+    @EnvironmentObject var appViewModel: AppViewModel
+    
     @State private var selectedTab: Int = 0
     @State private var showAddItemSheet = false
     @State private var navigateToUpload = false
-    var user: User?
+    
+    private var user: User {
+        appViewModel.currentUser ?? User.mock
+    }
     
     var body: some View {
         let pillData: [(icon: String, text: String, action: () -> Void)] = [
@@ -28,7 +33,7 @@ struct MainView: View {
         
         NavigationStack {
             ZStack(alignment: .bottom) {
-                selectedView(selectedTab, user: user ?? User.mock)
+                selectedView(selectedTab, user: user)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .animation(.easeInOut(duration: 0.3), value: selectedTab)
                 CustomTabBar(selectedTab: $selectedTab, pillData: pillData)

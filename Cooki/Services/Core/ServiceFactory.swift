@@ -37,4 +37,12 @@ class ServiceFactory {
             return FirebaseUserService()
         }
     }
+    
+    // MARK: - Pantry Service
+    func makePantryService() -> PantryServiceProtocol {
+        switch AppConfig.environment {
+        case .development, .staging, .production:
+            return FirebasePantryService()
+        }
+    }
 }
