@@ -11,7 +11,8 @@ import FirebaseCore
 @main
 struct CookiApp: App {
     @StateObject private var appViewModel = AppViewModel()
-    
+    @State private var showLoading = true // <--- new state
+
     init() {
         // Configure Firebase on app launch
         FirebaseApp.configure()
@@ -25,8 +26,24 @@ struct CookiApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootCoordinatorView()
-                .environmentObject(appViewModel)
+            ZStack {
+                if showLoading {
+                    BasketLoadingView()
+                        .transition(.opacity)
+                } else {
+                    RootCoordinatorView()
+                        .environmentObject(appViewModel)
+                        .transition(.opacity)
+                }
+            }
+            .onAppear {
+                // Show loading for 3 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    withAnimation(.easeOut(duration: 0.5)) {
+                        showLoading = false
+                    }
+                }
+            }
         }
     }
 }
