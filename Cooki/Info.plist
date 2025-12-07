@@ -8,7 +8,7 @@
         <string>SecondaryColor</string>
         <key>UIImageAssets</key>
         <array>
-            <string>AppIconMini</string>
+            <string>LaunchLogo</string>
         </array>
     </dict>
 	<key>UIAppFonts</key>

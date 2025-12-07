@@ -13,66 +13,71 @@ struct BasketLoadingView: View {
             let by = geo.size.height / 2
             
             ZStack {
-                Color.white.ignoresSafeArea()
+                Color.secondaryPurple.ignoresSafeArea()
                 
                 // Items in original order
                 basketItem("Meat", itemX: 157, itemY: 333, itemWidth: 110, itemHeight: 99,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: -15, floatOffsetY: -60)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: -15, floatOffsetY: -60)
                 
                 basketItem("Bread", itemX: 99, itemY: 312, itemWidth: 113, itemHeight: 136,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: -20, floatOffsetY: -70)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: -20, floatOffsetY: -70)
                 
                 basketItem("Cucumber", itemX: 203, itemY: 352, itemWidth: 81, itemHeight: 133,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: 25, floatOffsetY: -65)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: 25, floatOffsetY: -65)
                 
                 basketItem("Tomato", itemX: 110, itemY: 422, itemWidth: 61, itemHeight: 62,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: -10, floatOffsetY: -50)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: -10, floatOffsetY: -75)
                 
                 basketItem("Tomato", itemX: 209, itemY: 353, itemWidth: 61, itemHeight: 62,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: 18, floatOffsetY: -55)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: 18, floatOffsetY: -55)
                 
                 basketItem("Orange", itemX: 194, itemY: 414, itemWidth: 73, itemHeight: 74,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: 22, floatOffsetY: -58)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: 22, floatOffsetY: -58)
                 
                 basketItem("Orange", itemX: 156, itemY: 366, itemWidth: 57, itemHeight: 58,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: -25, floatOffsetY: -62)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: -25, floatOffsetY: -62)
                 
                 basketItem("Capsicum", itemX: 139, itemY: 398, itemWidth: 92, itemHeight: 93,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: 10, floatOffsetY: -68)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: 10, floatOffsetY: -68)
                 
                 basketItem("Capsicum", itemX: 97, itemY: 352, itemWidth: 75, itemHeight: 76,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: -18, floatOffsetY: -54)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: -18, floatOffsetY: -54)
                 
                 basketItem("Egg", itemX: 108, itemY: 408, itemWidth: 41, itemHeight: 51,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: -14, floatOffsetY: -48)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: -14, floatOffsetY: -48)
                 
                 basketItem("Banana", itemX: 121, itemY: 343, itemWidth: 115, itemHeight: 116,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: 24, floatOffsetY: -72)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: 24, floatOffsetY: -72)
                 
                 basketItem("Egg", itemX: 203, itemY: 366, itemWidth: 41, itemHeight: 51,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: 20, floatOffsetY: -52)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: 20, floatOffsetY: -52)
                 
                 basketItem("WaterBottle", itemX: 121, itemY: 341, itemWidth: 90, itemHeight: 140,
-                          basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
-                          floatOffsetX: -10, floatOffsetY: -75)
+                           basketWidth: 193, basketHeight: 175, basketCenterX: bx, basketCenterY: by,
+                           floatOffsetX: -10, floatOffsetY: -75)
                 
-                // Basket on top
                 Image("Basket")
                     .resizable()
                     .frame(width: 193, height: 175)
                     .position(x: bx, y: by)
+                
+                Image("LogoText")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 120)
+                    .position(x: bx, y: by + 120)
             }
         }
     }
