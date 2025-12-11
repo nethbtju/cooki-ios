@@ -7,43 +7,35 @@
 import SwiftUI
 
 struct MealPlanView: View {
+    // MARK: - Body
     var body: some View {
-        VStack {
-            HStack {
-                Text("Your Meal Plan")
-                    .font(AppFonts.heading3())
-                    .foregroundStyle(Color.backgroundWhite)
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 36)
-            .padding(.bottom, 2)
+        ZStack {
+            Color.white
+                .clipShape(TopRoundedModal())
+                .ignoresSafeArea(edges: .bottom)
             
-            // Modal sheet
-            ModalSheet(
-                heightFraction: 0.87,
-                content: {
-                    VStack {
-                        Text("mao")
-                    }
+            VStack {
+                HorizontalDatePicker()
+                Spacer()
+                HStack {
+                    DailyIntakeDashboard(
+                        caloriesConsumed: 1240,
+                        caloriesTarget: 1600,
+                        macros: [
+                            MacroProgress(name: "Protein", current: 50, target: 60, color: Color(red: 0.95, green: 0.6, blue: 0.5), unit: "g"),
+                            MacroProgress(name: "Carbs", current: 40, target: 100, color: Color(red: 0.5, green: 0.6, blue: 0.95), unit: "g"),
+                            MacroProgress(name: "Fat", current: 95, target: 100, color: Color(red: 0.3, green: 0.8, blue: 0.75), unit: "g")
+                        ]
+                    )
                 }
-            )
+            }
         }
-        .frame(maxHeight: .infinity, alignment: .top)
-        .background {
-            Image("BackgroundImage")
-                .resizable()
-                .scaledToFill()
-                .offset(x: -50, y: -50)
-                .ignoresSafeArea()
-        }
-        .background(Color.secondaryPurple)
     }
 }
 
 struct MealPlanView_Previews: PreviewProvider {
     static var previews: some View {
-        PantryView()
+        MealPlanView()
             .previewDevice("iPhone 15 Pro")
             .preferredColorScheme(.light)
     }
