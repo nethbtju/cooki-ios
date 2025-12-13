@@ -2,15 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>UILaunchScreen</key>
-    <dict>
-        <key>UIColorName</key>
-        <string>SecondaryColor</string>
-        <key>UIImageAssets</key>
-        <array>
-            <string>LaunchLogo</string>
-        </array>
-    </dict>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Fonts/Inter-Regular.ttf</string>
@@ -19,5 +10,14 @@
 		<string>Fonts/Poppins-Bold.ttf</string>
 		<string>Fonts/Poppins-Black.ttf</string>
 	</array>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>SecondaryColor</string>
+		<key>UIImageAssets</key>
+		<array>
+			<string>LaunchLogo</string>
+		</array>
+	</dict>
 </dict>
 </plist>

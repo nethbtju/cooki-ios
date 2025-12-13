@@ -64,7 +64,7 @@ class MockAuthService: AuthServiceProtocol {
         user.preferences = preferences
         
         // Create mock pantry
-        let pantryId = UUID()
+        let pantryId = ""
         user.pantryIds = [pantryId]
         
         currentUser = user
