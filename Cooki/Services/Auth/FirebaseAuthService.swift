@@ -4,6 +4,7 @@
 //
 //  Created by Neth Botheju on 23/11/2025.
 //
+
 import Foundation
 import FirebaseAuth
 import FirebaseFirestore
@@ -21,17 +22,15 @@ class FirebaseAuthService: AuthServiceProtocol {
     // MARK: - Sign Up (Step 1: Create Firebase Auth account only)
     func signUp(email: String, password: String) async throws -> User {
         do {
-            // Create Firebase Auth user
             let authResult = try await auth.createUser(withEmail: email, password: password)
             let firebaseUser = authResult.user
             
-            // Create minimal User model using Firebase Auth UID directly
             let user = User(
-                id: firebaseUser.uid, // Use Firebase UID directly as string
-                displayName: "", // Empty - will be set in UserDetailsView
+                id: firebaseUser.uid,
+                displayName: "",
                 email: email,
                 profileImageName: nil,
-                pantryIds: [], // Will be created in completeUserRegistration
+                pantryIds: [],
                 createdAt: Date(),
                 preferences: User.UserPreferences()
             )
@@ -55,40 +54,36 @@ class FirebaseAuthService: AuthServiceProtocol {
         }
     }
     
-    // MARK: - Complete User Registration (Step 2: Create Firestore doc + pantry)
+    // MARK: - Complete User Registration
     func completeUserRegistration(displayName: String, preferences: User.UserPreferences) async throws -> User {
         guard let firebaseUser = auth.currentUser else {
             throw AuthServiceError.notAuthenticated
         }
         
         do {
-            // Use Firebase UID directly as user ID
             let userId = firebaseUser.uid
             
-            // 1. Create pantry using PantryService
             let pantry = try await pantryService.createPantry(
                 name: "\(displayName)'s Pantry",
                 memberIds: [userId]
             )
             
-            // 2. Create complete user object with Firebase UID
             let user = User(
-                id: userId, // Firebase Auth UID
+                id: userId,
                 displayName: displayName,
                 email: firebaseUser.email ?? "",
                 profileImageName: nil,
-                pantryIds: [pantry.id],
+                pantryIds: [pantry.id.uuidString],
                 createdAt: Date(),
                 preferences: preferences
             )
             
-            // 3. Create user document in Firestore using Firebase UID as document ID
             try await createUserDocument(user: user, firebaseUID: userId)
             
             if AppConfig.enableDebugLogging {
                 print("✅ FirebaseAuthService: User registration completed")
                 print("   Firebase UID: \(firebaseUser.uid)")
-                print("   User ID (same as Firebase UID): \(user.id)")
+                print("   User ID: \(user.id)")
                 print("   Name: \(user.displayName)")
                 print("   Pantry ID: \(pantry.id)")
                 print("   Pantry Members: \(pantry.memberIds)")
@@ -111,10 +106,8 @@ class FirebaseAuthService: AuthServiceProtocol {
             let authResult = try await auth.signIn(withEmail: email, password: password)
             let firebaseUser = authResult.user
             
-            // Fetch user data from Firestore
             let user = try await fetchUserDocument(firebaseUID: firebaseUser.uid)
             
-            // Check if user completed profile
             if !user.hasCompletedProfile {
                 throw AuthServiceError.profileIncomplete
             }
@@ -129,13 +122,11 @@ class FirebaseAuthService: AuthServiceProtocol {
             return user
             
         } catch let authError as AuthServiceError {
-            // Re-throw our custom errors directly (don't remap)
             if AppConfig.enableDebugLogging {
                 print("⚠️ FirebaseAuthService: Auth service error - \(authError.localizedDescription ?? "unknown")")
             }
             throw authError
         } catch let error as NSError {
-            // Map Firebase errors
             if AppConfig.enableDebugLogging {
                 print("❌ FirebaseAuthService: Sign in failed - \(error.localizedDescription)")
             }
@@ -162,8 +153,6 @@ class FirebaseAuthService: AuthServiceProtocol {
     // MARK: - Get Current User
     func getCurrentUser() -> User? {
         guard auth.currentUser != nil else { return nil }
-        
-        // Return nil to force async fetch
         return nil
     }
     
@@ -180,7 +169,7 @@ class FirebaseAuthService: AuthServiceProtocol {
                 "displayName": user.displayName,
                 "email": user.email,
                 "profileImageName": user.profileImageName as Any,
-                "pantryIds": user.pantryIds.map { $0.uuidString },
+                "pantryIds": user.pantryIds, // ✅ fixed
                 "updatedAt": FieldValue.serverTimestamp()
             ]
             
@@ -206,11 +195,7 @@ class FirebaseAuthService: AuthServiceProtocol {
         
         do {
             let uid = firebaseUser.uid
-            
-            // Delete Firestore document (if exists)
             try? await db.collection("users").document(uid).delete()
-            
-            // Delete Firebase Auth user
             try await firebaseUser.delete()
             
             if AppConfig.enableDebugLogging {
@@ -229,11 +214,9 @@ class FirebaseAuthService: AuthServiceProtocol {
     func resetPassword(email: String) async throws {
         do {
             try await auth.sendPasswordReset(withEmail: email)
-            
             if AppConfig.enableDebugLogging {
                 print("✅ FirebaseAuthService: Password reset email sent to \(email)")
             }
-            
         } catch let error as NSError {
             if AppConfig.enableDebugLogging {
                 print("❌ FirebaseAuthService: Password reset failed - \(error.localizedDescription)")
@@ -243,16 +226,15 @@ class FirebaseAuthService: AuthServiceProtocol {
     }
     
     // MARK: - Helper Methods
-    
     private func createUserDocument(user: User, firebaseUID: String) async throws {
         let userRef = db.collection("users").document(firebaseUID)
         
         let userData: [String: Any] = [
-            "id": user.id, // Now stores Firebase UID string directly
+            "id": user.id,
             "displayName": user.displayName,
             "email": user.email,
             "profileImageName": user.profileImageName as Any,
-            "pantryIds": user.pantryIds.map { $0.uuidString },
+            "pantryIds": user.pantryIds, // ✅ fixed
             "createdAt": FieldValue.serverTimestamp(),
             "preferences": [
                 "dietaryPreferences": user.preferences.dietaryPreferences.map { $0.rawValue },
@@ -271,17 +253,13 @@ class FirebaseAuthService: AuthServiceProtocol {
         let snapshot = try await userRef.getDocument()
         
         guard let data = snapshot.data() else {
-            // User authenticated but no Firestore doc = incomplete profile
             throw AuthServiceError.profileIncomplete
         }
         
-        // Parse pantry IDs
-        let pantryIdStrings = data["pantryIds"] as? [String] ?? []
-        let pantryIds = pantryIdStrings.compactMap { UUID(uuidString: $0) }
+        let pantryIds = data["pantryIds"] as? [String] ?? [] // ✅ fixed
         
-        // Parse user data - use Firebase UID directly
         let user = User(
-            id: data["id"] as? String ?? firebaseUID, // Use stored ID or fallback to Firebase UID
+            id: data["id"] as? String ?? firebaseUID,
             displayName: data["displayName"] as? String ?? "",
             email: data["email"] as? String ?? "",
             profileImageName: data["profileImageName"] as? String,

@@ -34,7 +34,7 @@ struct PickerTextField: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isFocused ? Color.accent : Color.textGrey, lineWidth: 1),
+                    .stroke(isFocused ? Color.accent : Color.textGrey, lineWidth: 1)
             )
         }
         .sheet(isPresented: $showPicker) {
