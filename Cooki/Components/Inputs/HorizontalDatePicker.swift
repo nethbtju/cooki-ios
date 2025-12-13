@@ -117,21 +117,11 @@ struct DateCell: View {
     }
 }
 
-struct ContentView: View {
-    var body: some View {
-        VStack(spacing: 0) {
+// MARK: - Preview
+struct HorizontalDatePicker_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack {
             HorizontalDatePicker()
-            
-            Spacer()
-            
-            Text("Meal content for selected day")
-                .foregroundColor(.secondary)
-            
-            Spacer()
         }
     }
-}
-
-#Preview {
-    ContentView()
 }
