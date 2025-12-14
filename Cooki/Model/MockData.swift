@@ -3,6 +3,7 @@
 //  Cooki
 //
 //  Created by Neth Botheju on 22/11/2025.
+//  Updated for pantryId and unique mock items
 //
 import Foundation
 
@@ -22,15 +23,7 @@ enum MockData {
     )
     
     static let users: [User] = [
-        User(
-            displayName: "Neth",
-            email: "neth@example.com",
-            profileImageName: "ProfilePic",
-            preferences: User.UserPreferences(
-                dietaryPreferences: [.highProtein],
-                servingsPerMeal: 2
-            )
-        ),
+        user,
         User(
             displayName: "John",
             email: "john@example.com",
@@ -48,6 +41,10 @@ enum MockData {
         )
     ]
     
+    // MARK: - Pantry IDs
+    static let pantry1 = UUID()
+    static let pantry2 = UUID()
+    
     // MARK: - Pantry Items
     static let pantryItems: [Item] = [
         Item(
@@ -56,7 +53,8 @@ enum MockData {
             expiryDate: Calendar.current.date(byAdding: .day, value: 3, to: Date()),
             location: .fridge,
             category: .condiments,
-            imageName: "StrawberryJam"
+            imageName: "StrawberryJam",
+            pantryId: pantry1
         ),
         Item(
             title: "Full Cream Milk",
@@ -64,7 +62,8 @@ enum MockData {
             expiryDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()),
             location: .fridge,
             category: .dairy,
-            imageName: "Milk"
+            imageName: "Milk",
+            pantryId: pantry1
         ),
         Item(
             title: "Bananas",
@@ -72,23 +71,27 @@ enum MockData {
             expiryDate: Date(), // Expired today
             location: .pantry,
             category: .produce,
-            imageName: "Bananas"
+            imageName: "Bananas",
+            pantryId: pantry1
         ),
+        // Second pantry items
         Item(
-            title: "Cottee's Strawberry Jam",
+            title: "Strawberry Jam (Backup)",
             quantity: .grams(375),
-            expiryDate: Calendar.current.date(byAdding: .day, value: 3, to: Date()),
+            expiryDate: Calendar.current.date(byAdding: .day, value: 5, to: Date()),
             location: .pantry,
             category: .condiments,
-            imageName: "StrawberryJam"
+            imageName: "StrawberryJam",
+            pantryId: pantry2
         ),
         Item(
-            title: "Full Cream Milk",
+            title: "Full Cream Milk (Frozen)",
             quantity: .liters(1),
-            expiryDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()),
+            expiryDate: Calendar.current.date(byAdding: .day, value: 2, to: Date()),
             location: .freezer,
             category: .dairy,
-            imageName: "Milk"
+            imageName: "Milk",
+            pantryId: pantry2
         )
     ]
     
