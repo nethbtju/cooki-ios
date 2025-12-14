@@ -19,7 +19,7 @@ struct DateItem: Identifiable, Equatable {
 
 struct HorizontalDatePicker: View {
     @State private var dates: [DateItem] = []
-    @State private var selectedDate: Date = Date()
+    @State var selectedDate: Date
     
     var body: some View {
         VStack(spacing: 0) {
@@ -121,7 +121,7 @@ struct DateCell: View {
 struct HorizontalDatePicker_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            HorizontalDatePicker()
+            HorizontalDatePicker(selectedDate: Date())
         }
     }
 }

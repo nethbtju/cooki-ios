@@ -4,21 +4,33 @@
 //
 //  Created by Neth Botheju on 22/11/2025.
 //
-// MARK: - Time Formatting Utility
-struct TimeFormatter {
-    static func formatPrepTime(hours: Int, minutes: Int) -> String {
-        var components: [String] = []
-        
-        if hours > 0 {
-            let hourText = hours == 1 ? "hour" : "hours"
-            components.append("\(hours) \(hourText)")
+// MARK: - TimeComponents
+struct TimeComponents: Equatable, Hashable {
+    let hours: Int
+    let minutes: Int
+
+    enum Style {
+        case short
+        case long
+    }
+
+    func string(_ style: Style = .long) -> String {
+        var parts: [String] = []
+
+        switch style {
+        case .short:
+            if hours > 0 { parts.append("\(hours)h") }
+            if minutes > 0 { parts.append("\(minutes)m") }
+
+        case .long:
+            if hours > 0 {
+                parts.append("\(hours) hr" + (hours > 1 ? "s" : ""))
+            }
+            if minutes > 0 {
+                parts.append("\(minutes) min")
+            }
         }
-        
-        if minutes > 0 {
-            let minuteText = minutes == 1 ? "minute" : "minutes"
-            components.append("\(minutes) \(minuteText)")
-        }
-        
-        return components.isEmpty ? "0 minutes" : components.joined(separator: " ")
+
+        return parts.isEmpty ? (style == .short ? "0m" : "0 min") : parts.joined(separator: " ")
     }
 }

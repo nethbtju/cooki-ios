@@ -208,18 +208,127 @@ enum MockData {
     
     // MARK: - Meal Plans
     static let mealPlans: [MealPlan] = [
+        
+        // Today
         MealPlan(
             date: Date(),
-            meals: [
-                PlannedMeal(recipe: recipes[3], mealType: .lunch, scheduledDate: Date()),
-                PlannedMeal(recipe: recipes[0], mealType: .dinner, scheduledDate: Date())
-            ]
+            planData: [
+                .breakfast: [
+                    recipes[3] // Grilled Chicken Salad (placeholder breakfast)
+                ],
+                .lunch: [
+                    recipes[1] // Lemon Chicken
+                ],
+                .dinner: [
+                    recipes[0], // Rogan Josh Lamb
+                    recipes[2]  // Beef Stir Fry
+                ]
+            ],
+            completed: false
         ),
+        
+        // Tomorrow
         MealPlan(
             date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
-            meals: [
-                PlannedMeal(recipe: recipes[1], mealType: .lunch, scheduledDate: Calendar.current.date(byAdding: .day, value: 1, to: Date())!),
-                PlannedMeal(recipe: recipes[4], mealType: .dinner, scheduledDate: Calendar.current.date(byAdding: .day, value: 1, to: Date())!)
+            planData: [
+                .lunch: [
+                    recipes[4] // Spaghetti Bolognese
+                ],
+                .dinner: [
+                    recipes[1] // Lemon Chicken
+                ]
+            ],
+            completed: false
+        ),
+        
+        // Yesterday (completed)
+        MealPlan(
+            date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!,
+            planData: [
+                .breakfast: [
+                    recipes[3]
+                ],
+                .lunch: [
+                    recipes[1]
+                ],
+                .dinner: [
+                    recipes[0]
+                ]
+            ],
+            completed: true
+        )
+    ]
+    
+    // MARK: - Daily Intake
+    static let dailyIntakes: [DailyIntake] = [
+        DailyIntake(
+            date: Date(),
+            totalIntake: IntakeProgress(
+                units: .calories,
+                userGoal: 1600,
+                currentValue: 1200
+            ),
+            macros: [
+                Macro(
+                    macroType: .protein,
+                    currentIntake: IntakeProgress(
+                        units: .grams,
+                        userGoal: 60,
+                        currentValue: 50
+                    )
+                ),
+                Macro(
+                    macroType: .carbohydrate,
+                    currentIntake: IntakeProgress(
+                        units: .grams,
+                        userGoal: 100,
+                        currentValue: 40
+                    )
+                ),
+                Macro(
+                    macroType: .fat,
+                    currentIntake: IntakeProgress(
+                        units: .grams,
+                        userGoal: 100,
+                        currentValue: 95
+                    )
+                )
+            ]
+        ),
+        
+        // Tomorrow (lighter day)
+        DailyIntake(
+            date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
+            totalIntake: IntakeProgress(
+                units: .calories,
+                userGoal: 1600,
+                currentValue: 800
+            ),
+            macros: [
+                Macro(
+                    macroType: .protein,
+                    currentIntake: IntakeProgress(
+                        units: .grams,
+                        userGoal: 60,
+                        currentValue: 30
+                    )
+                ),
+                Macro(
+                    macroType: .carbohydrate,
+                    currentIntake: IntakeProgress(
+                        units: .grams,
+                        userGoal: 100,
+                        currentValue: 50
+                    )
+                ),
+                Macro(
+                    macroType: .fat,
+                    currentIntake: IntakeProgress(
+                        units: .grams,
+                        userGoal: 100,
+                        currentValue: 40
+                    )
+                )
             ]
         )
     ]
@@ -254,4 +363,9 @@ extension Upload {
 extension MealPlan {
     static var mockMealPlans: [MealPlan] { MockData.mealPlans }
     static var mockMealPlan: MealPlan { MockData.mealPlans[0] }
+}
+
+extension DailyIntake {
+    static var mockDailyIntakes: [DailyIntake] { MockData.dailyIntakes }
+    static var mockDailyIntake: DailyIntake { MockData.dailyIntakes[0] }
 }

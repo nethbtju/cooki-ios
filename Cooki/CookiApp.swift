@@ -10,23 +10,24 @@ import FirebaseCore
 
 @main
 struct CookiApp: App {
-    @StateObject private var appViewModel = AppViewModel()
-    
-    init() {
-        // Configure Firebase on app launch
-        FirebaseApp.configure()
-        
-        if AppConfig.enableDebugLogging {
-            print("🔥 Firebase configured successfully")
-            print("🔧 Environment: \(AppConfig.environment)")
-            print("🔧 Skip Login: \(AppConfig.skipLoginInDevelopment)")
-        }
-    }
+//    @StateObject private var appViewModel = AppViewModel()
+//    
+//    init() {
+//        // Configure Firebase on app launch
+//        FirebaseApp.configure()
+//        
+//        if AppConfig.enableDebugLogging {
+//            print("🔥 Firebase configured successfully")
+//            print("🔧 Environment: \(AppConfig.environment)")
+//            print("🔧 Skip Login: \(AppConfig.skipLoginInDevelopment)")
+//        }
+//    }
     
     var body: some Scene {
         WindowGroup {
-            RootCoordinatorView()
-                .environmentObject(appViewModel)
+            MealPlanView()
+//            RootCoordinatorView()
+//                .environmentObject(appViewModel)
         }
     }
 }

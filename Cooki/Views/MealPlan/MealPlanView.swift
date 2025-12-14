@@ -7,54 +7,32 @@
 import SwiftUI
 
 struct MealPlanView: View {
-
-    // MARK: - Body
+    
+    @StateObject private var viewModel = MealPlanViewModel()
+    
     var body: some View {
-        
-        VStack(alignment: .leading) {
-            HorizontalDatePicker()
+        VStack(alignment: .leading, spacing: 16) {
+            HorizontalDatePicker(
+                selectedDate: $viewModel.currentDayIndex
+            )
+            
+            if let intake = viewModel.currentDailyIntake {
+                DailyIntakeView(currentIntake: intake)
+            }
+            
+            Text("Today's meal plan")
+                .font(.headline)
+            
             ScrollView {
-                Text("Daily Intake")
-                HStack(spacing: 24){
-                    DailyIntakeProgressBar(caloriesConsumed: 1200, caloriesTarget: 1600)
-                    VStack {
-                        MacroProgressBar(name: "Protein", current: 50, target: 60, color: Color(red: 0.95, green: 0.6, blue: 0.5), unit: "g")
-                        MacroProgressBar(name: "Carbs", current: 40, target: 100, color: Color(red: 0.5, green: 0.6, blue: 0.95), unit: "g")
-                        MacroProgressBar(name: "Fat", current: 95, target: 100, color: Color(red: 0.3, green: 0.8, blue: 0.75), unit: "g")
-                    }
-                }
-                Text("Today's meal plan")
-                VStack {
-                    // Suggestion card
-                    RecipeCard.suggestion(
-                        recipeSuggestion: MockData.suggestions[1],
-                        aiSuggestion: "Meet your protein goals with this meal",
-                        action: { print("Add to meal plan") }
-                    )
-                    // Suggestion card
-                    RecipeCard.suggestion(
-                        recipeSuggestion: MockData.suggestions[1],
-                        aiSuggestion: "Meet your protein goals with this meal",
-                        action: { print("Add to meal plan") }
-                    )
-                    // Suggestion card
-                    RecipeCard.suggestion(
-                        recipeSuggestion: MockData.suggestions[1],
-                        aiSuggestion: "Meet your protein goals with this meal",
-                        action: { print("Add to meal plan") }
-                    )
-                    // Suggestion card
-                    RecipeCard.suggestion(
-                        recipeSuggestion: MockData.suggestions[1],
-                        aiSuggestion: "Meet your protein goals with this meal",
-                        action: { print("Add to meal plan") }
-                    )
-                }
+                MealListView(
+                    mealsGroupedByType: viewModel.mealsGroupedByType
+                )
+                .padding()
             }
         }
+        .padding(.horizontal)
     }
 }
-
 struct MealPlanView_Previews: PreviewProvider {
     static var previews: some View {
         MealPlanView()
