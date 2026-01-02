@@ -12,21 +12,22 @@ struct MainView: View {
     
     @State private var selectedTab: Int = 0
     @State private var showAddItemSheet = false
-    @State private var navigateToUpload = false
     @State private var isLoggedOut = false
+    @State private var navigationPath = NavigationPath()
+    @State private var isPillsExpanded = false  // Add state for pills
     
     private var user: User {
         appViewModel.currentUser ?? User.mock
     }
     
     private var authService: FirebaseAuthService {
-        FirebaseAuthService() // Or pass from AppViewModel if you have a shared instance
+        FirebaseAuthService()
     }
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             if isLoggedOut {
-                LoginView() // Replace with your login view
+                LoginView()
             } else {
                 ZStack(alignment: .bottom) {
                     selectedView(selectedTab, user: user)
@@ -39,7 +40,7 @@ struct MainView: View {
                         ("magnifyingglass", "Add new recipe", { print("Recipe tapped") })
                     ]
                     
-                    CustomTabBar(selectedTab: $selectedTab, pillData: pillData)
+                    CustomTabBar(selectedTab: $selectedTab, isExpanded: $isPillsExpanded, pillData: pillData)
                         .ignoresSafeArea(.keyboard)
                 }
                 .overlay {
@@ -51,16 +52,22 @@ struct MainView: View {
                 }
                 .sheet(isPresented: $showAddItemSheet) {
                     AddPantryItemView(onUploadReceipt: {
-                        navigateToUpload = true
+                        navigationPath.append("UploadReceipt")
                     })
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
                     .presentationCornerRadius(24)
                     .presentationBackground(.white)
                 }
-                .navigationDestination(isPresented: $navigateToUpload) {
-                    UploadReceiptView()
+                .navigationDestination(for: String.self) { route in
+                    if route == "UploadReceipt" {
+                        UploadReceiptView(onNavigateToPantry: {
+                            navigationPath.removeLast(navigationPath.count)
+                            selectedTab = 1
+                            isPillsExpanded = false  // Close pills when navigating back
+                        })
                         .navigationBarBackButtonHidden(true)
+                    }
                 }
             }
         }

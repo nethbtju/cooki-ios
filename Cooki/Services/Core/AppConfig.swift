@@ -26,4 +26,5 @@ struct AppConfig {
     
     // MARK: - Debug Settings
     static let skipLoginInDevelopment = false  // Toggle this as needed
+    static let useMockService = false
 }

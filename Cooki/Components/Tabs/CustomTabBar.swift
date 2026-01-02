@@ -8,7 +8,7 @@ import SwiftUI
 
 struct CustomTabBar: View {
     @Binding var selectedTab: Int
-    @State private var isExpanded = false
+    @Binding var isExpanded: Bool  // Changed from @State to @Binding
     @State private var showPills = false
     var pillData: [(icon: String, text: String, action: () -> Void)]
     
@@ -18,7 +18,6 @@ struct CustomTabBar: View {
             ZStack {
                 // MARK: Pills (staggered animation)
                 if isExpanded {
-                    // MARK: Pills (staggered animation)
                     VStack(spacing: 10) {
                         ForEach(Array(pillData.enumerated()), id: \.offset) { index, pill in
                             PillButton(icon: pill.icon, text: pill.text, action: pill.action)
@@ -102,6 +101,11 @@ struct CustomTabBar: View {
                 .buttonStyle(PlainButtonStyle())
             }
         }
+        .onChange(of: isExpanded) { newValue in
+            if !newValue {
+                showPills = false
+            }
+        }
     }
 }
 
@@ -166,7 +170,7 @@ struct CustomTabBar_Previews: PreviewProvider {
                 print("Recipe tapped")
             })
         ]
-        CustomTabBar(selectedTab: .constant(0), pillData: pillData)
+        CustomTabBar(selectedTab: .constant(0), isExpanded: .constant(false), pillData: pillData)
             .preferredColorScheme(.light)
             .previewDevice("iPhone 15 Pro")
     }

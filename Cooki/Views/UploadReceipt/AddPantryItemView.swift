@@ -37,7 +37,7 @@ struct AddPantryItemView: View {
                         primaryColor: Color.accentViolet,
                         secondaryColor: Color.secondaryPurple
                     ) {
-                        dismiss()  // Dismiss the sheet
+                        dismiss()
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             onUploadReceipt()
                         }

@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyDTl2f11ecqfw9eBlvEvC5JN8jFIdHlBgA</string>
+	<string>AIzaSyA2pROfNtDN4hRVgGzX_0zj2eGTeR83VO8</string>
 	<key>GCM_SENDER_ID</key>
 	<string>519719041930</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>BnV.Cooki</string>
+	<string>com.bnv.cooki</string>
 	<key>PROJECT_ID</key>
 	<string>cooki-2c0c8</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:519719041930:ios:fedd610aae6bffc4a1a673</string>
+	<string>1:519719041930:ios:ef6dc8b7e9b8eb96a1a673</string>
 </dict>
 </plist>
