@@ -5,13 +5,6 @@
 //  Created by Neth Botheju on 22/11/2025.
 //
 
-
-//
-//  UploadCard.swift
-//  Cooki
-//
-//  Created by Neth Botheju on 22/11/2025.
-//
 import SwiftUI
 
 /// Card for displaying file upload progress and status
@@ -162,14 +155,15 @@ struct UploadCard: View {
 
 // MARK: - Upload List Container
 struct UploadCardList: View {
-    @State var uploads: [Upload]
+    @Binding var uploads: [Upload]
+    let onRetryFile: ((UUID) -> Void)?
     
     var body: some View {
         VStack(spacing: 14) {
             ForEach(uploads) { item in
                 UploadCard(
                     item: item,
-                    onRetry: { retryUpload(item) },
+                    onRetry: onRetryFile != nil ? { onRetryFile?(item.id) } : nil,
                     onDelete: { delete(item) }
                 )
                 .transition(.asymmetric(
@@ -181,21 +175,9 @@ struct UploadCardList: View {
         .animation(.spring(response: 0.5, dampingFraction: 0.7), value: uploads.count)
     }
     
-    private func retryUpload(_ item: Upload) {
-        guard let idx = uploads.firstIndex(where: { $0.id == item.id }) else { return }
-        uploads[idx].status = .uploading
-        uploads[idx].progress = 0.0
-    }
-    
     private func delete(_ item: Upload) {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
             uploads.removeAll { $0.id == item.id }
-        }
-    }
-    
-    func addUpload(_ item: Upload) {
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.7).delay(0.1)) {
-            uploads.insert(item, at: 0)
         }
     }
 }
@@ -203,11 +185,14 @@ struct UploadCardList: View {
 // MARK: - Preview
 struct UploadCard_Previews: PreviewProvider {
     static var previews: some View {
-        UploadCardList(uploads: [
-            Upload(fileName: "ReciptName1.png", status: .uploading, progress: 0.7),
-            Upload(fileName: "ReciptNameSuccessful.png", status: .success),
-            Upload(fileName: "FailedUploadFile.pdf", status: .failed)
-        ])
+        UploadCardList(
+            uploads: .constant([
+                Upload(fileName: "ReciptName1.png", status: .uploading, progress: 0.7),
+                Upload(fileName: "ReciptNameSuccessful.png", status: .success),
+                Upload(fileName: "FailedUploadFile.pdf", status: .failed)
+            ]),
+            onRetryFile: nil
+        )
         .padding()
     }
 }
