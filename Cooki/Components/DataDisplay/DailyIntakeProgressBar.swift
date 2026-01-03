@@ -33,11 +33,11 @@ struct DailyIntakeProgressBar: View {
                 VStack(spacing: 2) {
                     Text("\(Int(caloriesConsumed))")
                         .font(AppFonts.heading3())
-                        .foregroundColor(.textGreyDark)
+                        .foregroundColor(Color.textGrey3)
                     
                     Text("/ \(Int(caloriesTarget)) calories")
                         .font(.system(size: 16))
-                        .foregroundColor(.textGrey)
+                        .foregroundColor(Color.textGrey)
                 }
             }
         }

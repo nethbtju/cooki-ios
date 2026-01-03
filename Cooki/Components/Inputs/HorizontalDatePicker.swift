@@ -19,7 +19,8 @@ struct DateItem: Identifiable, Equatable {
 
 struct HorizontalDatePicker: View {
     @State private var dates: [DateItem] = []
-    @State var selectedDate: Date
+    @Binding var selectedDate: Date
+    let onDateChanged: (Date) -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -36,13 +37,13 @@ struct HorizontalDatePicker: View {
                             .onTapGesture {
                                 withAnimation(.easeInOut(duration: 0.2)) {
                                     selectedDate = item.date
+                                    onDateChanged(item.date)
                                     proxy.scrollTo(item.id, anchor: .center)
                                 }
                             }
                         }
                     }
                     .padding(.horizontal, UIScreen.main.bounds.width / 2 - 25)
-                    .padding(.vertical, 16)
                 }
                 .mask(
                     LinearGradient(
@@ -103,7 +104,7 @@ struct DateCell: View {
         VStack(spacing: 4) {
             Text(dayName)
                 .font(.system(size: 12, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.textGrey2)
             
             Text(dayNumber)
                 .font(.system(size: 20, weight: .bold))
@@ -114,14 +115,5 @@ struct DateCell: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(isSelected ? Color.secondaryPurple.opacity(0.3) : Color.white)
         )
-    }
-}
-
-// MARK: - Preview
-struct HorizontalDatePicker_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            HorizontalDatePicker(selectedDate: Date())
-        }
     }
 }

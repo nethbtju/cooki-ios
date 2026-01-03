@@ -25,12 +25,10 @@ struct MacroProgressBar: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
 
-            // 🔤 Name (top left)
             Text(name)
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.primary)
+                .foregroundColor(Color.textGrey3)
 
-            // 📊 Progress Bar
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.gray.opacity(0.2))
@@ -48,12 +46,11 @@ struct MacroProgressBar: View {
             .frame(height: 12)
             .clipped()
 
-            // 📈 Percentage (bottom right)
             HStack {
                 Spacer()
                 Text("\(Int(current))/\(Int(target)) \(unit)")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color.textGrey3)
             }
         }
     }
