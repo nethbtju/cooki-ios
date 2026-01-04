@@ -4,7 +4,9 @@
 //
 //  Created by Neth Botheju on 20/9/2025.
 //  Modified by Neth Botheju on 22/11/2025.
+//  Updated to include pantryId for Firestore integration.
 //
+
 import Foundation
 
 // MARK: - Storage Location
@@ -99,6 +101,7 @@ struct Item: Identifiable, Codable, Equatable {
     var category: ItemCategory
     var imageName: String?
     var notes: String?
+    var pantryId: UUID // <-- NEW: link to a pantry
     
     init(
         id: UUID = UUID(),
@@ -109,7 +112,8 @@ struct Item: Identifiable, Codable, Equatable {
         location: StorageLocation = .pantry,
         category: ItemCategory = .other,
         imageName: String? = nil,
-        notes: String? = nil
+        notes: String? = nil,
+        pantryId: UUID
     ) {
         self.id = id
         self.title = title
@@ -120,6 +124,7 @@ struct Item: Identifiable, Codable, Equatable {
         self.category = category
         self.imageName = imageName
         self.notes = notes
+        self.pantryId = pantryId
     }
     
     // MARK: - Computed Properties

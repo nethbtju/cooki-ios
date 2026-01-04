@@ -13,7 +13,7 @@ struct User: Identifiable, Codable, Equatable {
     var displayName: String
     var email: String
     var profileImageName: String?
-    var pantryIds: [UUID]
+    var pantryIds: [String]
     var createdAt: Date
     var preferences: UserPreferences
     
@@ -22,7 +22,7 @@ struct User: Identifiable, Codable, Equatable {
         displayName: String = "",
         email: String,
         profileImageName: String? = nil,
-        pantryIds: [UUID] = [],
+        pantryIds: [String] = [],
         createdAt: Date = Date(),
         preferences: UserPreferences = UserPreferences()
     ) {

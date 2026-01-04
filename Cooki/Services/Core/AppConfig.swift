@@ -18,6 +18,7 @@ struct AppConfig {
     
     // MARK: - Feature Flags
     static let enableDebugLogging = true
+    static let useMockData = false
     
     // MARK: - API Configuration
     static let apiTimeout: TimeInterval = 30
@@ -25,4 +26,5 @@ struct AppConfig {
     
     // MARK: - Debug Settings
     static let skipLoginInDevelopment = false  // Toggle this as needed
+    static let useMockService = false
 }

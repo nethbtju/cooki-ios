@@ -11,7 +11,7 @@ import FirebaseFirestore
 class FirebasePantryService: PantryServiceProtocol {
     private let db = Firestore.firestore()
     
-    // MARK: - Fetch Pantry
+    // MARK: - Fetch Single Pantry
     func fetchPantry(id: UUID) async throws -> Pantry {
         let docRef = db.collection("pantries").document(id.uuidString)
         
@@ -104,6 +104,8 @@ class FirebasePantryService: PantryServiceProtocol {
     
     // MARK: - Update Pantry
     func updatePantry(_ pantry: Pantry) async throws {
+        try await authorizeUser(forPantryId: pantry.id)
+        
         let docRef = db.collection("pantries").document(pantry.id.uuidString)
         
         let data: [String: Any] = [
@@ -122,8 +124,9 @@ class FirebasePantryService: PantryServiceProtocol {
     
     // MARK: - Add Item
     func addItem(itemId: UUID, toPantryId: UUID) async throws {
-        let docRef = db.collection("pantries").document(toPantryId.uuidString)
+        try await authorizeUser(forPantryId: toPantryId)
         
+        let docRef = db.collection("pantries").document(toPantryId.uuidString)
         try await docRef.updateData([
             "items": FieldValue.arrayUnion([itemId.uuidString]),
             "updatedAt": Timestamp(date: Date())
@@ -136,8 +139,9 @@ class FirebasePantryService: PantryServiceProtocol {
     
     // MARK: - Remove Item
     func removeItem(itemId: UUID, fromPantryId: UUID) async throws {
-        let docRef = db.collection("pantries").document(fromPantryId.uuidString)
+        try await authorizeUser(forPantryId: fromPantryId)
         
+        let docRef = db.collection("pantries").document(fromPantryId.uuidString)
         try await docRef.updateData([
             "items": FieldValue.arrayRemove([itemId.uuidString]),
             "updatedAt": Timestamp(date: Date())
@@ -150,8 +154,9 @@ class FirebasePantryService: PantryServiceProtocol {
     
     // MARK: - Add Member
     func addMember(userId: String, toPantryId: UUID) async throws {
-        let docRef = db.collection("pantries").document(toPantryId.uuidString)
+        try await authorizeUser(forPantryId: toPantryId)
         
+        let docRef = db.collection("pantries").document(toPantryId.uuidString)
         try await docRef.updateData([
             "memberIds": FieldValue.arrayUnion([userId]),
             "updatedAt": Timestamp(date: Date())
@@ -164,8 +169,9 @@ class FirebasePantryService: PantryServiceProtocol {
     
     // MARK: - Remove Member
     func removeMember(userId: String, fromPantryId: UUID) async throws {
-        let docRef = db.collection("pantries").document(fromPantryId.uuidString)
+        try await authorizeUser(forPantryId: fromPantryId)
         
+        let docRef = db.collection("pantries").document(fromPantryId.uuidString)
         try await docRef.updateData([
             "memberIds": FieldValue.arrayRemove([userId]),
             "updatedAt": Timestamp(date: Date())
@@ -176,7 +182,26 @@ class FirebasePantryService: PantryServiceProtocol {
         }
     }
     
-    // MARK: - Helper Methods
+    // MARK: - Fetch Current User Pantry (with authorization check)
+    func fetchCurrentUserPantry() async throws -> Pantry {
+        guard let currentUser = await CurrentUser.shared.user else {
+            throw NSError(domain: "PantryService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
+        }
+        guard let pantryId = await CurrentUser.shared.currentPantryId,
+              let pantryUUID = UUID(uuidString: pantryId) else {
+            throw NSError(domain: "PantryService", code: 400, userInfo: [NSLocalizedDescriptionKey: "No current pantry selected"])
+        }
+
+        let pantry = try await fetchPantry(id: pantryUUID)
+
+        guard pantry.memberIds.contains(currentUser.id) else {
+            throw NSError(domain: "PantryService", code: 403, userInfo: [NSLocalizedDescriptionKey: "User is not authorized for this pantry"])
+        }
+
+        return pantry
+    }
+    
+    // MARK: - Helper: Parse Pantry from Firestore Data
     private func parsePantry(from data: [String: Any], id: UUID) throws -> Pantry {
         guard let name = data["name"] as? String,
               let itemStrings = data["items"] as? [String],
@@ -200,5 +225,18 @@ class FirebasePantryService: PantryServiceProtocol {
             createdAt: createdAtTimestamp.dateValue(),
             updatedAt: updatedAtTimestamp.dateValue()
         )
+    }
+    
+    // MARK: - Helper: Authorization Check
+    private func authorizeUser(forPantryId pantryId: UUID) async throws {
+        guard let currentUser = await CurrentUser.shared.user else {
+            throw NSError(domain: "PantryService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
+        }
+        
+        let pantry = try await fetchPantry(id: pantryId)
+        
+        guard pantry.memberIds.contains(currentUser.id) else {
+            throw NSError(domain: "PantryService", code: 403, userInfo: [NSLocalizedDescriptionKey: "User is not authorized for this pantry"])
+        }
     }
 }

@@ -10,5 +10,14 @@
 		<string>Fonts/Poppins-Bold.ttf</string>
 		<string>Fonts/Poppins-Black.ttf</string>
 	</array>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>SecondaryColor</string>
+		<key>UIImageAssets</key>
+		<array>
+			<string>LaunchLogo</string>
+		</array>
+	</dict>
 </dict>
 </plist>

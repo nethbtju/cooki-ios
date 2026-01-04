@@ -3,7 +3,9 @@
 //  Cooki
 //
 //  Created by Neth Botheju on 7/9/2025.
+//  Refactored by Rohit Valanki on 13/12/2025.
 //
+
 import SwiftUI
 
 // MARK: - Shared card size constants
@@ -20,24 +22,23 @@ struct PantryView: View {
     
     let filterOptions = ["All", "Sort by location", "Filter"]
     
-    @State private var pantryItems = Item.mockItems
-    
-    @State private var sections: [StorageLocation] = [.pantry, .fridge, .freezer]
+    // Use ViewModel as source of truth
+    @StateObject private var viewModel = PantryViewModel()
     
     // Alert state
     @State private var showNewSectionAlert = false
     @State private var newSectionName = ""
     
     // MARK: - Computed properties
-    var filteredItems: [Item] {
+    private var filteredItems: [Item] {
         if searchText.isEmpty {
-            return pantryItems
+            return viewModel.pantryItems
         } else {
-            return pantryItems.filter { $0.title.lowercased().contains(searchText.lowercased()) }
+            return viewModel.pantryItems.filter { $0.title.lowercased().contains(searchText.lowercased()) }
         }
     }
     
-    var columns: [GridItem] {
+    private var columns: [GridItem] {
         if isGridView {
             return Array(repeating: GridItem(.flexible(), spacing: 10), count: 3)
         } else {
@@ -57,8 +58,8 @@ struct PantryView: View {
                     SearchBar(text: $searchText, placeholder: "Search pantry items")
                         .padding(.top, 5)
                     
+                    // MARK: - Filter & Toggle Buttons
                     HStack {
-                        // Filter buttons
                         HStack(spacing: 12) {
                             ForEach(filterOptions, id: \.self) { option in
                                 ToggleButton(
@@ -73,7 +74,6 @@ struct PantryView: View {
                         
                         Spacer()
                         
-                        // + button and toggle button grouped with 0 spacing
                         HStack(spacing: 0) {
                             if selectedOption == "Sort by location" {
                                 Button(action: {
@@ -89,21 +89,12 @@ struct PantryView: View {
                                 }
                                 .alert("New Section", isPresented: $showNewSectionAlert, actions: {
                                     TextField("Section name", text: $newSectionName)
-                                    Button("Add") {
-                                        if !newSectionName.isEmpty {
-                                            // Note: Can't add custom sections with current enum structure
-                                            // This would need a different data model
-                                        }
-                                    }
+                                    Button("Add") { }
                                     Button("Cancel", role: .cancel) { }
-                                }, message: {
-                                    Text("Enter a name for the new section")
-                                })
+                                }, message: { Text("Enter a name for the new section") })
                             }
                             
-                            Button(action: {
-                                isGridView.toggle()
-                            }) {
+                            Button(action: { isGridView.toggle() }) {
                                 Image(systemName: isGridView ? "list.bullet" : "square.grid.2x2")
                                     .font(.system(size: 22))
                                     .foregroundColor(Color.gray)
@@ -116,13 +107,14 @@ struct PantryView: View {
                     .padding(.horizontal, 2)
                     .animation(.easeInOut(duration: 0.25), value: selectedOption)
                     
+                    // MARK: - Pantry Items Grid/List
                     ScrollView(.vertical, showsIndicators: false) {
                         if selectedOption == "Sort by location" {
                             VStack(alignment: .leading, spacing: 10) {
-                                ForEach(sections, id: \.self) { section in
+                                ForEach(viewModel.sections, id: \.self) { section in
                                     SectionView(
                                         title: section,
-                                        items: filteredItems.filter { $0.location == section },
+                                        items: viewModel.items(for: section),
                                         isGridView: isGridView
                                     )
                                 }
@@ -130,8 +122,8 @@ struct PantryView: View {
                             .padding(.bottom, 130)
                         } else {
                             LazyVGrid(columns: columns, spacing: 12) {
-                                ForEach(filteredItems) { filteredItem in
-                                    ItemCard.pantryItem(filteredItem)
+                                ForEach(filteredItems) { item in
+                                    ItemCard.pantryItem(item)
                                 }
                             }
                             .padding(.top, 4)

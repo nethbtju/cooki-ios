@@ -24,10 +24,11 @@ class HomeViewModel: ObservableObject {
     
     // MARK: - Fetch Pantry
     func fetchPantry(for user: User) async {
-        // Get the first pantry ID if available
-        guard let firstPantryId = user.pantryIds.first else {
+        // Convert first pantry ID to UUID
+        guard let firstPantryIdString = user.pantryIds.first,
+              let firstPantryId = UUID(uuidString: firstPantryIdString) else {
             if AppConfig.enableDebugLogging {
-                print("⚠️ HomeViewModel: User has no pantries")
+                print("⚠️ HomeViewModel: User has no valid pantries")
             }
             return
         }
@@ -46,7 +47,6 @@ class HomeViewModel: ObservableObject {
             }
         } catch {
             errorMessage = error.localizedDescription
-            
             if AppConfig.enableDebugLogging {
                 print("❌ HomeViewModel: Failed to fetch pantry - \(error.localizedDescription)")
             }
@@ -57,9 +57,12 @@ class HomeViewModel: ObservableObject {
     
     // MARK: - Fetch All Pantries
     func fetchAllPantries(for user: User) async {
-        guard !user.pantryIds.isEmpty else {
+        // Convert pantry IDs to UUID
+        let pantryUUIDs = user.pantryIds.compactMap { UUID(uuidString: $0) }
+        
+        guard !pantryUUIDs.isEmpty else {
             if AppConfig.enableDebugLogging {
-                print("⚠️ HomeViewModel: User has no pantries")
+                print("⚠️ HomeViewModel: User has no valid pantries")
             }
             return
         }
@@ -68,7 +71,7 @@ class HomeViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let pantries = try await pantryService.fetchPantries(ids: user.pantryIds)
+            let pantries = try await pantryService.fetchPantries(ids: pantryUUIDs)
             // For now, just use the first one
             self.pantry = pantries.first
             
@@ -77,7 +80,6 @@ class HomeViewModel: ObservableObject {
             }
         } catch {
             errorMessage = error.localizedDescription
-            
             if AppConfig.enableDebugLogging {
                 print("❌ HomeViewModel: Failed to fetch pantries - \(error.localizedDescription)")
             }
