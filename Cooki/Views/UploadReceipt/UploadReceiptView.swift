@@ -174,7 +174,7 @@ public struct UploadReceiptContent: View {
                 Task {
                     do {
                         var allItems: [Item] = []
-                        for upload in uploads {
+                        for upload in await uploads {
                             let data = try await fetchReceiptData(for: upload.fileURL)
                             await allItems.append(contentsOf: try ReceiptToItemConverter.convert(data))
                         }

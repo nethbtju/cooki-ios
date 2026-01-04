@@ -94,7 +94,7 @@ struct MainView: View {
             MainLayout(header: { TabHeader(text: "Your Stock") }, content: { PantryView() })
         case 2:
             MainLayout(header: { TabHeader(text: "Calendar") },
-                       content: { PlaceholderView(title: "Calendar") })
+                       content: { MealPlanView() })
         case 3:
             MainLayout(header: { TabHeader(text: "Cart") },
                        content: { PlaceholderView(title: "Cart") })

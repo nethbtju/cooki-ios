@@ -16,6 +16,9 @@ struct AppFonts {
     static func heading3() -> Font {
         .custom("Poppins-Bold", size: 28)
     }
+    static func heading4() -> Font {
+        .custom("Poppins-Bold", size: 14)
+    }
     static func lightBody() -> Font {
         .custom("Inter-Regular", size: 14)
     }
@@ -42,5 +45,11 @@ struct AppFonts {
     }
     static func regularBody() -> Font {
         .custom("Inter-Regular", size: 12)
+    }
+    static func macroText() -> Font {
+        .custom("Inter-SemiBold", size: 10)
+    }
+    static func progressMacroText() -> Font {
+        .custom("Inter-Regular", size: 8)
     }
 }

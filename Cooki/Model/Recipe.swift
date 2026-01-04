@@ -143,22 +143,25 @@ struct Recipe: RecipeProtocol, Equatable, Hashable {
         prepTime + cookTime
     }
     
-    var formattedPrepTime: (hours: Int, minutes: Int) {
-        let hours = Int(prepTime) / 3600
-        let minutes = (Int(prepTime) % 3600) / 60
-        return (hours, minutes)
+    var formattedPrepTime: TimeComponents {
+        TimeComponents(
+            hours: Int(prepTime) / 3600,
+            minutes: (Int(prepTime) % 3600) / 60
+        )
     }
-    
-    var formattedCookTime: (hours: Int, minutes: Int) {
-        let hours = Int(cookTime) / 3600
-        let minutes = (Int(cookTime) % 3600) / 60
-        return (hours, minutes)
+
+    var formattedCookTime: TimeComponents {
+        TimeComponents(
+            hours: Int(cookTime) / 3600,
+            minutes: (Int(cookTime) % 3600) / 60
+        )
     }
-    
-    var formattedTotalTime: (hours: Int, minutes: Int) {
-        let hours = Int(totalTime) / 3600
-        let minutes = (Int(totalTime) % 3600) / 60
-        return (hours, minutes)
+
+    var formattedTotalTime: TimeComponents {
+        TimeComponents(
+            hours: Int(totalTime) / 3600,
+            minutes: (Int(totalTime) % 3600) / 60
+        )
     }
     
     var isVegetarian: Bool {
@@ -202,3 +205,4 @@ extension Recipe {
         }
     }
 }
+

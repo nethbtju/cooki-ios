@@ -7,43 +7,55 @@
 import SwiftUI
 
 struct MealPlanView: View {
+    
+    @StateObject private var viewModel = MealPlanViewModel()
+    
     var body: some View {
-        VStack {
-            HStack {
-                Text("Your Meal Plan")
-                    .font(AppFonts.heading3())
-                    .foregroundStyle(Color.backgroundWhite)
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 36)
-            .padding(.bottom, 2)
-            
-            // Modal sheet
-            ModalSheet(
-                heightFraction: 0.87,
-                content: {
-                    VStack {
-                        Text("mao")
+        ZStack {
+            Color.white
+                .clipShape(TopRoundedModal())
+                .ignoresSafeArea(edges: .bottom)
+            VStack(alignment: .leading, spacing: 16) {
+                HorizontalDatePicker(
+                    selectedDate: $viewModel.currentDate,
+                    onDateChanged: { newDate in
+                        viewModel.updateCurrentDate(newDate)
+                    }
+                )
+                .padding(.top)
+                .padding(.horizontal)
+                
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        Text("Daily intake")
+                            .font(.headline)
+                            .foregroundStyle(Color.textGreyDark)
+                            .padding()
+                        if let intake = viewModel.currentDailyIntake {
+                            DailyIntakeView(currentIntake: intake)
+                                .padding(.horizontal)
+                        }
+                        
+                        Text("Today's meal plan")
+                            .font(.headline)
+                            .foregroundStyle(Color.textGreyDark)
+                            .padding()
+                        
+                        MealListView(
+                            dailyMealPlan: viewModel.currentMealPlan?.planData ?? [:]
+                        )
+                        .padding(.horizontal)
+                        
+                        Spacer()
                     }
                 }
-            )
+            }
         }
-        .frame(maxHeight: .infinity, alignment: .top)
-        .background {
-            Image("BackgroundImage")
-                .resizable()
-                .scaledToFill()
-                .offset(x: -50, y: -50)
-                .ignoresSafeArea()
-        }
-        .background(Color.secondaryPurple)
     }
 }
-
 struct MealPlanView_Previews: PreviewProvider {
     static var previews: some View {
-        PantryView()
+        MealPlanView()
             .previewDevice("iPhone 15 Pro")
             .preferredColorScheme(.light)
     }

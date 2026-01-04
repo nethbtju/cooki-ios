@@ -12,13 +12,6 @@ struct HomeView: View {
     let suggestions = MockData.suggestions
     let pantryItems = MockData.pantryItems
     var notificationText: String? = nil
-    var recentMeals: [PlannedMeal] {
-        let twoDaysAgo = Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()
-        
-        return MealPlan.mockMealPlans
-            .filter { $0.date >= twoDaysAgo }     // Only keep plans from the last 2 days
-            .flatMap { $0.meals }                 // Get their meals
-    }
     
     var body: some View {
         ZStack {
@@ -70,13 +63,7 @@ struct HomeView: View {
                                 .padding(.bottom, 6)
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
-                                    ForEach(recentMeals) { plannedMeal in
-                                        RecipeCard.cooking(
-                                            recipe: plannedMeal.recipe,
-                                            date: plannedMeal.scheduledDate.day,
-                                            action: { print("Start cooking \(plannedMeal.recipe.title)") }
-                                        )
-                                    }
+                                    // TODO: Add meal plan suggestions
                                 }
                                 .padding(.horizontal)
                                 .padding(.vertical, 8)
@@ -98,7 +85,6 @@ struct HomeView: View {
                                 HStack(spacing: 16) {
                                     ForEach(suggestions) { suggestion in RecipeCard.suggestion(
                                         recipeSuggestion: suggestion,
-                                        aiSuggestion: suggestion.displayMessage,
                                         action: {
                                             print ("mao")
                                         }

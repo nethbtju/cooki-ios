@@ -123,7 +123,7 @@ class FirebaseAuthService: AuthServiceProtocol {
             
         } catch let authError as AuthServiceError {
             if AppConfig.enableDebugLogging {
-                print("⚠️ FirebaseAuthService: Auth service error - \(authError.localizedDescription ?? "unknown")")
+                print("⚠️ FirebaseAuthService: Auth service error - \(authError.localizedDescription)")
             }
             throw authError
         } catch let error as NSError {
