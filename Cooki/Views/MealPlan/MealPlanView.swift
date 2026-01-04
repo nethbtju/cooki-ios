@@ -22,24 +22,26 @@ struct MealPlanView: View {
                         viewModel.updateCurrentDate(newDate)
                     }
                 )
-                .padding(.horizontal)
+                .padding()
                 
                 ScrollView {
-                if let intake = viewModel.currentDailyIntake {
-                    DailyIntakeView(currentIntake: intake)
+                    VStack(alignment: .leading) {
+                    if let intake = viewModel.currentDailyIntake {
+                        DailyIntakeView(currentIntake: intake)
+                            .padding(.horizontal)
+                    }
+                    
+                    Text("Today's meal plan")
+                        .font(.headline)
+                        .foregroundStyle(Color.textGreyDark)
                         .padding(.horizontal)
-                }
-                
-                Text("Today's meal plan")
-                    .font(.headline)
-                    .foregroundStyle(Color.textGreyDark)
-                    .padding(.horizontal)
-                
+                    
                     MealListView(
                         dailyMealPlan: viewModel.currentMealPlan?.planData ?? [:]
                     )
                     .padding(.horizontal)
                 }
+            }
             }
         }
     }
