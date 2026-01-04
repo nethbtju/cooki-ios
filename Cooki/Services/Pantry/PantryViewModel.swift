@@ -10,6 +10,9 @@ class PantryViewModel: ObservableObject {
 
     @Published var pantryItems: [Item] = []
     @Published var sections: [StorageLocation] = [.pantry, .fridge, .freezer]
+    
+    // 🔹 New: Loading state
+    @Published var isLoading: Bool = true
 
     private let pantryService = FirebasePantryService()
     private let itemService = FirebaseItemService()
@@ -23,17 +26,17 @@ class PantryViewModel: ObservableObject {
 
     // MARK: - Fetch Pantry Items
     func fetchCurrentPantryItems(useMockData: Bool = false) async {
+        isLoading = true
+        defer { isLoading = false } // Automatically stop loading when finished
+
         do {
             let pantry = try await pantryService.fetchCurrentUserPantry()
-
             print("🧺 Active pantry:", pantry.id.uuidString)
 
-            // ⚠️ Only add mock items in dev mode
             if useMockData && pantry.items.isEmpty {
                 try await addMockItems(to: pantry)
             }
 
-            // Fetch items by pantry item IDs
             let items = try await itemService.fetchItems(byIds: pantry.items)
             self.pantryItems = items
 
