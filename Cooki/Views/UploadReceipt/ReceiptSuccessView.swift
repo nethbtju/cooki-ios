@@ -2,17 +2,25 @@
 //  ReceiptSuccessView.swift
 //  Cooki
 //
-//  Created by Neth Botheju on 16/11/2025.
-//
+
 import SwiftUI
 
 struct ReceiptSuccessView: View {
-    // MARK: - Body
+    @State var items: [Item]
+    var onAddItems: () -> Void = {}
+
+    @StateObject private var pantryVM = PantryViewModel()
+    @State private var isAddingItems = false  // Add loading state
+    
     var body: some View {
         VStack(spacing: 0) {
             BackHeader()
             
-            ReceiptContentCard(items: MockData.pantryItems)
+            ReceiptContentCard(
+                items: $items,
+                onAddItems: addItemsToPantry,
+                isAddingItems: $isAddingItems  // Pass loading state
+            )
         }
         .background {
             Image("BackgroundImage")
@@ -23,6 +31,53 @@ struct ReceiptSuccessView: View {
         }
         .background(Color.secondaryPurple)
         .navigationBarHidden(true)
+        .onAppear {
+            printItems()
+        }
+    }
+    
+    // MARK: - Add items to Firebase pantry
+    private func addItemsToPantry() {
+        guard !isAddingItems else { return }  // Prevent double-tap
+        
+        isAddingItems = true
+        
+        Task {
+            guard !items.isEmpty else {
+                isAddingItems = false
+                return
+            }
+            
+            let itemService = FirebaseItemService()
+            let pantryService = FirebasePantryService()
+            
+            for item in items {
+                do {
+                    try await itemService.addItemToCurrentPantry(item, pantryService: pantryService)
+                    print("✅ Added \(item.title) to pantry")
+                } catch {
+                    print("❌ Failed to add \(item.title): \(error.localizedDescription)")
+                }
+            }
+            
+            await pantryVM.fetchCurrentPantryItems()
+            
+            // Don't reset isAddingItems here - let navigation happen
+            onAddItems()
+        }
+    }
+    
+    // MARK: - Debug: Print items
+    private func printItems() {
+        guard !items.isEmpty else {
+            print("🧾 No items to display")
+            return
+        }
+        
+        print("🧾 Scanned Items (\(items.count)):")
+        for item in items {
+            print("- \(item.title) | Quantity: \(item.quantity.value) \(item.quantity.unit) | Location: \(item.location) | Category: \(item.category)")
+        }
     }
 }
 
@@ -30,18 +85,19 @@ struct ReceiptSuccessView: View {
 struct ReceiptSuccessView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            ReceiptSuccessView()
+            ReceiptSuccessView(items: MockData.pantryItems)
                 .previewDevice("iPhone 15 Pro")
                 .preferredColorScheme(.light)
         }
     }
 }
 
-
 // MARK: - Receipt Content Card
 struct ReceiptContentCard: View {
-    @State var items: [Item]
-    
+    @Binding var items: [Item]
+    var onAddItems: () -> Void = {}
+    @Binding var isAddingItems: Bool  // Add binding for loading state
+
     let columns = [
         GridItem(.flexible(), spacing: 10),
         GridItem(.flexible(), spacing: 10),
@@ -50,12 +106,9 @@ struct ReceiptContentCard: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // White card with scalloped bottom
             VStack(spacing: 0) {
-                // Header with text
                 VStack(spacing: 6) {
-                    Spacer()
-                        .frame(height: 40)
+                    Spacer().frame(height: 40)
                     
                     Text("Receipt successfully read!")
                         .font(.system(size: 16, weight: .bold))
@@ -67,7 +120,6 @@ struct ReceiptContentCard: View {
                 }
                 .padding(.bottom, 24)
                 
-                // Items grid
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 10) {
                         ForEach(items) { item in
@@ -83,17 +135,20 @@ struct ReceiptContentCard: View {
                     .padding(.horizontal, 15)
                 }
                 
-                PrimaryButton(title: "Add Items", action: {print("mao")})
-                    .padding(.horizontal, 15)
-                    .padding(.bottom, 28)
+                PrimaryButton(
+                    title: isAddingItems ? "Adding Items..." : "Add Items",
+                    action: onAddItems
+                )
+                .disabled(isAddingItems)  // Disable when adding
+                .opacity(isAddingItems ? 0.6 : 1.0)  // Visual feedback
+                .padding(.horizontal, 15)
+                .padding(.bottom, 28)
             }
             .background(Color.white)
             .mask {
                 GeometryReader { geometry in
                     VStack(spacing: 0) {
-                        Rectangle()
-                            .fill(Color.white)
-                        
+                        Rectangle().fill(Color.white)
                         ScallopedEdgeMask()
                             .fill(Color.white)
                             .frame(height: 20)
@@ -105,15 +160,9 @@ struct ReceiptContentCard: View {
             .padding(.horizontal, 20)
             .padding(.top, 35)
             
-            // Floating white circle with checkmark
             ZStack {
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: 85, height: 85)
-                Circle()
-                    .fill(Color.green.opacity(0.2))
-                    .frame(width: 50, height: 50)
-                
+                Circle().fill(Color.white).frame(width: 85, height: 85)
+                Circle().fill(Color.green.opacity(0.2)).frame(width: 50, height: 50)
                 Image(systemName: "checkmark")
                     .font(.system(size: 24, weight: .semibold))
                     .foregroundColor(.green)
@@ -122,7 +171,6 @@ struct ReceiptContentCard: View {
         }
     }
 }
-
 
 // MARK: - Scalloped Edge Mask
 struct ScallopedEdgeMask: Shape {
@@ -135,22 +183,14 @@ struct ScallopedEdgeMask: Shape {
         
         let totalWidth = circleDiameter + spacing
         let circleCount = Int(rect.width / totalWidth)
-        
-        // Calculate the total width used by circles and spacing
         let totalUsedWidth = CGFloat(circleCount) * circleDiameter + CGFloat(circleCount - 1) * spacing
-        // Calculate equal margins on both sides
         let sideMargin = (rect.width - totalUsedWidth) / 2
         
-        // Start from top left
         path.move(to: CGPoint(x: 0, y: 0))
-        
-        // Draw to the first margin
         path.addLine(to: CGPoint(x: sideMargin, y: 0))
         
         for i in 0..<circleCount {
             let centerX = sideMargin + CGFloat(i) * totalWidth + circleRadius
-            
-            // Draw the circle cutout (going upward into the card)
             path.addArc(
                 center: CGPoint(x: centerX, y: 0),
                 radius: circleRadius,
@@ -159,13 +199,11 @@ struct ScallopedEdgeMask: Shape {
                 clockwise: true
             )
             
-            // Draw spacing between circles (except after the last one)
             if i < circleCount - 1 {
                 path.addLine(to: CGPoint(x: centerX + circleRadius + spacing, y: 0))
             }
         }
         
-        // Complete the path
         path.addLine(to: CGPoint(x: rect.width, y: 0))
         path.addLine(to: CGPoint(x: rect.width, y: rect.height))
         path.addLine(to: CGPoint(x: 0, y: rect.height))

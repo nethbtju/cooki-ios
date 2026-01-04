@@ -45,7 +45,6 @@ class PantryViewModel: ObservableObject {
     // MARK: - Add Mock Items
     private func addMockItems(to pantry: Pantry) async throws {
         for item in Self.mockItems {
-            // Assign the current pantryId to each mock item
             var itemWithPantry = item
             itemWithPantry.pantryId = pantry.id
 
