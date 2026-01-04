@@ -22,94 +22,75 @@ struct PantryView: View {
     
     let filterOptions = ["All", "Sort by location", "Filter"]
     
-    // Use ViewModel as source of truth
     @StateObject private var viewModel = PantryViewModel()
     
-    // Alert state
     @State private var showNewSectionAlert = false
     @State private var newSectionName = ""
     
-    // MARK: - Computed properties
     private var filteredItems: [Item] {
-        if searchText.isEmpty {
-            return viewModel.pantryItems
-        } else {
-            return viewModel.pantryItems.filter { $0.title.lowercased().contains(searchText.lowercased()) }
+        searchText.isEmpty
+        ? viewModel.pantryItems
+        : viewModel.pantryItems.filter {
+            $0.title.lowercased().contains(searchText.lowercased())
         }
     }
     
     private var columns: [GridItem] {
-        if isGridView {
-            return Array(repeating: GridItem(.flexible(), spacing: 10), count: 3)
-        } else {
-            return [GridItem(.flexible(), spacing: 0)]
-        }
+        isGridView
+        ? Array(repeating: GridItem(.flexible(), spacing: 10), count: 3)
+        : [GridItem(.flexible(), spacing: 0)]
     }
     
-    // MARK: - Body
     var body: some View {
         ZStack {
             Color.white
                 .clipShape(TopRoundedModal())
                 .ignoresSafeArea(edges: .bottom)
             
-            VStack {
-                VStack(spacing: 10) {
-                    SearchBar(text: $searchText, placeholder: "Search pantry items")
-                        .padding(.top, 5)
-                    
-                    // MARK: - Filter & Toggle Buttons
-                    HStack {
-                        HStack(spacing: 12) {
-                            ForEach(filterOptions, id: \.self) { option in
-                                ToggleButton(
-                                    title: option,
-                                    isSelected: Binding(
-                                        get: { selectedOption == option },
-                                        set: { _ in selectedOption = option }
-                                    )
+            VStack(spacing: 10) {
+                SearchBar(text: $searchText, placeholder: "Search pantry items")
+                    .padding(.top, 5)
+                
+                // Filters
+                HStack {
+                    HStack(spacing: 12) {
+                        ForEach(filterOptions, id: \.self) { option in
+                            ToggleButton(
+                                title: option,
+                                isSelected: Binding(
+                                    get: { selectedOption == option },
+                                    set: { _ in selectedOption = option }
                                 )
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        HStack(spacing: 0) {
-                            if selectedOption == "Sort by location" {
-                                Button(action: {
-                                    newSectionName = ""
-                                    showNewSectionAlert = true
-                                }) {
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 22))
-                                        .foregroundColor(Color.gray)
-                                        .frame(width: 36, height: 36)
-                                        .background(Color.white)
-                                        .cornerRadius(12)
-                                }
-                                .alert("New Section", isPresented: $showNewSectionAlert, actions: {
-                                    TextField("Section name", text: $newSectionName)
-                                    Button("Add") { }
-                                    Button("Cancel", role: .cancel) { }
-                                }, message: { Text("Enter a name for the new section") })
-                            }
-                            
-                            Button(action: { isGridView.toggle() }) {
-                                Image(systemName: isGridView ? "list.bullet" : "square.grid.2x2")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(Color.gray)
-                                    .frame(width: 36, height: 36)
-                                    .background(Color.white)
-                                    .cornerRadius(12)
-                            }
+                            )
                         }
                     }
-                    .padding(.horizontal, 2)
-                    .animation(.easeInOut(duration: 0.25), value: selectedOption)
                     
-                    // MARK: - Pantry Items Grid/List
-                    ScrollView(.vertical, showsIndicators: false) {
-                        if selectedOption == "Sort by location" {
+                    Spacer()
+                    
+                    Button(action: { isGridView.toggle() }) {
+                        Image(systemName: isGridView ? "list.bullet" : "square.grid.2x2")
+                            .font(.system(size: 22))
+                            .foregroundColor(.gray)
+                            .frame(width: 36, height: 36)
+                            .background(Color.white)
+                            .cornerRadius(12)
+                    }
+                }
+                .padding(.horizontal, 2)
+                
+                // MARK: - Content
+                ScrollView(.vertical, showsIndicators: false) {
+                    ZStack {
+                        // LOADING
+                        if viewModel.isLoading {
+                            SkeletonGrid()
+                        }
+                        // EMPTY
+                        else if viewModel.pantryItems.isEmpty {
+                            EmptyPantryWatermark()
+                        }
+                        // CONTENT
+                        else if selectedOption == "Sort by location" {
                             VStack(alignment: .leading, spacing: 10) {
                                 ForEach(viewModel.sections, id: \.self) { section in
                                     SectionView(
@@ -131,8 +112,8 @@ struct PantryView: View {
                         }
                     }
                 }
-                .padding(20)
             }
+            .padding(20)
         }
     }
 }
@@ -147,7 +128,6 @@ struct SectionView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title.rawValue)
                 .font(.headline)
-                .foregroundColor(.black)
                 .padding(.leading, 4)
             
             ScrollView(.horizontal, showsIndicators: false) {
@@ -156,10 +136,24 @@ struct SectionView: View {
                         ItemCard.pantryItem(item)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding(.vertical, 2)
+    }
+}
+
+// MARK: - Empty Pantry Watermark
+struct EmptyPantryWatermark: View {
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "tray.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.gray.opacity(0.35))
+            
+            Text("No items yet")
+                .font(.system(size: 24, weight: .medium))
+                .foregroundColor(.gray.opacity(0.45))
+        }
+        .padding(.top, 80)
     }
 }
 
