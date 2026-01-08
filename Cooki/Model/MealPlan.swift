@@ -17,7 +17,7 @@ struct MealPlan: Identifiable, Codable, Equatable {
         id: UUID = UUID(),
         date: Date,
         planData: [MealType : [Recipe]] = [:],
-        completed: Bool = false,
+        completed: Bool = false
     ) {
         self.id = id
         self.date = date

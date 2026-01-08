@@ -5,7 +5,6 @@
 //  Created by Neth Botheju on 14/12/2025.
 //
 import Foundation
-
 import SwiftUI
 
 enum MacroType: String, Codable, CaseIterable {
@@ -65,13 +64,13 @@ struct IntakeProgress: Codable, Equatable {
 
 // MARK: - Meal Plan Model
 struct DailyIntake: Identifiable, Codable, Equatable {
-    let id: UUID
+    let id: String            // 🔹 CHANGED (was UUID)
     var date: Date
     var totalIntake: IntakeProgress
     var macros: [Macro]
     
     init(
-        id: UUID = UUID(),
+        id: String = "",       // 🔹 CHANGED (was UUID())
         date: Date,
         totalIntake: IntakeProgress,
         macros: [Macro] = []
