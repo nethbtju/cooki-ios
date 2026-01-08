@@ -13,7 +13,7 @@ enum MockData {
     
     // MARK: - Users
     static let user = User(
-        displayName: "Neth",
+        displayName: "Neth Botheju",
         email: "neth@example.com",
         profileImageName: "ProfilePic",
         preferences: User.UserPreferences(
@@ -25,14 +25,14 @@ enum MockData {
     static let users: [User] = [
         user,
         User(
-            displayName: "John",
+            displayName: "John AppleSeed",
             email: "john@example.com",
             preferences: User.UserPreferences(
                 dietaryPreferences: [.vegetarian, .glutenFree]
             )
         ),
         User(
-            displayName: "Jane",
+            displayName: "Jane Toebean",
             email: "jane@example.com",
             preferences: User.UserPreferences(
                 dietaryPreferences: [.vegan],
