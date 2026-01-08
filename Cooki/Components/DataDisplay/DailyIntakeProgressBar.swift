@@ -35,7 +35,7 @@ struct DailyIntakeProgressBar: View {
                         .font(AppFonts.heading3())
                         .foregroundColor(Color.textGrey3)
                     
-                    Text("/ \(Int(caloriesTarget)) calories")
+                    Text("\(Int(caloriesTarget)) calories")
                         .font(.system(size: 16))
                         .foregroundColor(Color.textGrey)
                 }
@@ -49,8 +49,8 @@ struct DailyIntakeProgressBar_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             DailyIntakeProgressBar(
-                caloriesConsumed: 1240,
-                caloriesTarget: 1600,
+                caloriesConsumed: 0,
+                caloriesTarget: 1600
             )
         }
     }
