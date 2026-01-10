@@ -25,7 +25,7 @@ enum MockData {
     static let users: [User] = [
         user,
         User(
-            displayName: "John AppleSeed",
+            displayName: "John Appleseed",
             email: "john@example.com",
             preferences: User.UserPreferences(
                 dietaryPreferences: [.vegetarian, .glutenFree]

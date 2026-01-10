@@ -93,11 +93,11 @@ struct MainView: View {
         case 1:
             MainLayout(header: { TabHeader(text: "Your Stock") }, content: { PantryView() })
         case 2:
-            MainLayout(header: { TabHeader(text: "Calendar") },
+            MainLayout(header: { TabHeader(text: "Your Meal Plan") },
                        content: { MealPlanView() })
         case 3:
-            MainLayout(header: { TabHeader(text: "Cart") },
-                       content: { PlaceholderView(title: "Cart") })
+            MainLayout(header: { TabHeader(text: "Your Shopping List") },
+                       content: { ShoppingListView() })
         default:
             MainLayout(header: { HomeHeader(user: user, authService: authService) }, content: { HomeView() })
         }

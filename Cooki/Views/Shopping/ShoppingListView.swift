@@ -10,18 +10,19 @@ struct ShoppingListView: View {
     
     @State private var searchText = ""
     @State private var isGridView = true
-    @StateObject private var viewModel = MealPlanViewModel()
+    @State private var items: [Item] = Item.mockItems
     
     let columns = [
-            GridItem(.flexible(), spacing: 12),
-            GridItem(.flexible(), spacing: 12)
-        ]
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
     
     var body: some View {
         ZStack {
             Color.white
                 .clipShape(TopRoundedModal())
                 .ignoresSafeArea(edges: .bottom)
+            
             VStack(alignment: .leading, spacing: 16) {
                 HStack {
                     // Search bar
@@ -38,18 +39,29 @@ struct ShoppingListView: View {
                             .cornerRadius(12)
                     }
                 }
+                .padding(.horizontal, 16)
                 
                 ScrollView {
-                    VStack(alignment: .leading) {
+                    if items.isEmpty {
+                        VStack(spacing: 16) {
+                            Image(systemName: "cart")
+                                .font(.system(size: 60))
+                                .foregroundColor(.gray.opacity(0.5))
+                            Text("No items in your shopping list")
+                                .font(.headline)
+                                .foregroundColor(.gray)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 100)
+                    } else {
                         LazyVGrid(columns: columns, spacing: 12) {
                             ForEach(items) { item in
                                 ShoppingCard(
-                                    image: Image(item.imageName),
+                                    image: item.imageName ?? "default",
                                     title: item.title,
-                                    quantity: $items[items.firstIndex(where: { $0.id == item.id })!].quantity,
-                                    addedToCart: $items[items.firstIndex(where: { $0.id == item.id })!].addedToCart,
-                                    addedUser: item.user,
-                                    isAISuggested: item.isAISuggested,
+                                    numberOfItems: 1,
+                                    addedUser: MockData.users[0],
+                                    isAISuggested: false,
                                     onDelete: { deleteItem(item) }
                                 )
                             }
@@ -60,7 +72,14 @@ struct ShoppingListView: View {
             }
         }
     }
+    
+    private func deleteItem(_ item: Item) {
+        withAnimation {
+            items.removeAll { $0.id == item.id }
+        }
+    }
 }
+
 struct ShoppingListView_Previews: PreviewProvider {
     static var previews: some View {
         ShoppingListView()
@@ -68,5 +87,3 @@ struct ShoppingListView_Previews: PreviewProvider {
             .preferredColorScheme(.light)
     }
 }
-
-

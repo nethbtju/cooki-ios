@@ -8,117 +8,139 @@ import SwiftUI
 
 /// Reusable card for displaying items with image, title, and metadata
 struct ShoppingCard: View {
-    let image: Image
+    let imageName: String
     let title: String
+    let numberOfItems: Int
     let addedUser: User?
-    @State var quantity: Int
     let isAISuggested: Bool
     
     var onDelete: () -> Void
+    var onQuantityChange: ((Int) -> Void)?
+    var onCartToggle: (() -> Void)?
     
     @State private var showDeleteAlert = false
     @State private var showQuantityEditor = false
+    @State private var localQuantity: Int
     @State private var bounceScale: CGFloat = 1.0
     @State private var addedToCart = false
     
+    // Fixed height for consistent grid layout
+    private let cardHeight: CGFloat = 135
+    
     init(
-        image: Image,
+        image: String,
         title: String,
-        quantity: Int,
+        numberOfItems: Int,
         addedUser: User? = nil,
         isAISuggested: Bool = false,
-        onDelete: @escaping () -> Void = {}
+        onDelete: @escaping () -> Void = {},
+        onQuantityChange: ((Int) -> Void)? = nil,
+        onCartToggle: (() -> Void)? = nil
     ) {
-        self.image = image
+        self.imageName = image
         self.title = title
-        self.quantity = quantity
+        self.numberOfItems = numberOfItems
         self.addedUser = addedUser
         self.isAISuggested = isAISuggested
         self.onDelete = onDelete
+        self.onQuantityChange = onQuantityChange
+        self.onCartToggle = onCartToggle
+        self._localQuantity = State(initialValue: numberOfItems)
     }
     
     var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .topTrailing) {
+        ZStack(alignment: .topTrailing) {
+            // Main card content
+            VStack {
                 HStack {
-                    VStack(alignment: .leading) {
-                        HStack(alignment: .center, spacing: 6) {
-                            // Left side - Image
-                            image
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 80, height: 70)
-                                .cornerRadius(6)
-                                .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 4)
-                            
-                            // Middle - Title and metadata
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(title)
-                                    .font(.system(size: 18, weight: .semibold))
-                                    .foregroundColor(.primary)
-                                    .lineLimit(2)
-                                
-                                // Quantity with edit button
-                                HStack(spacing: 8) {
-                                    Text("Qty: \(quantity)")
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(.secondary)
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 4)
-                                        .background(Color.gray.opacity(0.2))
-                                        .cornerRadius(12)
-                                    
-                                    Button(action: { showQuantityEditor = true }) {
-                                        Image(systemName: "pencil")
-                                            .font(.system(size: 12, weight: .semibold))
-                                            .foregroundColor(.purple)
-                                            .frame(width: 24, height: 24)
-                                            .background(Color.purple.opacity(0.1))
-                                            .clipShape(Circle())
-                                    }
-                                }
-                            }
+                    // Left side - Image
+                    Image(imageName)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 60, height: 60)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    
+                    // Middle - Title and metadata
+                    VStack(alignment: .leading, spacing: 8) {
+                        // Title with 2-line limit and ellipsis
+                        Text(title)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.primary)
+                            .lineLimit(2)
+                            .truncationMode(.tail)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        // Quantity badge
+                        HStack(spacing: 4) {
+                            Text("Qty:")
+                                .font(.system(size: 12, weight: .medium))
+                            Text("\(localQuantity)")
+                                .font(.system(size: 12, weight: .semibold))
+                            Image(systemName: "pencil")
+                                .font(.system(size: 12, weight: .semibold))
                         }
-                        UserPill(addedUser: addedUser, isAISuggested: isAISuggested)
+                        .foregroundColor(.secondary)
+                        .padding(6)
+                        .background(Color.gray.opacity(0.15))
+                        .cornerRadius(16)
+                        .onTapGesture {
+                            showQuantityEditor = true
+                        }
                     }
+                }
+                
+                HStack {
+                    // User attribution pill
+                    VStack {
+                        if addedUser != nil || isAISuggested {
+                            UserPill(addedUser: addedUser, isAISuggested: isAISuggested)
+                        }
+                    }
+                    .frame(height: 20)
                     
                     Spacer()
                     
-                    VStack(alignment: .trailing) {
-                        Button(action: { showDeleteAlert = true }) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(.accentBurntOrange)
-                                .frame(width: 24, height: 24)
-                                .background(Color.backgroundWhite.opacity(0.9))
-                                .clipShape(Circle())
-                                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+                    AddedToCartButton(
+                        addedToCart: $addedToCart,
+                        bounceScale: $bounceScale
+                    )
+                    .onTapGesture {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            addedToCart.toggle()
+                            bounceScale = 1.2
                         }
                         
-                        Spacer()
-                            .frame(maxHeight: 50)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                bounceScale = 1.0
+                            }
+                        }
                         
-                        // Cart button anchored to bottom right
-                        AddedToCartButton(
-                            addedToCart: $addedToCart,
-                            bounceScale: $bounceScale
-                        )
+                        onCartToggle?()
                     }
                 }
-                .frame(width: geometry.size.width)
-                .padding()
-                .cardStyle(
-                    CardConfiguration(
-                        backgroundColor: .white,
-                        cornerRadius: 16,
-                        shadowRadius: 6,
-                        shadowOpacity: 0.2,
-                        borderColor: .textGreyDark.opacity(0.3),
-                        borderWidth: 1,
-                        padding: EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12)
-                    )
-                )
             }
+            .padding(16)
+            .frame(height: cardHeight)
+            .background(Color(.systemBackground))
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color(.separator).opacity(0.2), lineWidth: 1)
+            )
+            
+            // Delete button overlay (top right)
+            Button(action: { showDeleteAlert = true }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(.secondary)
+                    .frame(width: 20, height: 20)
+                    .background(Color(.systemBackground))
+                    .clipShape(Circle())
+                    .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
+            }
+            .offset(x: -8, y: 8)
         }
         .alert("Remove Item", isPresented: $showDeleteAlert) {
             Button("Cancel", role: .cancel) { }
@@ -129,9 +151,12 @@ struct ShoppingCard: View {
             Text("Are you sure you want to remove \"\(title)\" from your shopping list?")
         }
         .sheet(isPresented: $showQuantityEditor) {
-            QuantityEditorSheet(quantity: $quantity)
+            QuantityEditorSheet(quantity: $localQuantity)
                 .presentationDetents([.height(280)])
                 .presentationDragIndicator(.visible)
+                .onDisappear {
+                    onQuantityChange?(localQuantity)
+                }
         }
     }
 }
@@ -170,47 +195,65 @@ struct UserPill: View {
                 
                 Text(user.displayName)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.purple)
+                    .foregroundColor(.secondaryPurple)
             }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(Color.purple.opacity(0.1))
-        .cornerRadius(16)
+        .background(Color.secondaryPurple.opacity(0.15))
+        .cornerRadius(20)
     }
 }
 
 // MARK: - Preview
 struct ShoppingCard_Previews: PreviewProvider {
     static var previews: some View {
-        VStack {
-            // Regular user item
-            let mockItem = Item.mockItem
-            ShoppingCard(
-                image: Image(mockItem.imageName ?? "default"),
-                title: "Gourmet Tomatoes",
-                quantity: 6,
-                addedUser: MockData.user,
-                onDelete: { print("Delete tapped") }
-            )
-            
-            // Item added to cart
-            ShoppingCard(
-                image: Image(mockItem.imageName ?? "default"),
-                title: "Organic Milk",
-                quantity: 2,
-                addedUser: MockData.user,
-                onDelete: { print("Delete tapped") }
-            )
-            
-            // AI suggested item
-            ShoppingCard(
-                image: Image(mockItem.imageName ?? "default"),
-                title: "Fresh Basil",
-                quantity: 1,
-                isAISuggested: true,
-                onDelete: { print("Delete tapped") }
-            )
+        ScrollView {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 6),
+                    GridItem(.flexible(), spacing: 6)
+                ],
+                spacing: 6
+            ) {
+                // Regular user item
+                ShoppingCard(
+                    image: "Bananas",
+                    title: "Cavendish Bananas",
+                    numberOfItems: 6,
+                    addedUser: MockData.user,
+                    onDelete: { print("Delete tapped") }
+                )
+                
+                // Item with long title
+                ShoppingCard(
+                    image: "oranges",
+                    title: "Cadbury Twirl Milk Chocolate",
+                    numberOfItems: 2,
+                    addedUser: MockData.user,
+                    onDelete: { print("Delete tapped") }
+                )
+                
+                // AI suggested item
+                ShoppingCard(
+                    image: "basil",
+                    title: "Fresh Basil",
+                    numberOfItems: 1,
+                    isAISuggested: true,
+                    onDelete: { print("Delete tapped") }
+                )
+                
+                // Another user
+                ShoppingCard(
+                    image: "cheese",
+                    title: "Cadbury Twirl Milk Chocolate",
+                    numberOfItems: 2,
+                    addedUser: MockData.user,
+                    onDelete: { print("Delete tapped") }
+                )
+            }
+            .padding(12)
         }
+        .background(Color(.systemGroupedBackground))
     }
 }
