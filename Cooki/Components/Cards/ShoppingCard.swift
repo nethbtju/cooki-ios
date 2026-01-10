@@ -25,7 +25,7 @@ struct ShoppingCard: View {
     @State private var addedToCart = false
     
     // Fixed height for consistent grid layout
-    private let cardHeight: CGFloat = 135
+    private let cardHeight: CGFloat = 160
     
     init(
         image: String,
@@ -56,8 +56,8 @@ struct ShoppingCard: View {
                     // Left side - Image
                     Image(imageName)
                         .resizable()
-                        .scaledToFill()
-                        .frame(width: 60, height: 60)
+                        .scaledToFit()
+                        .frame(minWidth: 60, minHeight: 60)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     
                     // Middle - Title and metadata
@@ -65,10 +65,11 @@ struct ShoppingCard: View {
                         // Title with 2-line limit and ellipsis
                         Text(title)
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(.textBlack)
                             .lineLimit(2)
                             .truncationMode(.tail)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                        
                         
                         // Quantity badge
                         HStack(spacing: 4) {
@@ -79,7 +80,7 @@ struct ShoppingCard: View {
                             Image(systemName: "pencil")
                                 .font(.system(size: 12, weight: .semibold))
                         }
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.textGreyDark)
                         .padding(6)
                         .background(Color.gray.opacity(0.15))
                         .cornerRadius(16)
@@ -104,6 +105,7 @@ struct ShoppingCard: View {
                         addedToCart: $addedToCart,
                         bounceScale: $bounceScale
                     )
+                    .frame(width: 44, height: 44)
                     .onTapGesture {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                             addedToCart.toggle()
@@ -120,9 +122,9 @@ struct ShoppingCard: View {
                     }
                 }
             }
-            .padding(16)
+            .padding(.horizontal, 12)
             .frame(height: cardHeight)
-            .background(Color(.systemBackground))
+            .background(Color(.white))
             .cornerRadius(16)
             .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
             .overlay(
@@ -134,9 +136,9 @@ struct ShoppingCard: View {
             Button(action: { showDeleteAlert = true }) {
                 Image(systemName: "xmark")
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.textGreyDark)
                     .frame(width: 20, height: 20)
-                    .background(Color(.systemBackground))
+                    .background(Color(.white))
                     .clipShape(Circle())
                     .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
             }
@@ -180,7 +182,7 @@ struct UserPill: View {
                         )
                     )
                 
-                Text("Cooki suggests")
+                Text("Cooki")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(
                         LinearGradient(
@@ -198,8 +200,9 @@ struct UserPill: View {
                     .foregroundColor(.secondaryPurple)
             }
         }
-        .padding(.horizontal, 10)
+        .padding(.leading, 6)
         .padding(.vertical, 6)
+        .padding(.trailing, 12)
         .background(Color.secondaryPurple.opacity(0.15))
         .cornerRadius(20)
     }
@@ -254,6 +257,6 @@ struct ShoppingCard_Previews: PreviewProvider {
             }
             .padding(12)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color(.white))
     }
 }

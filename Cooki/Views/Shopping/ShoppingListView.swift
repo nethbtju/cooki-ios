@@ -11,6 +11,7 @@ struct ShoppingListView: View {
     @State private var searchText = ""
     @State private var isGridView = true
     @State private var items: [Item] = Item.mockItems
+    @State private var isCheckedOut = false
     
     let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -40,6 +41,7 @@ struct ShoppingListView: View {
                     }
                 }
                 .padding(.horizontal, 16)
+                .padding(.vertical, 16)
                 
                 ScrollView {
                     if items.isEmpty {
@@ -54,7 +56,7 @@ struct ShoppingListView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.top, 100)
                     } else {
-                        LazyVGrid(columns: columns, spacing: 12) {
+                        LazyVGrid(columns: columns, spacing: 8) {
                             ForEach(items) { item in
                                 ShoppingCard(
                                     image: item.imageName ?? "default",
@@ -68,6 +70,19 @@ struct ShoppingListView: View {
                         }
                         .padding(.horizontal, 12)
                     }
+                }
+            }
+            
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    CheckoutFloatingButton(isCheckedOut: $isCheckedOut) {
+                        isCheckedOut.toggle()
+                        print("Checkout tapped - isCheckedOut: \(isCheckedOut)")
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 40)
                 }
             }
         }
