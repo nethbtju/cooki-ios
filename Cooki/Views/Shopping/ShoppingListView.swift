@@ -28,7 +28,6 @@ struct ShoppingListView: View {
                 HStack {
                     // Search bar
                     SearchBar(text: $searchText, placeholder: "Search shopping list items")
-                        .padding(.top, 5)
                     
                     // List toggle
                     Button(action: { isGridView.toggle() }) {
@@ -41,7 +40,7 @@ struct ShoppingListView: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 16)
+                .padding(.top, 16)
                 
                 ScrollView {
                     if items.isEmpty {
