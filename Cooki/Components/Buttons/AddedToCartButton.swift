@@ -26,12 +26,12 @@ struct AddedToCartButton: View {
                 } else {
                     // Cart icon in purple circle
                     Circle()
-                        .fill(Color.accentDarkPurple.opacity(0.15))
+                        .fill(Color.accentBurntOrange.opacity(0.15))
                         .frame(width: 44, height: 44)
                     
                     Image(systemName: "cart.badge.plus")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(Color.accentDarkPurple)
+                        .foregroundColor(Color.accentBurntOrange)
                 }
             }
             .scaleEffect(bounceScale)

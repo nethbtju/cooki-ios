@@ -24,9 +24,6 @@ struct ShoppingCard: View {
     @State private var bounceScale: CGFloat = 1.0
     @State private var addedToCart = false
     
-    // Fixed height for consistent grid layout
-    private let cardHeight: CGFloat = 160
-    
     init(
         image: String,
         title: String,
@@ -49,7 +46,7 @@ struct ShoppingCard: View {
     }
     
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack() {
             // Main card content
             VStack {
                 HStack {
@@ -57,19 +54,37 @@ struct ShoppingCard: View {
                     Image(imageName)
                         .resizable()
                         .scaledToFit()
-                        .frame(minWidth: 60, minHeight: 60)
+                        .frame(width: 56)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     
                     // Middle - Title and metadata
-                    VStack(alignment: .leading, spacing: 8) {
-                        // Title with 2-line limit and ellipsis
-                        Text(title)
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.textBlack)
-                            .lineLimit(2)
-                            .truncationMode(.tail)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
+                    VStack(alignment: .leading) {
+                        HStack {
+                            // Title with 2-line limit and ellipsis
+                            Text(title)
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.textBlack)
+                                .lineLimit(2)
+                                .truncationMode(.tail)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.top, 6)
+                            
+                            VStack {
+                                // Delete button overlay (top right)
+                                Button(action: { showDeleteAlert = true }) {
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 10, weight: .semibold))
+                                        .foregroundColor(.textGreyDark)
+                                        .frame(width: 20, height: 20)
+                                        .background(Color(.white))
+                                        .clipShape(Circle())
+                                        .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
+                                }
+                                
+                                Spacer()
+                                
+                            }
+                        }
                         
                         // Quantity badge
                         HStack(spacing: 4) {
@@ -122,28 +137,11 @@ struct ShoppingCard: View {
                     }
                 }
             }
-            .padding(.horizontal, 12)
-            .frame(height: cardHeight)
-            .background(Color(.white))
-            .cornerRadius(16)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.04), radius: 2, x: 0, y: 1)
-            
-            // Delete button overlay (top right)
-            Button(action: { showDeleteAlert = true }) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.textGreyDark)
-                    .frame(width: 20, height: 20)
-                    .background(Color(.white))
-                    .clipShape(Circle())
-                    .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
-            }
-            .offset(x: -8, y: 8)
+            .padding(8)
         }
+        .background(Color.backgroundGrey)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
         .alert("Remove Item", isPresented: $showDeleteAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
@@ -167,44 +165,55 @@ struct ShoppingCard: View {
 struct UserPill: View {
     let addedUser: User?
     let isAISuggested: Bool
-    
+
     var body: some View {
-        HStack(spacing: 6) {
-            if isAISuggested {
-                // AI sparkle icon
-                Image(systemName: "sparkles")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [.purple, .blue, .pink],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                
-                Text("Cooki")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [.purple, .blue, .pink],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-            } else if let user = addedUser {
-                // User profile with automatic fallback
-                user.getProfilePicture(size: 20)
-                
-                Text(user.displayName)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.secondaryPurple)
-            }
+        HStack(spacing: 0) {
+            leadingIcon
+                .frame(width: 20, height: 20)
+
+            labelText
+                .padding(.trailing, 4)
         }
-        .padding(.leading, 6)
-        .padding(.vertical, 6)
-        .padding(.trailing, 12)
+        .padding(.horizontal, 6)
+        .frame(minHeight: 28)
         .background(Color.secondaryPurple.opacity(0.15))
-        .cornerRadius(20)
+        .clipShape(Capsule())
+    }
+
+    // MARK: - Leading Icon (fixed 20x20, always left)
+    @ViewBuilder
+    private var leadingIcon: some View {
+        if isAISuggested {
+            Image(systemName: "sparkles")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(gradient)
+        } else if let user = addedUser {
+            user.getProfilePicture(size: 20)
+        }
+    }
+
+    // MARK: - Label (expands pill to the right)
+    @ViewBuilder
+    private var labelText: some View {
+        if isAISuggested {
+            Text("Cooki")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(gradient)
+        } else {
+            Text(addedUser?.displayName ?? "")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.secondaryPurple)
+                .padding(.leading, 4)
+        }
+    }
+
+    // MARK: - Shared Gradient
+    private var gradient: LinearGradient {
+        LinearGradient(
+            colors: [.purple, .blue, .pink],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
     }
 }
 
@@ -214,10 +223,10 @@ struct ShoppingCard_Previews: PreviewProvider {
         ScrollView {
             LazyVGrid(
                 columns: [
-                    GridItem(.flexible(), spacing: 6),
-                    GridItem(.flexible(), spacing: 6)
+                    GridItem(.flexible(), spacing: 12),
+                    GridItem(.flexible(), spacing: 12)
                 ],
-                spacing: 6
+                spacing: 12
             ) {
                 // Regular user item
                 ShoppingCard(
