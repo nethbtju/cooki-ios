@@ -126,11 +126,11 @@ struct ShoppingCard: View {
             .frame(height: cardHeight)
             .background(Color(.white))
             .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color(.separator).opacity(0.2), lineWidth: 1)
+                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
             )
+            .shadow(color: Color.black.opacity(0.04), radius: 2, x: 0, y: 1)
             
             // Delete button overlay (top right)
             Button(action: { showDeleteAlert = true }) {

@@ -29,7 +29,7 @@ struct CheckoutFloatingButton: View {
             ZStack {
                 Circle()
                     .fill(isCheckedOut ? Color.green : Color.accentBurntOrange)
-                    .frame(width: 64, height: 64)
+                    .frame(width: 65, height: 65)
                     .shadow(color: Color.accentBurntOrange.opacity(0.4), radius: 12, x: 0, y: 4)
                 
                 if #available(iOS 17.0, *) {

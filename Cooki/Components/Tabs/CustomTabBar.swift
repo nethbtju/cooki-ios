@@ -13,24 +13,41 @@ struct CustomTabBar: View {
     var pillData: [(icon: String, text: String, action: () -> Void)]
     
     var body: some View {
-        VStack{
-            VStack(spacing: 0) {
-                // MARK: Tab Bar
+            VStack {
+                Spacer()
                 ZStack {
-                    // Background capsule with gradient
+                    // MARK: Pills (staggered animation)
+                    if isExpanded {
+                        VStack(spacing: 10) {
+                            ForEach(Array(pillData.enumerated()), id: \.offset) { index, pill in
+                                PillButton(icon: pill.icon, text: pill.text, action: pill.action)
+                                    .opacity(showPills ? 1 : 0)
+                                    .offset(y: showPills ? 0 : 20)
+                                    .animation(
+                                        .easeOut(duration: 0.3)
+                                        .delay(0.05 * Double(index)),
+                                        value: showPills
+                                    )
+                            }
+                        }
+                    }
+                }
+                .padding(.bottom, 40)
+                
+                ZStack {
+                    // Background capsule
                     RoundedRectangle(cornerRadius: 52)
                         .fill(Color.accentViolet)
                         .frame(height: 60)
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, 20)
                         .shadow(radius: 4)
-                        .background(
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.white.opacity(0.1), Color.white.opacity(0)]),
-                                startPoint: .bottom,
-                                endPoint: .top
-                            )
-                            .frame(height: 150)
-                            .allowsHitTesting(false)
+                        .background(LinearGradient(
+                            gradient: Gradient(colors: [Color.white.opacity(10), Color.white.opacity(0)]),
+                            startPoint: .bottom,
+                            endPoint: .top
+                        )
+                        .frame(height: 150)
+                        .allowsHitTesting(false)
                         )
                    
                     HStack {
@@ -54,53 +71,34 @@ struct CustomTabBar: View {
                     }
                     .padding(.horizontal, 28)
                     
-                    VStack{
-                        // MARK: Pills (staggered animation) - positioned above the tab bar
-                        if isExpanded {
-                            VStack(spacing: 10) {
-                                ForEach(Array(pillData.enumerated()), id: \.offset) { index, pill in
-                                    PillButton(icon: pill.icon, text: pill.text, action: pill.action)
-                                        .opacity(showPills ? 1 : 0)
-                                        .offset(y: showPills ? 0 : 20)
-                                        .animation(
-                                            .easeOut(duration: 0.3)
-                                            .delay(0.05 * Double(index)),
-                                            value: showPills
-                                        )
-                                }
-                            }
-                            .padding(.bottom, 40)
+                    // Floating middle button
+                    Button(action: {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
+                            isExpanded.toggle()
                         }
                         
-                        // Floating middle button
-                        Button(action: {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
-                                isExpanded.toggle()
+                        if !isExpanded {
+                            showPills = false
+                        } else {
+                            // staggered pill animation
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                withAnimation { showPills = true }
                             }
-                            
-                            if !isExpanded {
-                                showPills = false
-                            } else {
-                                // staggered pill animation
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                    withAnimation { showPills = true }
-                                }
-                            }
-                        }) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.white)
-                                .rotationEffect(.degrees(isExpanded ? 45 : 0))
-                                .scaleEffect(isExpanded ? 1.3 : 1.0)
-                                .animation(.spring(response: 0.3, dampingFraction: 0.5), value: isExpanded)
-                                .frame(width: 64, height: 64)
-                                .background(Color.secondaryPurple)
-                                .clipShape(Circle())
-                                .shadow(radius: 4)
                         }
-                        .buttonStyle(PlainButtonStyle())
+                    }) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
+                            .rotationEffect(.degrees(isExpanded ? 45 : 0))
+                            .scaleEffect(isExpanded ? 1.3 : 1.0)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.5), value: isExpanded)
+                            .frame(width: 64, height: 64)
+                            .background(Color.secondaryPurple)
+                            .clipShape(Circle())
+                            .shadow(radius: 4)
                     }
                     .offset(y: -32)
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
             .onChange(of: isExpanded) { newValue in
@@ -110,7 +108,6 @@ struct CustomTabBar: View {
             }
             .padding(.bottom, 16)
         }
-    }
 }
 
 struct TabBarItem: View {

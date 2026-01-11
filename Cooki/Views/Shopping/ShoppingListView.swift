@@ -82,7 +82,7 @@ struct ShoppingListView: View {
                         print("Checkout tapped - isCheckedOut: \(isCheckedOut)")
                     }
                     .padding(.trailing, 20)
-                    .padding(.bottom, 40)
+                    .padding(.bottom, 100)
                 }
             }
         }

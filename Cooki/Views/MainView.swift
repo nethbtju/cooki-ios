@@ -43,6 +43,7 @@ struct MainView: View {
                     CustomTabBar(selectedTab: $selectedTab, isExpanded: $isPillsExpanded, pillData: pillData)
                         .ignoresSafeArea(.keyboard)
                 }
+                .ignoresSafeArea(edges: .bottom)
                 .overlay {
                     if showAddItemSheet {
                         Color.black.opacity(0.4)
