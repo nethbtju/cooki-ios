@@ -146,7 +146,6 @@ struct MainView: View {
             MainLayout(
                 header: {
                     HomeHeader(user: user, authService: authService)
-                        .onTapGesture { logout() }
                 },
                 content: {
                     HomeView()
