@@ -32,7 +32,7 @@ final class FirebaseJoinRequestService {
 
         let snapshot = try await db.collection("pantries")
             .whereField("joinToken", isEqualTo: joinToken)
-            .getDocuments()
+            .getDocuments(source: .server)
 
         guard let pantryDoc = snapshot.documents.first else {
             throw JoinRequestError.pantryNotFound
@@ -92,14 +92,14 @@ final class FirebaseJoinRequestService {
         let pantryRef = db.collection("pantries").document(pantryId)
         let snapshot = try await pantryRef.getDocument()
 
-        guard var data = snapshot.data(),
+        guard let data = snapshot.data(),
               var joinRequests = data["joinRequests"] as? [[String: Any]],
-              let index = joinRequests.firstIndex(where: {
-                  ($0["id"] as? String) == joinRequestId
-              })
+              let index = joinRequests.firstIndex(where: { ($0["id"] as? String) == joinRequestId })
         else {
             throw JoinRequestError.requestNotFound
         }
+
+        let pantryName = data["name"] as? String ?? "your pantry"
 
         var request = joinRequests[index]
         request["status"] = "approved"
@@ -112,9 +112,22 @@ final class FirebaseJoinRequestService {
             "memberIds": FieldValue.arrayUnion([userId])
         ])
 
-        try await addPantryToUser(
+        try await addPantryToUser(pantryId: pantryId, userId: userId)
+
+        // ✅ Publish user-level event
+        try await pushUserEvent(
+            userId: userId,
+            title: "Join Request Approved",
+            message: "Join request to \(pantryName) approved!",
+            type: .joinRequestAccepted
+        )
+
+        // ✅ Publish pantry-level event
+        try await pushPantryEvent(
             pantryId: pantryId,
-            userId: userId
+            title: "New Member Added",
+            message: "\(request["requestingUserName"] as? String ?? "Someone") has joined \(pantryName)!",
+            type: .newMember
         )
     }
 
@@ -127,47 +140,139 @@ final class FirebaseJoinRequestService {
         let pantryRef = db.collection("pantries").document(pantryId)
         let snapshot = try await pantryRef.getDocument()
 
-        guard var data = snapshot.data(),
+        guard let data = snapshot.data(),
               var joinRequests = data["joinRequests"] as? [[String: Any]],
-              let index = joinRequests.firstIndex(where: {
-                  ($0["id"] as? String) == joinRequestId
-              })
+              let index = joinRequests.firstIndex(where: { ($0["id"] as? String) == joinRequestId })
         else {
             throw JoinRequestError.requestNotFound
         }
+
+        let pantryName = data["name"] as? String ?? "your pantry"
 
         joinRequests[index]["status"] = "rejected"
 
         try await pantryRef.updateData([
             "joinRequests": joinRequests
         ])
+
+        let requestingUserId = joinRequests[index]["requestingUserId"] as? String ?? ""
+
+        // ✅ Publish user-level event
+        try await pushUserEvent(
+            userId: requestingUserId,
+            title: "Join Request Denied",
+            message: "Join request to \(pantryName) rejected",
+            type: .joinRequestDenied
+        )
     }
 
     // MARK: - Private Helpers
 
-    /// Adds pantry ID to the requesting user's pantry list
     private func addPantryToUser(
         pantryId: String,
         userId: String
     ) async throws {
-
         let userRef = db.collection("users").document(userId)
-
         try await userRef.updateData([
             "pantryIds": FieldValue.arrayUnion([pantryId])
         ])
+    }
+
+    private func pushUserEvent(
+        userId: String,
+        title: String,
+        message: String,
+        type: EventType,
+        priority: Int = 0,
+        actionIdentifier: String? = nil,
+        actionPayload: [String: String]? = nil
+    ) async throws {
+
+        let event = Event(
+            id: UUID().uuidString,
+            title: title,
+            message: message,
+            priority: priority,
+            timestamp: Date(),
+            readBy: [],
+            type: type,
+            actionIdentifier: actionIdentifier,
+            actionPayload: actionPayload
+        )
+
+        var data: [String: Any] = [
+            "id": event.id,
+            "title": event.title,
+            "message": event.message,
+            "priority": event.priority,
+            "timestamp": Timestamp(date: event.timestamp),
+            "readBy": event.readBy,
+            "type": event.type.rawValue
+        ]
+
+        if let actionId = event.actionIdentifier { data["actionIdentifier"] = actionId }
+        if let actionPayload = event.actionPayload { data["actionPayload"] = actionPayload }
+
+        let userEventsRef = db.collection("users")
+            .document(userId)
+            .collection("events")
+            .document(event.id)
+
+        try await userEventsRef.setData(data)
+    }
+
+    // ✅ New: Push pantry-level event
+    private func pushPantryEvent(
+        pantryId: String,
+        title: String,
+        message: String,
+        type: EventType,
+        priority: Int = 0,
+        actionIdentifier: String? = nil,
+        actionPayload: [String: String]? = nil
+    ) async throws {
+
+        let event = Event(
+            id: UUID().uuidString,
+            title: title,
+            message: message,
+            priority: priority,
+            timestamp: Date(),
+            readBy: [],
+            type: type,
+            actionIdentifier: actionIdentifier,
+            actionPayload: actionPayload
+        )
+
+        var data: [String: Any] = [
+            "id": event.id,
+            "title": event.title,
+            "message": event.message,
+            "priority": event.priority,
+            "timestamp": Timestamp(date: event.timestamp),
+            "readBy": event.readBy,
+            "type": event.type.rawValue
+        ]
+
+        if let actionId = event.actionIdentifier { data["actionIdentifier"] = actionId }
+        if let actionPayload = event.actionPayload { data["actionPayload"] = actionPayload }
+
+        let pantryEventsRef = db.collection("pantries")
+            .document(pantryId)
+            .collection("events")
+            .document(event.id)
+
+        try await pantryEventsRef.setData(data)
     }
 }
 
 // MARK: - Real-time Listener Extension
 extension FirebaseJoinRequestService {
 
-    /// Listen for pending join requests for a specific pantry
     func listenForPendingJoinRequestsByPantryId(
         pantryId: String,
         onUpdate: @escaping ([JoinRequest]) -> Void
     ) {
-        // Remove previous listener
         joinRequestsListener?.remove()
 
         joinRequestsListener = db.collection("pantries")
@@ -187,7 +292,6 @@ extension FirebaseJoinRequestService {
                 let data = pantryDoc.data() ?? [:]
                 let joinRequests = data["joinRequests"] as? [[String: Any]] ?? []
 
-                // Map to JoinRequest objects and filter pending
                 let pending = joinRequests.compactMap { dict -> JoinRequest? in
                     guard
                         let idStr = dict["id"] as? String,
@@ -215,7 +319,6 @@ extension FirebaseJoinRequestService {
             }
     }
 
-    /// Stop listening for join requests
     func stopListeningForJoinRequests() {
         joinRequestsListener?.remove()
         joinRequestsListener = nil

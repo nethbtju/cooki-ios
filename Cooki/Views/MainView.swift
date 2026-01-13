@@ -15,11 +15,6 @@ struct MainView: View {
     @State private var navigationPath = NavigationPath()
     @State private var isPillsExpanded = false
 
-    // MARK: - Join Request Alert
-    @StateObject private var joinRequestVM = PantryJoinRequestsViewModel()
-    @State private var pendingRequestQueue: [JoinRequest] = []
-    @State private var currentRequest: JoinRequest?
-
     // MARK: - Join Pantry Sheet
     @State private var showJoinPantrySheet = false
     @State private var joinTokenInput = ""
@@ -44,15 +39,19 @@ struct MainView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .animation(.easeInOut(duration: 0.3), value: selectedTab)
 
-                    // MARK: - Pill Buttons Data
+                    // MARK: - Pill Buttons
                     let pillData: [(icon: String, text: String, action: () -> Void)] = [
                         ("scanner", "Scan receipt", { print("Scan tapped") }),
                         ("cube.box", "Add new item", { showAddItemSheet = true }),
                         ("person.3.fill", "Join new pantry", { showJoinPantrySheet = true })
                     ]
 
-                    CustomTabBar(selectedTab: $selectedTab, isExpanded: $isPillsExpanded, pillData: pillData)
-                        .ignoresSafeArea(.keyboard)
+                    CustomTabBar(
+                        selectedTab: $selectedTab,
+                        isExpanded: $isPillsExpanded,
+                        pillData: pillData
+                    )
+                    .ignoresSafeArea(.keyboard)
                 }
                 .ignoresSafeArea(edges: .bottom)
 
@@ -135,41 +134,7 @@ struct MainView: View {
                         .navigationBarBackButtonHidden(true)
                     }
                 }
-
-                // MARK: - Join Request Listeners
-                .onAppear {
-                    joinRequestVM.startListeningForCurrentPantry()
-                }
-                .onChange(of: CurrentUser.shared.currentPantryId) { _ in
-                    joinRequestVM.startListeningForCurrentPantry()
-                }
-                .onChange(of: joinRequestVM.pendingRequests) { pendingRequests in
-                    let sortedRequests = pendingRequests.sorted(by: { $0.createdAt < $1.createdAt })
-                    pendingRequestQueue = sortedRequests
-                    showNextRequestAlert()
-                }
-                .alert(item: $currentRequest) { request in
-                    Alert(
-                        title: Text("Pending Join Request"),
-                        message: Text("\(request.requestingUserName) wants to join your pantry."),
-                        primaryButton: .destructive(Text("Reject")) {
-                            Task { await handleJoinRequest(request, approve: false) }
-                        },
-                        secondaryButton: .default(Text("Approve")) {
-                            Task { await handleJoinRequest(request, approve: true) }
-                        }
-                    )
-                }
             }
-        }
-    }
-
-    // MARK: - Show Next Alert in Queue
-    private func showNextRequestAlert() {
-        if !pendingRequestQueue.isEmpty {
-            currentRequest = pendingRequestQueue.removeFirst()
-        } else {
-            currentRequest = nil
         }
     }
 
@@ -184,9 +149,7 @@ struct MainView: View {
                         .onTapGesture { logout() }
                 },
                 content: {
-                    HomeView(notificationText: "4 items in pantry expiring soon!")
-                        .previewDevice("iPhone 15 Pro")
-                        .preferredColorScheme(.light)
+                    HomeView()
                 }
             )
         case 1:
@@ -240,37 +203,6 @@ struct MainView: View {
         } catch {
             print("❌ Failed to create join request:", error)
         }
-    }
-
-    // MARK: - Handle Join Request
-    private func handleJoinRequest(_ request: JoinRequest, approve: Bool) async {
-        guard let currentPantryId = CurrentUser.shared.currentPantryId else {
-            print("⚠️ No active pantry selected")
-            showNextRequestAlert()
-            return
-        }
-
-        let service = FirebaseJoinRequestService()
-
-        do {
-            if approve {
-                try await service.approveJoinRequest(
-                    pantryId: currentPantryId,
-                    joinRequestId: request.id.uuidString
-                )
-                print("✅ Approved join request for \(request.requestingUserName)")
-            } else {
-                try await service.rejectJoinRequest(
-                    pantryId: currentPantryId,
-                    joinRequestId: request.id.uuidString
-                )
-                print("❌ Declined join request for \(request.requestingUserName)")
-            }
-        } catch {
-            print("⚠️ Failed to \(approve ? "approve" : "decline") join request:", error)
-        }
-
-        showNextRequestAlert()
     }
 }
 
