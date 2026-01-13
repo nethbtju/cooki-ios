@@ -80,9 +80,6 @@ struct MainView: View {
             MainLayout(
                 header: {
                     HomeHeader(user: user, authService: authService)
-                        .onTapGesture {
-                            logout()
-                        }
                 },
                 content: {
                     HomeView(notificationText: "4 items in pantry expiring soon!")

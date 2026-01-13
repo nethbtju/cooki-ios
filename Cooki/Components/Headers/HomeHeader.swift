@@ -12,6 +12,7 @@ struct HomeHeader: View {
     let authService: FirebaseAuthService
 
     @State private var isLoggedOut = false
+    @State private var showSettings = false
 
     var body: some View {
         ZStack {
@@ -32,26 +33,18 @@ struct HomeHeader: View {
                         }
                     },
                     trailing: {
-                        ProfileIcon(image: user.getProfilePicture, size: 50)
-                            .onTapGesture {
-                                logout()
-                            }
+                        Button {
+                            showSettings = true
+                        } label: {
+                            ProfileIcon(image: user.getProfilePicture, size: 50)
+                        }
+                        .buttonStyle(.plain)
                     }
                 )
             }
         }
-    }
-
-    // MARK: - Logout
-
-    private func logout() {
-        do {
-            try authService.signOut()
-            CurrentUser.shared.reset()   // 🔥 REQUIRED
-            isLoggedOut = true
-            print("✅ User logged out")
-        } catch {
-            print("❌ Logout failed:", error)
+        .navigationDestination(isPresented: $showSettings) {
+            SettingView()
         }
     }
 }
