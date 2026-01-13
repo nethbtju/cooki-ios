@@ -31,6 +31,7 @@ class FirebaseAuthService: AuthServiceProtocol {
                 email: email,
                 profileImageName: nil,
                 pantryIds: [],
+                currentPantryId: nil, // ✅ include currentPantryId
                 createdAt: Date(),
                 preferences: User.UserPreferences()
             )
@@ -63,21 +64,25 @@ class FirebaseAuthService: AuthServiceProtocol {
         do {
             let userId = firebaseUser.uid
             
+            // Create the user's first pantry
             let pantry = try await pantryService.createPantry(
                 name: "\(displayName)'s Pantry",
                 memberIds: [userId]
             )
             
+            // Create user object including currentPantryId
             let user = User(
                 id: userId,
                 displayName: displayName,
                 email: firebaseUser.email ?? "",
                 profileImageName: nil,
                 pantryIds: [pantry.id.uuidString],
+                currentPantryId: pantry.id.uuidString, // ✅ set current pantry
                 createdAt: Date(),
                 preferences: preferences
             )
             
+            // Persist user in Firestore
             try await createUserDocument(user: user, firebaseUID: userId)
             
             if AppConfig.enableDebugLogging {
@@ -86,6 +91,7 @@ class FirebaseAuthService: AuthServiceProtocol {
                 print("   User ID: \(user.id)")
                 print("   Name: \(user.displayName)")
                 print("   Pantry ID: \(pantry.id)")
+                print("   Current Pantry ID: \(user.currentPantryId ?? "nil")")
                 print("   Pantry Members: \(pantry.memberIds)")
                 print("   Dietary Prefs: \(preferences.dietaryPreferences.map { $0.rawValue })")
             }
@@ -117,6 +123,7 @@ class FirebaseAuthService: AuthServiceProtocol {
                 print("   Email: \(email)")
                 print("   UID: \(firebaseUser.uid)")
                 print("   Pantry IDs: \(user.pantryIds)")
+                print("   Current Pantry ID: \(user.currentPantryId ?? "nil")")
             }
             
             return user
@@ -169,7 +176,8 @@ class FirebaseAuthService: AuthServiceProtocol {
                 "displayName": user.displayName,
                 "email": user.email,
                 "profileImageName": user.profileImageName as Any,
-                "pantryIds": user.pantryIds, // ✅ fixed
+                "pantryIds": user.pantryIds,
+                "currentPantryId": user.currentPantryId as Any, // ✅ persist current pantry
                 "updatedAt": FieldValue.serverTimestamp()
             ]
             
@@ -234,7 +242,8 @@ class FirebaseAuthService: AuthServiceProtocol {
             "displayName": user.displayName,
             "email": user.email,
             "profileImageName": user.profileImageName as Any,
-            "pantryIds": user.pantryIds, // ✅ fixed
+            "pantryIds": user.pantryIds,
+            "currentPantryId": user.currentPantryId as Any, // ✅ include current pantry
             "createdAt": FieldValue.serverTimestamp(),
             "preferences": [
                 "dietaryPreferences": user.preferences.dietaryPreferences.map { $0.rawValue },
@@ -256,7 +265,8 @@ class FirebaseAuthService: AuthServiceProtocol {
             throw AuthServiceError.profileIncomplete
         }
         
-        let pantryIds = data["pantryIds"] as? [String] ?? [] // ✅ fixed
+        let pantryIds = data["pantryIds"] as? [String] ?? []
+        let currentPantryId = data["currentPantryId"] as? String
         
         let user = User(
             id: data["id"] as? String ?? firebaseUID,
@@ -264,6 +274,7 @@ class FirebaseAuthService: AuthServiceProtocol {
             email: data["email"] as? String ?? "",
             profileImageName: data["profileImageName"] as? String,
             pantryIds: pantryIds,
+            currentPantryId: currentPantryId, // ✅ load current pantry
             createdAt: (data["createdAt"] as? Timestamp)?.dateValue() ?? Date(),
             preferences: parsePreferences(data["preferences"] as? [String: Any])
         )

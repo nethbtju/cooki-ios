@@ -188,7 +188,7 @@ struct UserPill: View {
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(gradient)
         } else if let user = addedUser {
-            user.getProfilePicture(size: 20)
+            // user.getProfilePicture(size: 20)
         }
     }
 

@@ -2,7 +2,7 @@
 //  FirebasePantryService.swift
 //  Cooki
 //
-//  Created on 29/11/2025.
+//  Updated by Rohit Valanki
 //
 
 import Foundation
@@ -47,7 +47,6 @@ class FirebasePantryService: PantryServiceProtocol {
     func fetchPantries(ids: [UUID]) async throws -> [Pantry] {
         guard !ids.isEmpty else { return [] }
         
-        // Firestore 'in' query limit is 10, so batch if needed
         let batches = stride(from: 0, to: ids.count, by: 10).map {
             Array(ids[$0..<min($0 + 10, ids.count)])
         }
@@ -89,6 +88,8 @@ class FirebasePantryService: PantryServiceProtocol {
             "name": pantry.name,
             "items": pantry.items.map { $0.uuidString },
             "memberIds": pantry.memberIds,
+            "joinToken": pantry.joinToken, // ✅ include joinToken
+            "joinRequests": [],
             "createdAt": Timestamp(date: pantry.createdAt),
             "updatedAt": Timestamp(date: pantry.updatedAt)
         ]
@@ -112,6 +113,7 @@ class FirebasePantryService: PantryServiceProtocol {
             "name": pantry.name,
             "items": pantry.items.map { $0.uuidString },
             "memberIds": pantry.memberIds,
+            "joinToken": pantry.joinToken, // ✅ include joinToken
             "updatedAt": Timestamp(date: Date())
         ]
         
@@ -155,6 +157,16 @@ class FirebasePantryService: PantryServiceProtocol {
     // MARK: - Add Member
     func addMember(userId: String, toPantryId: UUID) async throws {
         try await authorizeUser(forPantryId: toPantryId)
+        
+        let pantry = try await fetchPantry(id: toPantryId)
+        
+        // Prevent duplicate members
+        guard !pantry.memberIds.contains(userId) else {
+            if AppConfig.enableDebugLogging {
+                print("⚠️ User \(userId) is already a member of pantry \(toPantryId)")
+            }
+            return
+        }
         
         let docRef = db.collection("pantries").document(toPantryId.uuidString)
         try await docRef.updateData([
@@ -206,6 +218,7 @@ class FirebasePantryService: PantryServiceProtocol {
         guard let name = data["name"] as? String,
               let itemStrings = data["items"] as? [String],
               let memberIds = data["memberIds"] as? [String],
+              let joinToken = data["joinToken"] as? String, // ✅ parse joinToken
               let createdAtTimestamp = data["createdAt"] as? Timestamp,
               let updatedAtTimestamp = data["updatedAt"] as? Timestamp else {
             throw NSError(
@@ -222,6 +235,7 @@ class FirebasePantryService: PantryServiceProtocol {
             name: name,
             items: items,
             memberIds: memberIds,
+            joinToken: joinToken, // ✅ assign joinToken
             createdAt: createdAtTimestamp.dateValue(),
             updatedAt: updatedAtTimestamp.dateValue()
         )
@@ -238,5 +252,11 @@ class FirebasePantryService: PantryServiceProtocol {
         guard pantry.memberIds.contains(currentUser.id) else {
             throw NSError(domain: "PantryService", code: 403, userInfo: [NSLocalizedDescriptionKey: "User is not authorized for this pantry"])
         }
+    }
+    
+    // MARK: - Helper: Check if a user is already a member
+    func isUserMember(userId: String, pantryId: UUID) async throws -> Bool {
+        let pantry = try await fetchPantry(id: pantryId)
+        return pantry.memberIds.contains(userId)
     }
 }

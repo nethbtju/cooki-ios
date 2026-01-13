@@ -3,26 +3,31 @@
 //  Cooki
 //
 //  Modified by Neth Botheju on 23/11/2025.
+//  Updated by Rohit Valanki on 11/01/2026
 //
+
 import Foundation
 import SwiftUI
 
-// MARK: - User Model
 struct User: Identifiable, Codable, Equatable {
-    let id: String // Changed from UUID to String to match Firebase Auth UID
+    let id: String // Firebase UID
     var displayName: String
     var email: String
     var profileImageName: String?
     var pantryIds: [String]
+    var currentPantryId: String?
     var createdAt: Date
     var preferences: UserPreferences
     
+    var uid: String { id } // NEW: convenience for Firebase auth UID
+    
     init(
-        id: String = UUID().uuidString, // Default to UUID string for compatibility
+        id: String = UUID().uuidString,
         displayName: String = "",
         email: String,
         profileImageName: String? = nil,
         pantryIds: [String] = [],
+        currentPantryId: String? = nil,
         createdAt: Date = Date(),
         preferences: UserPreferences = UserPreferences()
     ) {
@@ -31,54 +36,54 @@ struct User: Identifiable, Codable, Equatable {
         self.email = email
         self.profileImageName = profileImageName
         self.pantryIds = pantryIds
+        self.currentPantryId = currentPantryId
         self.createdAt = createdAt
         self.preferences = preferences
     }
-    
     
     var greeting: String {
         displayName.isEmpty ? "Hello" : "Hello, \(displayName)"
     }
     
     // Profile picture with automatic fallback to initials
-    func getProfilePicture(size: CGFloat = 40) -> some View {
-        Group {
-            if let profileImageName = profileImageName {
-                Image(profileImageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: size, height: size)
-                    .clipShape(Circle())
-            } else {
-                // Fallback to initials
-                Circle()
-                    .fill(Color.purple.opacity(0.3))
-                    .frame(width: size, height: size)
-                    .overlay(
-                        Text(initials)
-                            .font(.system(size: size * 0.4, weight: .semibold))
-                            .foregroundColor(.purple)
-                    )
+        func getProfilePicture(size: CGFloat = 40) -> some View {
+            Group {
+                if let profileImageName = profileImageName {
+                    Image(profileImageName)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size, height: size)
+                        .clipShape(Circle())
+                } else {
+                    // Fallback to initials
+                    Circle()
+                        .fill(Color.purple.opacity(0.3))
+                        .frame(width: size, height: size)
+                        .overlay(
+                            Text(initials)
+                                .font(.system(size: size * 0.4, weight: .semibold))
+                                .foregroundColor(.purple)
+                        )
+                }
             }
         }
-    }
+    
     
     // Get user initials for fallback
-    var initials: String {
-        let components = displayName.components(separatedBy: " ")
-        let firstInitial = components.first?.first.map(String.init) ?? ""
-        let lastInitial = components.count > 1 ? components.last?.first.map(String.init) ?? "" : ""
-        let combined = firstInitial + lastInitial
-        return combined.isEmpty ? String(email.prefix(1)).uppercased() : combined.uppercased()
-    }
-    
-    // Check if user has completed onboarding
-    var hasCompletedProfile: Bool {
-        !displayName.isEmpty
-    }
+        var initials: String {
+            let components = displayName.components(separatedBy: " ")
+            let firstInitial = components.first?.first.map(String.init) ?? ""
+            let lastInitial = components.count > 1 ? components.last?.first.map(String.init) ?? "" : ""
+            let combined = firstInitial + lastInitial
+            return combined.isEmpty ? String(email.prefix(1)).uppercased() : combined.uppercased()
+        }
+        
+        // Check if user has completed onboarding
+        var hasCompletedProfile: Bool {
+            !displayName.isEmpty
+        }
 }
 
-// MARK: - User Preferences
 extension User {
     struct UserPreferences: Codable, Equatable {
         var dietaryPreferences: [DietaryPreference]
@@ -101,12 +106,7 @@ extension User {
             self.notificationsEnabled = notificationsEnabled
         }
         
-        var isVegetarian: Bool {
-            dietaryPreferences.contains(.vegetarian)
-        }
-        
-        var isVegan: Bool {
-            dietaryPreferences.contains(.vegan)
-        }
+        var isVegetarian: Bool { dietaryPreferences.contains(.vegetarian) }
+        var isVegan: Bool { dietaryPreferences.contains(.vegan) }
     }
 }

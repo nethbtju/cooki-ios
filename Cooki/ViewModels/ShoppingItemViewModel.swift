@@ -23,7 +23,7 @@ class ShoppingListViewModel: ObservableObject {
     private let shoppingService: ShoppingServiceProtocol
     
     init(
-        shoppingService: ShoppingServiceProtocol = ShoppingService(),
+        shoppingService: ShoppingServiceProtocol = ShoppingService()
     ) {
         self.shoppingService = shoppingService
         
