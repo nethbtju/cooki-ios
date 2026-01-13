@@ -48,8 +48,6 @@ class CurrentUser: ObservableObject {
         print("✅ Current pantry updated:", currentPantryId!)
     }
 
-    // MARK: - 🔥 RESET (REQUIRED)
-
     func reset() {
         print("🔄 Resetting CurrentUser session")
         user = nil

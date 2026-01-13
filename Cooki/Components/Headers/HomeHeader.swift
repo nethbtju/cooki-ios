@@ -32,10 +32,7 @@ struct HomeHeader: View {
                         }
                     },
                     trailing: {
-                        ProfileIcon(image: user.getProfilePicture, size: 50)
-                            .onTapGesture {
-                                logout()
-                            }
+                        user.getProfilePicture(size: 50)
                     }
                 )
             }

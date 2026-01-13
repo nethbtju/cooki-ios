@@ -40,8 +40,36 @@ struct User: Identifiable, Codable, Equatable {
         displayName.isEmpty ? "Hello" : "Hello, \(displayName)"
     }
     
-    var getProfilePicture: Image {
-        Image(profileImageName ?? "ProfilePic")
+    // Profile picture with automatic fallback to initials
+    func getProfilePicture(size: CGFloat = 40) -> some View {
+        Group {
+            if let profileImageName = profileImageName {
+                Image(profileImageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: size, height: size)
+                    .clipShape(Circle())
+            } else {
+                // Fallback to initials
+                Circle()
+                    .fill(Color.purple.opacity(0.3))
+                    .frame(width: size, height: size)
+                    .overlay(
+                        Text(initials)
+                            .font(.system(size: size * 0.4, weight: .semibold))
+                            .foregroundColor(.purple)
+                    )
+            }
+        }
+    }
+    
+    // Get user initials for fallback
+    var initials: String {
+        let components = displayName.components(separatedBy: " ")
+        let firstInitial = components.first?.first.map(String.init) ?? ""
+        let lastInitial = components.count > 1 ? components.last?.first.map(String.init) ?? "" : ""
+        let combined = firstInitial + lastInitial
+        return combined.isEmpty ? String(email.prefix(1)).uppercased() : combined.uppercased()
     }
     
     // Check if user has completed onboarding

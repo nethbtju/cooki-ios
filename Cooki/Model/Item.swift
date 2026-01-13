@@ -101,7 +101,9 @@ struct Item: Identifiable, Codable, Equatable {
     var category: ItemCategory
     var imageName: String?
     var notes: String?
-    var pantryId: UUID // <-- NEW: link to a pantry
+    var pantryId: UUID
+    var addedToCart: Bool
+    var numberOfItems: Int
     
     init(
         id: UUID = UUID(),
@@ -113,7 +115,9 @@ struct Item: Identifiable, Codable, Equatable {
         category: ItemCategory = .other,
         imageName: String? = nil,
         notes: String? = nil,
-        pantryId: UUID
+        pantryId: UUID,
+        addedToCart: Bool = false,
+        numberOfItems: Int = 1
     ) {
         self.id = id
         self.title = title
@@ -125,6 +129,8 @@ struct Item: Identifiable, Codable, Equatable {
         self.imageName = imageName
         self.notes = notes
         self.pantryId = pantryId
+        self.addedToCart = addedToCart
+        self.numberOfItems = numberOfItems
     }
     
     // MARK: - Computed Properties
@@ -207,5 +213,44 @@ extension Item {
 extension Item: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+}
+
+// MARK: - Shopping Extension
+extension Item {
+    /// Shopping-specific properties and methods
+    
+    /// Toggle the cart status
+    mutating func toggleCart() {
+        self.addedToCart.toggle()
+    }
+    
+    /// Update quantity for shopping list
+    mutating func updateQuantity(_ newValue: Double) {
+        self.quantity.value = max(0.1, newValue) // Minimum 0.1 to avoid zero
+    }
+    
+    /// Create a shopping list item from pantry item
+    static func forShopping(
+        title: String,
+        quantity: Quantity = .pieces(1),
+        category: ItemCategory = .other,
+        imageName: String? = nil,
+        pantryId: UUID
+    ) -> Item {
+        Item(
+            title: title,
+            quantity: quantity,
+            location: .pantry, // Default, not used for shopping
+            category: category,
+            imageName: imageName,
+            pantryId: pantryId,
+            addedToCart: false
+        )
+    }
+    
+    /// Check if item is for shopping list (no expiry date set)
+    var isShoppingItem: Bool {
+        expiryDate == nil && addedDate == Date() // Fresh item with no expiry
     }
 }
