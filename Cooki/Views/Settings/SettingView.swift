@@ -10,6 +10,7 @@ public struct SettingView: View {
     public var body: some View {
         MainLayout(header: { BackHeader().padding(.bottom, 60) }, content: { SettingContent()})
             .preferredColorScheme(.light)
+            .navigationBarBackButtonHidden(true)
     }
 }
 
@@ -29,10 +30,12 @@ struct SettingContent: View {
                     .frame(height: overlap)
                 
                 Text("Hello, \(appViewModel.currentUser?.displayName ?? "Stranger!")").font(AppFonts.subheading()).padding(0)
+                    .offset(y: 10)
                 SettingsList(buttonAction: {
                     Task {
-                    await appViewModel.signOut()
-                }})
+                        await appViewModel.signOut()
+                    }
+                })
             }
             .background(Color(red: 242/255, green: 242/255, blue: 247/255))
             .clipShape(TopRoundedModal())

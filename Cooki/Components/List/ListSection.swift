@@ -10,8 +10,10 @@ import SwiftUI
 struct ListItem: Identifiable, Hashable {
     let id = UUID()
     let title: String
+    let subtitle: String
     let iconName: String
     let iconColor: Color
+    let destination: SettingsDestination
 
     static func == (lhs: ListItem, rhs: ListItem) -> Bool {
         lhs.id == rhs.id
@@ -31,23 +33,29 @@ struct ListSection: Identifiable {
 // MARK: - Settings Row Component
 struct ListRow: View {
     let item: ListItem
-    
+
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 12) {
             Image(systemName: item.iconName)
-                .font(.title3)
                 .foregroundColor(.white)
                 .frame(width: 32, height: 32)
                 .background(item.iconColor)
                 .cornerRadius(8)
-            
-            Text(item.title)
-                .font(.body)
-                .foregroundStyle(Color.textBlack)
-            
-            Spacer()
+                .font(.system(size: 20))
+                .frame(width: 28)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.title)
+                    .font(.body)
+                    .foregroundColor(.primary)
+
+                Text(item.subtitle)
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .opacity(0.85)
+                    .lineLimit(1)
+            }
         }
-        .padding(.vertical, 4)
-        .listRowBackground(Color.white)
+        .padding(.vertical, 6)
     }
 }
