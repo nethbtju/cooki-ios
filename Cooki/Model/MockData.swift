@@ -32,7 +32,7 @@ enum MockData {
             )
         ),
         User(
-            displayName: "Jane",
+            displayName: "Toebean",
             email: "jane@example.com",
             preferences: User.UserPreferences(
                 dietaryPreferences: [.vegan],

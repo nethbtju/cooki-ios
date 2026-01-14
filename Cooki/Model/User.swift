@@ -40,8 +40,18 @@ struct User: Identifiable, Codable, Equatable {
         displayName.isEmpty ? "Hello" : "Hello, \(displayName)"
     }
     
-    var getProfilePicture: Image {
-        Image(profileImageName ?? "ProfilePic")
+    // Profile picture with automatic fallback to initials
+    var profilePicture: Image {
+        Image(profileImageName ?? "ProfilePic") // TODO: ADD PLACEHOLDER IMAGE HERE
+    }
+    
+    // Get user initials for fallback
+    var initials: String {
+        let components = displayName.components(separatedBy: " ")
+        let firstInitial = components.first?.first.map(String.init) ?? ""
+        let lastInitial = components.count > 1 ? components.last?.first.map(String.init) ?? "" : ""
+        let combined = firstInitial + lastInitial
+        return combined.isEmpty ? String(email.prefix(1)).uppercased() : combined.uppercased()
     }
     
     // Check if user has completed onboarding

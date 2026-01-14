@@ -27,6 +27,7 @@ struct SearchBar: View {
             TextField(placeholder, text: $text)
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
+                .foregroundStyle(Color.textlight1)
             
             if !text.isEmpty {
                 Button(action: {
