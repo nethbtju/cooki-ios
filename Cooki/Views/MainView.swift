@@ -60,14 +60,22 @@ struct MainView: View {
                     .presentationBackground(.white)
                 }
                 .navigationDestination(for: String.self) { route in
-                    if route == "UploadReceipt" {
+                    switch route {
+                    case "UploadReceipt":
                         UploadReceiptView(onNavigateToPantry: {
                             navigationPath.removeLast(navigationPath.count)
                             selectedTab = 1
-                            isPillsExpanded = false  // Close pills when navigating back
+                            isPillsExpanded = false
                         })
                         .navigationBarBackButtonHidden(true)
+                    case "Settings":
+                        SettingView()
+                    default:
+                        EmptyView()
                     }
+                }
+                .navigationDestination(for: SettingsDestination.self) { destination in
+                    settingsDestinationView(for: destination)
                 }
             }
         }
@@ -79,7 +87,9 @@ struct MainView: View {
         case 0:
             MainLayout(
                 header: {
-                    HomeHeader(user: user, authService: authService)
+                    HomeHeader(user: user, authService: authService, onSettingsTap: {
+                        navigationPath.append("Settings")
+                    })
                 },
                 content: {
                     HomeView(notificationText: "4 items in pantry expiring soon!")
@@ -96,7 +106,9 @@ struct MainView: View {
             MainLayout(header: { TabHeader(text: "Cart") },
                        content: { PlaceholderView(title: "Cart") })
         default:
-            MainLayout(header: { HomeHeader(user: user, authService: authService) }, content: { HomeView() })
+            MainLayout(header: { HomeHeader(user: user, authService: authService, onSettingsTap: {
+                navigationPath.append("Settings")
+            }) }, content: { HomeView() })
         }
     }
     

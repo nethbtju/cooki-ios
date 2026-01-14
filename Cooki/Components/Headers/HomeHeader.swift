@@ -10,9 +10,9 @@ import SwiftUI
 struct HomeHeader: View {
     let user: User
     let authService: FirebaseAuthService
+    let onSettingsTap: () -> Void
 
     @State private var isLoggedOut = false
-    @State private var showSettings = false
 
     var body: some View {
         ZStack {
@@ -34,7 +34,7 @@ struct HomeHeader: View {
                     },
                     trailing: {
                         Button {
-                            showSettings = true
+                            onSettingsTap()
                         } label: {
                             ProfileIcon(image: user.getProfilePicture, size: 50)
                         }
@@ -42,9 +42,6 @@ struct HomeHeader: View {
                     }
                 )
             }
-        }
-        .navigationDestination(isPresented: $showSettings) {
-            SettingView()
         }
     }
 }
