@@ -36,7 +36,7 @@ struct HomeHeader: View {
                         Button {
                             onSettingsTap()
                         } label: {
-                            ProfileIcon(image: user.getProfilePicture, size: 50)
+                            ProfileIcon(image: user.profilePicture, size: 50)
                         }
                         .buttonStyle(.plain)
                     }

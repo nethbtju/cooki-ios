@@ -43,7 +43,7 @@ struct SettingContent: View {
             
             // MARK: - Floating profile icon
             ProfileIcon(
-                image: appViewModel.currentUser?.getProfilePicture ?? Image("ProfilePic"), // TODO: FIX THIS
+                image: appViewModel.currentUser?.profilePicture ?? Image("ProfilePic"), // TODO: FIX THIS
                 size: avatarSize,
                 editable: true
             )
