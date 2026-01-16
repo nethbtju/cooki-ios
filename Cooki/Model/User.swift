@@ -41,26 +41,8 @@ struct User: Identifiable, Codable, Equatable {
     }
     
     // Profile picture with automatic fallback to initials
-    func getProfilePicture(size: CGFloat = 40) -> some View {
-        Group {
-            if let profileImageName = profileImageName {
-                Image(profileImageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: size, height: size)
-                    .clipShape(Circle())
-            } else {
-                // Fallback to initials
-                Circle()
-                    .fill(Color.purple.opacity(0.3))
-                    .frame(width: size, height: size)
-                    .overlay(
-                        Text(initials)
-                            .font(.system(size: size * 0.4, weight: .semibold))
-                            .foregroundColor(.purple)
-                    )
-            }
-        }
+    var profilePicture: Image {
+        Image(profileImageName ?? "ProfilePic") // TODO: ADD PLACEHOLDER IMAGE HERE
     }
     
     // Get user initials for fallback

@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeHeader: View {
     let user: User
     let authService: FirebaseAuthService
+    let onSettingsTap: () -> Void
 
     @State private var isLoggedOut = false
 
@@ -32,23 +33,15 @@ struct HomeHeader: View {
                         }
                     },
                     trailing: {
-                        user.getProfilePicture(size: 50)
+                        Button {
+                            onSettingsTap()
+                        } label: {
+                            ProfileIcon(image: user.profilePicture, size: 50)
+                        }
+                        .buttonStyle(.plain)
                     }
                 )
             }
-        }
-    }
-
-    // MARK: - Logout
-
-    private func logout() {
-        do {
-            try authService.signOut()
-            CurrentUser.shared.reset()   // 🔥 REQUIRED
-            isLoggedOut = true
-            print("✅ User logged out")
-        } catch {
-            print("❌ Logout failed:", error)
         }
     }
 }
